@@ -39,7 +39,8 @@ class Enemy(GameObject):
             width : int,
             height : int,
             animations : list[Sprite],
-            rect_color : tuple[int, int, int]
+            rect_color : tuple[int, int, int],
+            animations_interval : int
         ):
 
         super().__init__(
@@ -52,12 +53,13 @@ class Enemy(GameObject):
             rect_color = rect_color
         )
 
-        self.last_animation_time = 0
+        self.last_animation_time = get_ticks()
+        self.animations_interval = animations_interval
     
     def update(self):
         super().update()
 
-        if get_ticks() - self.last_animation_time >= COMET_ANIMATIONS_INTERVAL:
+        if get_ticks() - self.last_animation_time >= self.animations_interval:
             self.animate()
             self.last_animation_time = get_ticks()
 
@@ -74,7 +76,25 @@ class Comet(Enemy):
             width = COMET_RECT_WIDTH,
             height = COMET_RECT_HEIGHT,
             animations = COMET_ANIMATIONS,
-            rect_color = COMET_RECT_COLOR
+            rect_color = COMET_RECT_COLOR,
+            animations_interval = COMET_ANIMATIONS_INTERVAL
+        )
+
+class Shuttle(Enemy):
+    def __init__(
+            self,
+            x : int,
+            y : int
+        ):
+
+        super().__init__(
+            x = x,
+            y = y,
+            width = SHUTTLE_RECT_WIDTH,
+            height = SHUTTLE_RECT_HEIGHT,
+            animations = SHUTTLE_ANIMATIONS,
+            rect_color = SHUTTLE_RECT_COLOR,
+            animations_interval = SHUTTLE_ANIMATIONS_INTERVAL
         )
 
 class Projectile(GameObject):
@@ -116,5 +136,36 @@ class Projectile(GameObject):
         
         for enemy in self.__game_container__.find_with_tag(TAG_ENEMY):
             if self.collide(enemy.rect):
+                self.__game_container__.append_child(Pop(enemy.rect.x, enemy.rect.y))
+
                 enemy.destroy()
                 self.destroy()
+
+class Pop(GameObject):
+    def __init__(
+        self,
+        x : int,
+        y : int      
+    ):
+        super().__init__(
+            x = x,
+            y = y,
+            width = POP_RECT_WIDTH,
+            height = POP_RECT_HEIGHT,
+            animations = POP_ANIMATIONS,
+            rect_color = POP_RECT_COLOR
+        )
+
+        self.spawn_time = get_ticks()
+        self.last_animation_time = get_ticks()
+        self.animations_interval = POP_DURATION // 2
+
+    def update(self):
+        super().update()
+
+        if get_ticks() - self.last_animation_time >= self.animations_interval:
+            self.animate()
+            self.last_animation_time = get_ticks()
+
+        if get_ticks() - self.spawn_time >= POP_DURATION:
+            self.destroy()

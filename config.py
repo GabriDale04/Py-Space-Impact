@@ -26,11 +26,23 @@ COMET_RECT_COLOR = (255, 0, 0)
 COMET_ANIMATIONS = [Sprite("textures/comet_1.png", 144, 144), Sprite("textures/comet_2.png", 144, 144)]
 COMET_ANIMATIONS_INTERVAL = 100
 
+SHUTTLE_RECT_WIDTH = 8 * 12
+SHUTTLE_RECT_HEIGHT = 5 * 12
+SHUTTLE_RECT_COLOR = (255, 0, 0)
+SHUTTLE_ANIMATIONS = [Sprite("textures/shuttle_1.png", 144, 144), Sprite("textures/shuttle_2.png", 144, 144), Sprite("textures/shuttle_3.png", 144, 144)]
+SHUTTLE_ANIMATIONS_INTERVAL = 100
+
 PROJECTILE_RECT_WIDTH = 3 * 12
 PROJECTILE_RECT_HEIGHT = 1 * 12
 PROJECTILE_RECT_COLOR = (210, 112, 90)
 PROJECTILE_ANIMATIONS = [Sprite("textures/projectile.png", 144, 144)]
 PROJECTILE_SPEED = 6
+
+POP_RECT_WIDTH = 5 * 12
+POP_RECT_HEIGHT = 5 * 12
+POP_RECT_COLOR = (0, 100, 0)
+POP_ANIMATIONS = [Sprite("textures/pop_1.png", 144, 144), Sprite("textures/pop_2.png", 144, 144)]
+POP_DURATION = 100
 
 PLAYER_SPAWN_X = 25
 PLAYER_SPAWN_Y = MAP_TOP_BOUND
