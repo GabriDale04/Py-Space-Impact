@@ -12,6 +12,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_e:
+                player.shoot()
 
     Window.screen.fill((0, 0, 0))
 
