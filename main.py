@@ -1,6 +1,7 @@
 from core import *
 from game import *
 from scene import *
+from utils import *
 
 pygame.init()
 Window.init()
@@ -25,7 +26,12 @@ while running:
     if keys[pygame.K_DOWN]:
         player.move(DOWN)
 
-    game_container.update()
+    pygame.draw.rect(Window.screen, (100, 0, 0), pygame.Rect(0, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
+    pygame.draw.rect(Window.screen, (0, 100, 0), pygame.Rect(WINDOW_WIDTH // 3, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
+    pygame.draw.rect(Window.screen, (0, 0, 100), pygame.Rect((WINDOW_WIDTH // 3) * 2, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
+
+    game_context.update()
+    game_ui_context.update()
 
     pygame.display.flip()
     clock.tick(60)

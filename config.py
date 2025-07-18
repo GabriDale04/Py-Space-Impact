@@ -1,4 +1,4 @@
-from core import Sprite
+from core import Sprite, TextureAtlas
 
 # CONFIGURATION FILE FOR Py-Space-Impact
 # Edit anything you like
@@ -15,33 +15,43 @@ MAP_BOTTOM_BOUND = WINDOW_HEIGHT - MAP_VERTICAL_BOUND_OFFSET
 MAP_LEFT_BOUND = WINDOW_WIDTH - (WINDOW_WIDTH - MAP_HORIZONTAL_BOUND_OFFSET)
 MAP_RIGHT_BOUND = WINDOW_WIDTH - MAP_HORIZONTAL_BOUND_OFFSET
 
-ROCKET_RECT_WIDTH = 10 * 12
-ROCKET_RECT_HEIGHT = 7 * 12
-ROCKET_RECT_COLOR = (0, 100, 0)
-ROCKET_ANIMATIONS = [Sprite("textures/rocket.png", 144, 144)]
+BATTLE_SHIP_RECT_WIDTH = 10 * 12
+BATTLE_SHIP_RECT_HEIGHT = 7 * 12
+BATTLE_SHIP_RECT_COLOR = (0, 100, 0)
+BATTLE_SHIP_ANIMATIONS = [Sprite.load("textures/battleship.png", 144, 144)]
 
 COMET_RECT_WIDTH = 10 * 12
 COMET_RECT_HEIGHT = 5 * 12
 COMET_RECT_COLOR = (255, 0, 0)
-COMET_ANIMATIONS = [Sprite("textures/comet_1.png", 144, 144), Sprite("textures/comet_2.png", 144, 144)]
+COMET_ANIMATIONS = [Sprite.load("textures/comet1.png", 144, 144), Sprite.load("textures/comet2.png", 144, 144)]
 COMET_ANIMATIONS_INTERVAL = 100
+COMET_HEALTH = 1
 
 SHUTTLE_RECT_WIDTH = 8 * 12
 SHUTTLE_RECT_HEIGHT = 5 * 12
 SHUTTLE_RECT_COLOR = (255, 0, 0)
-SHUTTLE_ANIMATIONS = [Sprite("textures/shuttle_1.png", 144, 144), Sprite("textures/shuttle_2.png", 144, 144), Sprite("textures/shuttle_3.png", 144, 144)]
+SHUTTLE_ANIMATIONS = [Sprite.load("textures/shuttle1.png", 144, 144), Sprite.load("textures/shuttle2.png", 144, 144), Sprite.load("textures/shuttle3.png", 144, 144)]
 SHUTTLE_ANIMATIONS_INTERVAL = 100
+SHUTTLE_HEALTH = 1
+
+ROCKET_RECT_WIDTH = 10 * 12
+ROCKET_RECT_HEIGHT = 5 * 12
+ROCKET_RECT_COLOR = (255, 0, 0)
+ROCKET_ANIMATIONS = [Sprite.load("textures/rocket1.png", 144, 144), Sprite.load("textures/rocket2.png", 144, 144)]
+ROCKET_ANIMATIONS_INTERVAL = 100
+ROCKET_HEALTH = 3
 
 PROJECTILE_RECT_WIDTH = 3 * 12
 PROJECTILE_RECT_HEIGHT = 1 * 12
 PROJECTILE_RECT_COLOR = (210, 112, 90)
-PROJECTILE_ANIMATIONS = [Sprite("textures/projectile.png", 144, 144)]
+PROJECTILE_ANIMATIONS = [Sprite.load("textures/projectile.png", 144, 144)]
 PROJECTILE_SPEED = 6
+PROJECTILE_DAMAGE = 1
 
 POP_RECT_WIDTH = 5 * 12
 POP_RECT_HEIGHT = 5 * 12
 POP_RECT_COLOR = (0, 100, 0)
-POP_ANIMATIONS = [Sprite("textures/pop_1.png", 144, 144), Sprite("textures/pop_2.png", 144, 144)]
+POP_ANIMATIONS = [Sprite.load("textures/pop1.png", 144, 144), Sprite.load("textures/pop2.png", 144, 144)]
 POP_DURATION = 100
 
 PLAYER_SPAWN_X = 25
@@ -56,5 +66,29 @@ DOWN = "down"
 TAG_ENEMY = "enemy"
 TAG_PROJECTILE_PLAYER = "projectile_player"
 TAG_PROJECTILE_ENEMY = "projectile_enemy"
+
+FONT_FAMILY_NUMBERS = "numbers"
+
+FONT_RECT_COLOR = (255, 192, 203)
+
+FONT_NUMBERS_TEXTURE_ATLAS_CHAR_WIDTH = 3
+FONT_NUMBERS_TEXTURE_ATLAS_CHAR_HEIGHT = 5
+FONT_NUMBERS_TEXTURE_ATLAS_CHAR_GAP = 1
+FONT_NUMBERS_TEXTURE_ATLAS = TextureAtlas("textures/fonts/numbers.png", FONT_NUMBERS_TEXTURE_ATLAS_CHAR_WIDTH, FONT_NUMBERS_TEXTURE_ATLAS_CHAR_HEIGHT, FONT_NUMBERS_TEXTURE_ATLAS_CHAR_GAP)
+FONT_NUMBERS_CHAR_WIDTH = FONT_NUMBERS_TEXTURE_ATLAS_CHAR_WIDTH * 12
+FONT_NUMBERS_CHAR_HEIGHT = FONT_NUMBERS_TEXTURE_ATLAS_CHAR_HEIGHT * 12
+FONT_NUMBERS_CHAR_GAP = FONT_NUMBERS_TEXTURE_ATLAS_CHAR_GAP * 12
+FONT_NUMBERS_CHAR_MAP = {
+    "0": (0, 0),
+    "1": (1, 0),
+    "2": (2, 0),
+    "3": (3, 0),
+    "4": (0, 1),
+    "5": (1, 1),
+    "6": (2, 1),
+    "7": (3, 1),
+    "8": (0, 2),
+    "9": (1, 2)
+}
 
 DEBUG_SHOW_RECTS = True
