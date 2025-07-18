@@ -26,6 +26,7 @@ class Player(GameObject):
     
     def shoot(self):
         self.__game_context__.append(Projectile(
+            self.context,
             self.rect.x + BATTLE_SHIP_RECT_WIDTH, 
             self.rect.y + (BATTLE_SHIP_RECT_HEIGHT // 2 - 6), 
             RIGHT, 
@@ -216,7 +217,7 @@ class Projectile(GameObject):
                 enemy.health -= 1
 
                 if enemy.health == 0:
-                    self.__game_context__.append(Pop(enemy.rect.x, enemy.rect.y))
+                    self.__game_context__.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
                     enemy.destroy()
                 
                 self.destroy()
