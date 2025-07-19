@@ -81,61 +81,61 @@ FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS = TextureAtlas(
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT, 
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP
 )
-FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_WIDTH = 8 * 3 * 4
-FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_HEIGHT = 5 * 3 * 4 
-FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP = FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP * 4
+FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_WIDTH = 8 * 3 * 3
+FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_HEIGHT = 5 * 3 * 3
+FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP = 1 * 3 * 3
 FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP = {
     "0": {
         "coords": (0, 0),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "1": {
         "coords": (1, 0),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "2": {
         "coords": (2, 0),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "3": {
         "coords": (3, 0),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "4": {
         "coords": (0, 1),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "5": {
         "coords": (1, 1),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "6": {
         "coords": (2, 1),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "7": {
         "coords": (3, 1),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "8": {
         "coords": (0, 2),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "9": {
         "coords": (1, 2),
-        "size": (36, 60)
+        "size": (27, 45)
     },
     "v": {
         "coords": (2, 2),
-        "size": (60, 60)
+        "size": (45, 45)
     },
     ">": {
         "coords": (3, 2),
-        "size": (64, 60)
+        "size": (48, 45)
     },
     "-": {
         "coords": (0, 3),
-        "size": (36, 60)
+        "size": (27, 45)
     }
 }
 
@@ -152,5 +152,5 @@ ROCKETS_TEXT_ABSOLUTE_WIDTH = Text.width_of(">00", FONT_SPACE_IMPACT_COUNTERS_CH
 
 # Tells the game to use 16bit numbers for counters such as score, health and rockets. If False, uses 32bit integers
 USE_16BIT_INTEGERS = False
-FREEZE_SCORE_ON_OVERFLOW = True
+FREEZE_SCORE_ON_OVERFLOW = False
 DEBUG_SHOW_RECTS = False
