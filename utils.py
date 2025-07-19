@@ -1,4 +1,4 @@
-from config import USE_16BIT_INTEGERS
+from config import USE_16BIT_INTEGERS, FREEZE_SCORE_ON_OVERFLOW
 
 class math:
     INT16_MIN_VALUE = -0x8000
@@ -15,51 +15,13 @@ class math:
         range_size = max_value - min_value + 1
         return ((value - min_value) % range_size) + min_value
 
-class int_b:
-    MIN_VALUE = math.INT16_MIN_VALUE if USE_16BIT_INTEGERS else math.INT32_MIN_VALUE
-    MAX_VALUE = math.INT16_MAX_VALUE if USE_16BIT_INTEGERS else math.INT32_MAX_VALUE
+INT_MIN_VALUE = math.INT16_MIN_VALUE if USE_16BIT_INTEGERS else math.INT32_MIN_VALUE
+INT_MAX_VALUE = math.INT16_MAX_VALUE if USE_16BIT_INTEGERS else math.INT32_MAX_VALUE
 
-    def __init__(self, value : int):
-        self.value = int(value)
+def int_b(value : int):
+    if FREEZE_SCORE_ON_OVERFLOW and value > INT_MAX_VALUE:
+        return INT_MAX_VALUE
+    if value < INT_MIN_VALUE or value > INT_MAX_VALUE:
+        return math.wrap(value, INT_MIN_VALUE, INT_MAX_VALUE)
 
-        if value < int_b.MIN_VALUE or value > int_b.MAX_VALUE:
-            self.value = math.wrap(value, int_b.MIN_VALUE, int_b.MAX_VALUE)
-
-    def __add__(self, other):
-        return int_b(self.value + int(other))
-
-    def __sub__(self, other):
-        return int_b(self.value - int(other))
-
-    def __mul__(self, other):
-        return int_b(self.value * int(other))
-    
-    def __truediv__(self, other):
-        return int_b(self.value / int(other))
-    
-    def __mod__(self, other):
-        return int_b(self.value % int(other))
-
-    def __floordiv__(self, other):
-        return int_b(self.value // int(other))
-
-    def __eq__(self, other):
-        return self.value == int(other)
-
-    def __ne__(self, other):
-        return self.value != int(other)
-    
-    def __lt__(self, other):
-        return self.value < int(other)
-    
-    def __le__(self, other):
-        return self.value <= int(other)
-
-    def __gt__(self, other):
-        return self.value > int(other)
-
-    def __ge__(self, other):
-        return self.value >= int(other)
-
-    def __str__(self):
-        return str(self.value)
+    return value

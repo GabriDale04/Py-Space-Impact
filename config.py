@@ -151,5 +151,6 @@ LIVES_TEXT_ABSOLUTE_WIDTH = Text.width_of("vvv", FONT_SPACE_IMPACT_COUNTERS_CHAR
 ROCKETS_TEXT_ABSOLUTE_WIDTH = Text.width_of(">00", FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP)
 
 # Tells the game to use 16bit numbers for counters such as score, health and rockets. If False, uses 32bit integers
-USE_16BIT_INTEGERS = True
+USE_16BIT_INTEGERS = False
+FREEZE_SCORE_ON_OVERFLOW = True
 DEBUG_SHOW_RECTS = False

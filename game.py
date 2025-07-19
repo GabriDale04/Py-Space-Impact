@@ -39,7 +39,7 @@ class Player(GameObject):
     
     def reward(self, score : int):
         self.score += score
-        self.score_text.set_text(str(self.score))
+        self.score_text.set_amount(self.score)
     
 class Enemy(GameObject):
     def __init__(
@@ -276,10 +276,10 @@ class LivesText(Text):
         self.set_amount(PLAYER_BASE_LIVES)
     
     def set_amount(self, value : int):
-        value : int_b = int_b(value)
+        value = int_b(value)
 
         if value >= 0 and value <= 3:
-            self.set_text("v" * value.value)
+            self.set_text("v" * value)
         else:
             self.set_text("v" + str(value).zfill(2))
 
@@ -294,7 +294,7 @@ class RocketsText(Text):
         self.set_amount(PLAYER_BASE_ROCKETS)
     
     def set_amount(self, value : int):
-        value : int_b = int_b(value)
+        value = int_b(value)
 
         self.set_text(">" + str(value).zfill(2))
 
@@ -306,9 +306,13 @@ class ScoreText(Text):
         )
 
         self.set_text(str(PLAYER_BASE_SCORE).zfill(5))
+        self.auto_pos()
 
-    def set_text(self, value : str):
-        value = value.zfill(5)
-        super().set_text(value)
+    def set_amount(self, value : int):
+        text = str(int_b(value)).zfill(5)
 
+        self.set_text(text)
+        self.auto_pos()
+
+    def auto_pos(self):
         self.set_pos(WINDOW_WIDTH // 3 * 2 + (WINDOW_WIDTH // 3 - self.width) // 2, 25)
