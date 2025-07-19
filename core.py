@@ -145,28 +145,24 @@ class Font:
     def get_sprite(self, char : str) -> Sprite:
         item = self.font_map[char]
         coords = item["coords"]
-        size = item["size"]
 
         return Sprite.from_surface(self.font_source.get_sprite(coords[0], coords[1]).surface, self.char_width, self.char_height)
 
 class Text:
-    from config import FONT_RECT_COLOR as __font_rect_color__
-
     def __init__(
             self,
             context : Context,
-            font : Font,
-            value : str,
+            font : Font
         ):
+
+        from config import FONT_RECT_COLOR as __font_rect_color__
+        self.__font_rect_color__ = __font_rect_color__
 
         self.context = context
         self.font = font
         self.x = 0
         self.y = 0
-        self.width = 0 if len(value) == 0 else -font.char_gap
         self.characters : list[GameObject] = []
-
-        self.set_text(value)
     
     def clear(self):
         for char in self.characters:
@@ -191,7 +187,7 @@ class Text:
                 width = rect_size[0],
                 height = rect_size[1],
                 animations = [sprite],
-                rect_color = Text.__font_rect_color__
+                rect_color = self.__font_rect_color__
             )
 
             self.characters.append(text_char)
@@ -199,3 +195,22 @@ class Text:
             increment = rect_size[0] + self.font.char_gap
             x += increment
             self.width += increment
+    
+    def set_pos(self, x : int, y : int):
+        self.x = x
+        self.y = y
+
+        for char in self.characters:
+            char.rect.x = x
+            char.rect.y = y
+
+            x += char.rect.width + self.font.char_gap
+    
+    @staticmethod
+    def width_of(string : str, font_map : dict, gap : int) -> int:
+        width = 0 if len(string) == 0 else -gap
+
+        for char in string:
+            width += font_map[char]["size"][0] + gap
+        
+        return width

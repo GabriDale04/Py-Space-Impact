@@ -1,4 +1,4 @@
-from core import Sprite, TextureAtlas, Font
+from core import Sprite, TextureAtlas, Font, Text
 
 # CONFIGURATION FILE FOR Py-Space-Impact
 # Edit anything you like
@@ -57,6 +57,9 @@ POP_DURATION = 100
 PLAYER_SPAWN_X = 25
 PLAYER_SPAWN_Y = MAP_TOP_BOUND
 PLAYER_SPEED = 5
+PLAYER_BASE_LIVES = 3
+PLAYER_BASE_SCORE = 0x7FFFFFFF
+PLAYER_BASE_ROCKETS = 3
 
 UP = "up"
 LEFT = "left"
@@ -129,6 +132,10 @@ FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP = {
     ">": {
         "coords": (3, 2),
         "size": (64, 60)
+    },
+    "-": {
+        "coords": (0, 3),
+        "size": (36, 60)
     }
 }
 
@@ -140,4 +147,9 @@ FONT_SPACE_IMPACT_COUNTERS = Font(
     FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP
 )
 
-DEBUG_SHOW_RECTS = True
+LIVES_TEXT_ABSOLUTE_WIDTH = Text.width_of("vvv", FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP)
+ROCKETS_TEXT_ABSOLUTE_WIDTH = Text.width_of(">00", FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP)
+
+# Tells the game to use 16bit numbers for counters such as score, health and rockets. If False, uses 32bit integers
+USE_16BIT_INTEGERS = True
+DEBUG_SHOW_RECTS = False

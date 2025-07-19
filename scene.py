@@ -3,7 +3,9 @@ from game import *
 
 game_ui_context = Context()
 
-text = Text(game_ui_context, FONT_SPACE_IMPACT_COUNTERS, "0123456789>v")
+lives_text = LivesText(game_ui_context)
+rockets_text = RocketsText(game_ui_context)
+score_text = ScoreText(game_ui_context)
 
 game_context = Context()
 
