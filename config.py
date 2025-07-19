@@ -1,4 +1,4 @@
-from core import Sprite, TextureAtlas
+from core import Sprite, TextureAtlas, Font
 
 # CONFIGURATION FILE FOR Py-Space-Impact
 # Edit anything you like
@@ -67,28 +67,77 @@ TAG_ENEMY = "enemy"
 TAG_PROJECTILE_PLAYER = "projectile_player"
 TAG_PROJECTILE_ENEMY = "projectile_enemy"
 
-FONT_FAMILY_NUMBERS = "numbers"
-
 FONT_RECT_COLOR = (255, 192, 203)
 
-FONT_NUMBERS_TEXTURE_ATLAS_CHAR_WIDTH = 3
-FONT_NUMBERS_TEXTURE_ATLAS_CHAR_HEIGHT = 5
-FONT_NUMBERS_TEXTURE_ATLAS_CHAR_GAP = 1
-FONT_NUMBERS_TEXTURE_ATLAS = TextureAtlas("textures/fonts/numbers.png", FONT_NUMBERS_TEXTURE_ATLAS_CHAR_WIDTH, FONT_NUMBERS_TEXTURE_ATLAS_CHAR_HEIGHT, FONT_NUMBERS_TEXTURE_ATLAS_CHAR_GAP)
-FONT_NUMBERS_CHAR_WIDTH = FONT_NUMBERS_TEXTURE_ATLAS_CHAR_WIDTH * 12
-FONT_NUMBERS_CHAR_HEIGHT = FONT_NUMBERS_TEXTURE_ATLAS_CHAR_HEIGHT * 12
-FONT_NUMBERS_CHAR_GAP = FONT_NUMBERS_TEXTURE_ATLAS_CHAR_GAP * 12
-FONT_NUMBERS_CHAR_MAP = {
-    "0": (0, 0),
-    "1": (1, 0),
-    "2": (2, 0),
-    "3": (3, 0),
-    "4": (0, 1),
-    "5": (1, 1),
-    "6": (2, 1),
-    "7": (3, 1),
-    "8": (0, 2),
-    "9": (1, 2)
+FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_WIDTH = 8 * 3
+FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT = 5 * 3
+FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP = 1 * 3
+FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS = TextureAtlas(
+    "textures/fonts/space_impact_counters.png", 
+    FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_WIDTH, 
+    FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT, 
+    FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP
+)
+FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_WIDTH = 8 * 3 * 4
+FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_HEIGHT = 5 * 3 * 4 
+FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP = FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP * 4
+FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP = {
+    "0": {
+        "coords": (0, 0),
+        "size": (36, 60)
+    },
+    "1": {
+        "coords": (1, 0),
+        "size": (36, 60)
+    },
+    "2": {
+        "coords": (2, 0),
+        "size": (36, 60)
+    },
+    "3": {
+        "coords": (3, 0),
+        "size": (36, 60)
+    },
+    "4": {
+        "coords": (0, 1),
+        "size": (36, 60)
+    },
+    "5": {
+        "coords": (1, 1),
+        "size": (36, 60)
+    },
+    "6": {
+        "coords": (2, 1),
+        "size": (36, 60)
+    },
+    "7": {
+        "coords": (3, 1),
+        "size": (36, 60)
+    },
+    "8": {
+        "coords": (0, 2),
+        "size": (36, 60)
+    },
+    "9": {
+        "coords": (1, 2),
+        "size": (36, 60)
+    },
+    "v": {
+        "coords": (2, 2),
+        "size": (60, 60)
+    },
+    ">": {
+        "coords": (3, 2),
+        "size": (64, 60)
+    }
 }
+
+FONT_SPACE_IMPACT_COUNTERS = Font(
+    FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS, 
+    FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, 
+    FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_WIDTH,
+    FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_HEIGHT,
+    FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP
+)
 
 DEBUG_SHOW_RECTS = True

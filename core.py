@@ -48,7 +48,7 @@ class TextureAtlas:
         rect = pygame.Rect(x, y, self.textures_width, self.textures_height)
         subsurface = self.surface.subsurface(rect)
 
-        return subsurface
+        return Sprite(subsurface)
 
 class Context:
     def __init__(self):
@@ -77,8 +77,6 @@ class Context:
         return found  
 
 class GameObject:
-    from config import DEBUG_SHOW_RECTS as __show_rects__
-
     def __init__(
             self,
             context : Context,
@@ -90,6 +88,9 @@ class GameObject:
             animations: list[Sprite] = [],
             rect_color : tuple[int, int, int] = (0, 0, 0)
         ):
+
+        from config import DEBUG_SHOW_RECTS as __show_rects__
+        self.__show_rects__ = __show_rects__
 
         self.context = context
         context.append(self)
@@ -108,7 +109,7 @@ class GameObject:
         if self.destroyed:
             return
 
-        if GameObject.__show_rects__ or len(self.animations) == 0:
+        if self.__show_rects__ or len(self.animations) == 0:
             pygame.draw.rect(Window.screen, self.rect_color, self.rect)
         if len(self.animations) > 0:
             Window.screen.blit(self.animations[self.current_animation].surface, self.rect)
@@ -124,3 +125,77 @@ class GameObject:
             return False
 
         return self.rect.colliderect(other)
+
+class Font:
+    def __init__(
+            self,
+            font_source : TextureAtlas,
+            font_map : dict,
+            char_width : int,
+            char_height : int,
+            char_gap : int
+        ):
+    
+        self.font_source = font_source
+        self.font_map = font_map
+        self.char_width = char_width
+        self.char_height = char_height
+        self.char_gap = char_gap
+    
+    def get_sprite(self, char : str) -> Sprite:
+        item = self.font_map[char]
+        coords = item["coords"]
+        size = item["size"]
+
+        return Sprite.from_surface(self.font_source.get_sprite(coords[0], coords[1]).surface, self.char_width, self.char_height)
+
+class Text:
+    from config import FONT_RECT_COLOR as __font_rect_color__
+
+    def __init__(
+            self,
+            context : Context,
+            font : Font,
+            value : str,
+        ):
+
+        self.context = context
+        self.font = font
+        self.x = 0
+        self.y = 0
+        self.width = 0 if len(value) == 0 else -font.char_gap
+        self.characters : list[GameObject] = []
+
+        self.set_text(value)
+    
+    def clear(self):
+        for char in self.characters:
+            char.destroy()
+
+        self.characters = []
+        self.width = 0
+
+    def set_text(self, value : str):
+        self.clear()
+        x = self.x
+        self.width = 0 if len(value) == 0 else -self.font.char_gap
+
+        for char in value:
+            sprite = self.font.get_sprite(char)
+            rect_size = self.font.font_map[char]["size"]
+
+            text_char = GameObject(
+                context = self.context,
+                x = x,
+                y = self.y,
+                width = rect_size[0],
+                height = rect_size[1],
+                animations = [sprite],
+                rect_color = Text.__font_rect_color__
+            )
+
+            self.characters.append(text_char)
+
+            increment = rect_size[0] + self.font.char_gap
+            x += increment
+            self.width += increment
