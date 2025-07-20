@@ -2,8 +2,6 @@ from core import *
 from game import *
 from scene import *
 
-import random
-
 pygame.init()
 Window.init()
 clock = pygame.time.Clock()

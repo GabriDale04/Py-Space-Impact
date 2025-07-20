@@ -42,10 +42,13 @@ class TextureAtlas:
         self.textures_height = textures_height
         self.textures_gap = textures_gap
     
-    def get_sprite(self, x : int, y : int) -> Sprite:
+    def get_sprite(self, x : int, y : int, width : int = -1, height : int = -1) -> Sprite:
+        width = self.textures_width if width == -1 else width
+        height = self.textures_height if height == -1 else height
+
         x = x * self.textures_width + x * self.textures_gap
         y = y * self.textures_height + y * self.textures_gap
-        rect = pygame.Rect(x, y, self.textures_width, self.textures_height)
+        rect = pygame.Rect(x, y, width, height)
         subsurface = self.surface.subsurface(rect)
 
         return Sprite(subsurface)
@@ -75,6 +78,15 @@ class Context:
                 found.append(obj)
         
         return found  
+
+    def find_with_tags(self, tags : list[str]) -> list['GameObject']:
+        found : list[GameObject] = []
+
+        for obj in self.game_objects:
+            if obj.tag in tags:
+                found.append(obj)
+        
+        return found
 
 class GameObject:
     def __init__(
@@ -142,24 +154,28 @@ class Font:
         self.char_height = char_height
         self.char_gap = char_gap
     
-    def get_sprite(self, char : str) -> Sprite:
+    def get_sprite(self, char : str, font_size : int) -> Sprite:
         item = self.font_map[char]
         coords = item["coords"]
+        size = item["size"]
 
-        return Sprite.from_surface(self.font_source.get_sprite(coords[0], coords[1]).surface, self.char_width, self.char_height)
+        return Sprite.from_surface(self.font_source.get_sprite(coords[0], coords[1], size[0], size[1]).surface, size[0] * font_size, size[1] * font_size)
 
 class Text:
     def __init__(
             self,
             context : Context,
-            font : Font
+            font : Font,
+            font_size : int
         ):
 
-        from config import FONT_RECT_COLOR as font_rect_color
-        self.font_rect_color = font_rect_color
+        from config import FONT_RECT_COLOR as __font_rect_color__
+        self.__font_rect_color__ = __font_rect_color__
 
         self.context = context
         self.font = font
+        self.font_size = font_size
+        self.font_gap = font.char_gap * font_size
         self.x = 0
         self.y = 0
         self.characters : list[GameObject] = []
@@ -174,25 +190,26 @@ class Text:
     def set_text(self, value : str):
         self.clear()
         x = self.x
-        self.width = 0 if len(value) == 0 else -self.font.char_gap
+        self.width = 0 if len(value) == 0 else -self.font_gap
 
         for char in value:
-            sprite = self.font.get_sprite(char)
-            rect_size = self.font.font_map[char]["size"]
+            sprite = self.font.get_sprite(char, self.font_size)
+            rect_width = self.font.font_map[char]["size"][0] * self.font_size
+            rect_height = self.font.font_map[char]["size"][1] * self.font_size
 
             text_char = GameObject(
                 context = self.context,
                 x = x,
                 y = self.y,
-                width = rect_size[0],
-                height = rect_size[1],
+                width = rect_width,
+                height = rect_height,
                 animations = [sprite],
-                rect_color = self.font_rect_color
+                rect_color = self.__font_rect_color__
             )
 
             self.characters.append(text_char)
 
-            increment = rect_size[0] + self.font.char_gap
+            increment = rect_width + self.font_gap
             x += increment
             self.width += increment
     
@@ -207,10 +224,10 @@ class Text:
             x += char.rect.width + self.font.char_gap
     
     @staticmethod
-    def width_of(string : str, font_map : dict, gap : int) -> int:
-        width = 0 if len(string) == 0 else -gap
+    def width_of(string : str, font : Font, font_size : int) -> int:
+        width = 0 if len(string) == 0 else -font.char_gap * font_size
 
         for char in string:
-            width += font_map[char]["size"][0] + gap
+            width += (font.font_map[char]["size"][0] + font.char_gap) * font_size
         
         return width

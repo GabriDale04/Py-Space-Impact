@@ -1,8 +1,9 @@
-from utils import math, int_b
+from utils import clamp, int_b
 from pygame.time import get_ticks
 from core import *
 from config import *
 from typing import final
+import random
 
 class Player(GameObject):
     def __init__(self, context : Context):
@@ -16,31 +17,30 @@ class Player(GameObject):
             rect_color = BATTLE_SHIP_RECT_COLOR
         )
 
-        from scene import game_context, score_text
-        self.game_context = game_context
-        self.score_text = score_text
+        from scene import score_text as __score_text__
+        self.__score_text__ = __score_text__
 
         self.health = int_b(PLAYER_BASE_LIVES)
         self.score = int_b(PLAYER_BASE_SCORE)
     
     def move(self, direction : str):
         if direction == UP:
-            self.rect.y = math.clamp(self.rect.y - PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - BATTLE_SHIP_RECT_HEIGHT)
+            self.rect.y = clamp(self.rect.y - PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - BATTLE_SHIP_RECT_HEIGHT)
         elif direction == DOWN:
-            self.rect.y = math.clamp(self.rect.y + PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - BATTLE_SHIP_RECT_HEIGHT)
+            self.rect.y = clamp(self.rect.y + PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - BATTLE_SHIP_RECT_HEIGHT)
     
     def shoot(self):
-        self.game_context.append(Projectile(
-            self.context,
-            self.rect.x + BATTLE_SHIP_RECT_WIDTH, 
-            self.rect.y + (BATTLE_SHIP_RECT_HEIGHT // 2 - 6), 
-            RIGHT, 
-            TAG_PROJECTILE_PLAYER
+        self.context.append(Projectile(
+                self.context,
+                self.rect.x + BATTLE_SHIP_RECT_WIDTH, 
+                self.rect.y + (BATTLE_SHIP_RECT_HEIGHT // 2 - 6), 
+                RIGHT, 
+                TAG_PROJECTILE_PLAYER
             ))
     
     def reward(self, score : int):
         self.score += score
-        self.score_text.set_amount(self.score)
+        self.__score_text__.set_amount(self.score)
     
 class Enemy(GameObject):
     def __init__(
@@ -79,6 +79,8 @@ class Enemy(GameObject):
         self.max_health = health
         self.health = health
 
+        self.last_shoot_time = get_ticks()
+
         if DEBUG_SHOW_HEALTH_BARS:
             self.__health_bar_under = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
             self.__health_bar_over = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
@@ -90,6 +92,7 @@ class Enemy(GameObject):
             self.animate()
             self.last_animation_time = get_ticks()
         
+        self.shoot()
         self.move()
 
         if DEBUG_SHOW_HEALTH_BARS:
@@ -122,6 +125,23 @@ class Enemy(GameObject):
 
         if self.rect.x <= MAP_LEFT_BOUND - self.rect.width:
             self.destroy()
+    
+    def shoot(self):
+        if get_ticks() - self.last_shoot_time < ENEMY_SHOOT_ROLL_INTERVAL:
+            return
+
+        roll = random.randint(1, 100)
+
+        if roll <= ENEMY_SHOOT_CHANCE:
+            self.context.append(Projectile(
+                self.context, 
+                self.rect.x, 
+                self.rect.y, 
+                LEFT, 
+                TAG_PROJECTILE_ENEMY
+            ))
+
+        self.last_shoot_time = get_ticks()
 
 class Comet(Enemy):
     def __init__(
@@ -242,15 +262,19 @@ class Projectile(GameObject):
             self.destroy()
         
         if self.tag == TAG_PROJECTILE_PLAYER:
-            for enemy in self.game_context.find_with_tag(TAG_ENEMY):
+            for enemy in self.game_context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
                 if self.collide(enemy.rect):
-                    enemy.health -= 1
+                    if enemy.tag == TAG_ENEMY:
+                        enemy.health -= 1
 
-                    if enemy.health == 0:
-                        self.game_context.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
+                        if enemy.health == 0:
+                            self.player.reward(1)
+                            self.game_context.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
+                            enemy.destroy()
+                    elif enemy.tag == TAG_PROJECTILE_ENEMY:
+                        self.context.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
                         enemy.destroy()
-                        self.player.reward(1)
-
+                    
                     self.destroy()
 
 class Pop(GameObject):
@@ -287,11 +311,13 @@ class Pop(GameObject):
 class LivesText(Text):
     def __init__(
             self, 
-            context : Context
+            context : Context,
+            font_size : int
         ):
         super().__init__(
             context = context,
-            font = FONT_SPACE_IMPACT_COUNTERS
+            font = FONT_SPACE_IMPACT_COUNTERS,
+            font_size = font_size
         )
 
         self.set_pos((WINDOW_WIDTH // 3 - LIVES_TEXT_ABSOLUTE_WIDTH) // 2, LIVES_TEXT_TOP_OFFSET)
@@ -308,12 +334,14 @@ class LivesText(Text):
 class RocketsText(Text):
     def __init__(
             self, 
-            context : Context
+            context : Context,
+            font_size : int
         ):
 
         super().__init__(
             context = context,
-            font = FONT_SPACE_IMPACT_COUNTERS
+            font = FONT_SPACE_IMPACT_COUNTERS,
+            font_size = font_size
         )
 
         self.set_pos(WINDOW_WIDTH // 3 + (WINDOW_WIDTH // 3 - ROCKETS_TEXT_ABSOLUTE_WIDTH) // 2, ROCKETS_TEXT_TOP_OFFSET)
@@ -327,19 +355,20 @@ class RocketsText(Text):
 class ScoreText(Text):
     def __init__(
             self, 
-            context : Context
+            context : Context,
+            font_size : int
         ):
 
         super().__init__(
             context = context,
-            font = FONT_SPACE_IMPACT_COUNTERS
+            font = FONT_SPACE_IMPACT_COUNTERS,
+            font_size = font_size
         )
 
-        self.set_text(str(PLAYER_BASE_SCORE).zfill(5))
-        self.auto_pos()
+        self.set_amount(PLAYER_BASE_SCORE)
 
     def set_amount(self, value : int):
-        text = str(int_b(value)).zfill(5)
+        text = str(int_b(value)).zfill(1)
 
         self.set_text(text)
         self.auto_pos()

@@ -61,6 +61,11 @@ PLAYER_BASE_LIVES = 3
 PLAYER_BASE_SCORE = 0
 PLAYER_BASE_ROCKETS = 3
 
+# This interval tells the enemy after how much time he should try to shoot
+ENEMY_SHOOT_ROLL_INTERVAL = 1000
+# This value is the chance of shooting, in percent, every interval
+ENEMY_SHOOT_CHANCE = 16
+
 UP = "up"
 LEFT = "left"
 RIGHT = "right"
@@ -81,80 +86,86 @@ FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS = TextureAtlas(
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT, 
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP
 )
-FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_WIDTH = FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_WIDTH * 3
-FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_HEIGHT = FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT * 3
-FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP = 1 * 3 * 3
 # Dictionary storing information for each character of the font.
 # [KEY]: The font character
-# [VALUE]: Another dictionary containing the 'coords' in the texture atlas and the 'size' of the rect, which defines the occupied space in the window
+# [VALUE]: Another dictionary containing the 'coords' (x, y) in the texture atlas and the 'size', which is the portion of the texture atlas to extract
 FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP = {
     "0": {
         "coords": (0, 0),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "1": {
         "coords": (1, 0),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "2": {
         "coords": (2, 0),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "3": {
         "coords": (3, 0),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "4": {
         "coords": (0, 1),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "5": {
         "coords": (1, 1),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "6": {
         "coords": (2, 1),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "7": {
         "coords": (3, 1),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "8": {
         "coords": (0, 2),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "9": {
         "coords": (1, 2),
-        "size": (27, 45)
+        "size": (9, 15)
     },
     "v": {
         "coords": (2, 2),
-        "size": (45, 45)
+        "size": (15, 15)
     },
     ">": {
         "coords": (3, 2),
-        "size": (48, 45)
+        "size": (16, 15)
     },
     "-": {
         "coords": (0, 3),
-        "size": (27, 45)
+        "size": (9, 15)
+    },
+    "/": {
+        "coords": (1, 3),
+        "size": (9, 15)
     }
 }
 
 FONT_SPACE_IMPACT_COUNTERS = Font(
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS, 
     FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, 
-    FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_WIDTH,
-    FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_HEIGHT,
-    FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP
+    FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_WIDTH,
+    FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT,
+    FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP
 )
 
 LIVES_TEXT_TOP_OFFSET = 25
+LIVES_TEXT_FONT_SIZE = 3
+LIVES_TEXT_ABSOLUTE_WIDTH = Text.width_of("vvv", FONT_SPACE_IMPACT_COUNTERS, LIVES_TEXT_FONT_SIZE)
+
 ROCKETS_TEXT_TOP_OFFSET = 25
+ROCKETS_TEXT_FONT_SIZE = 3
+ROCKETS_TEXT_ABSOLUTE_WIDTH = Text.width_of(">00", FONT_SPACE_IMPACT_COUNTERS, ROCKETS_TEXT_FONT_SIZE)
+
 SCORE_TEXT_TOP_OFFSET = 25
-LIVES_TEXT_ABSOLUTE_WIDTH = Text.width_of("vvv", FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP)
-ROCKETS_TEXT_ABSOLUTE_WIDTH = Text.width_of(">00", FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP)
+SCORE_TEXT_FONT_SIZE = 3
 
 # This section includes some debugging features and common settings
 
