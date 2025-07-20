@@ -2,6 +2,7 @@ from utils import math, int_b
 from pygame.time import get_ticks
 from core import *
 from config import *
+from typing import final
 
 class Player(GameObject):
     def __init__(self, context : Context):
@@ -75,7 +76,12 @@ class Enemy(GameObject):
         self.horizontal_speed = horizontal_speed
         self.vertical_speed = vertical_speed
         self.current_direction = current_direction
+        self.max_health = health
         self.health = health
+
+        if DEBUG_SHOW_HEALTH_BARS:
+            self.__health_bar_under = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
+            self.__health_bar_over = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
     
     def update(self):
         super().update()
@@ -85,6 +91,20 @@ class Enemy(GameObject):
             self.last_animation_time = get_ticks()
         
         self.move()
+
+        if DEBUG_SHOW_HEALTH_BARS:
+            self.debug()
+    
+    @final
+    def debug(self):
+        self.__health_bar_under.x = self.rect.x
+        self.__health_bar_under.y = self.rect.y - HEALTH_BAR_OFFSET_Y
+        self.__health_bar_over.x = self.rect.x
+        self.__health_bar_over.y = self.rect.y - HEALTH_BAR_OFFSET_Y
+        self.__health_bar_over.width = (self.health / self.max_health) * self.__health_bar_under.width
+
+        pygame.draw.rect(Window.screen, (128, 128, 128), self.__health_bar_under)
+        pygame.draw.rect(Window.screen, (255, 0, 0), self.__health_bar_over)
     
     def move(self):
         self.rect.x -= self.horizontal_speed
@@ -201,10 +221,9 @@ class Projectile(GameObject):
             rect_color = PROJECTILE_RECT_COLOR
         )
 
-        from scene import game_context as __game_context__
-        self.__game_context__ = __game_context__
-        from scene import player as __player__
-        self.__player__ = __player__
+        from scene import game_context, player
+        self.game_context = game_context
+        self.player = player
 
         self.move_direction = move_direction
     
@@ -223,14 +242,14 @@ class Projectile(GameObject):
             self.destroy()
         
         if self.tag == TAG_PROJECTILE_PLAYER:
-            for enemy in self.__game_context__.find_with_tag(TAG_ENEMY):
+            for enemy in self.game_context.find_with_tag(TAG_ENEMY):
                 if self.collide(enemy.rect):
                     enemy.health -= 1
 
                     if enemy.health == 0:
-                        self.__game_context__.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
+                        self.game_context.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
                         enemy.destroy()
-                        self.__player__.reward(1)
+                        self.player.reward(1)
 
                     self.destroy()
 
@@ -266,13 +285,16 @@ class Pop(GameObject):
             self.destroy()
 
 class LivesText(Text):
-    def __init__(self, context : Context):
+    def __init__(
+            self, 
+            context : Context
+        ):
         super().__init__(
             context = context,
             font = FONT_SPACE_IMPACT_COUNTERS
         )
 
-        self.set_pos((WINDOW_WIDTH // 3 - LIVES_TEXT_ABSOLUTE_WIDTH) // 2, 25)
+        self.set_pos((WINDOW_WIDTH // 3 - LIVES_TEXT_ABSOLUTE_WIDTH) // 2, LIVES_TEXT_TOP_OFFSET)
         self.set_amount(PLAYER_BASE_LIVES)
     
     def set_amount(self, value : int):
@@ -284,13 +306,17 @@ class LivesText(Text):
             self.set_text("v" + str(value).zfill(2))
 
 class RocketsText(Text):
-    def __init__(self, context : Context):
+    def __init__(
+            self, 
+            context : Context
+        ):
+
         super().__init__(
             context = context,
             font = FONT_SPACE_IMPACT_COUNTERS
         )
 
-        self.set_pos(WINDOW_WIDTH // 3 + (WINDOW_WIDTH // 3 - ROCKETS_TEXT_ABSOLUTE_WIDTH) // 2, 25)
+        self.set_pos(WINDOW_WIDTH // 3 + (WINDOW_WIDTH // 3 - ROCKETS_TEXT_ABSOLUTE_WIDTH) // 2, ROCKETS_TEXT_TOP_OFFSET)
         self.set_amount(PLAYER_BASE_ROCKETS)
     
     def set_amount(self, value : int):
@@ -299,7 +325,11 @@ class RocketsText(Text):
         self.set_text(">" + str(value).zfill(2))
 
 class ScoreText(Text):
-    def __init__(self, context : Context):
+    def __init__(
+            self, 
+            context : Context
+        ):
+
         super().__init__(
             context = context,
             font = FONT_SPACE_IMPACT_COUNTERS
@@ -315,4 +345,4 @@ class ScoreText(Text):
         self.auto_pos()
 
     def auto_pos(self):
-        self.set_pos(WINDOW_WIDTH // 3 * 2 + (WINDOW_WIDTH // 3 - self.width) // 2, 25)
+        self.set_pos(WINDOW_WIDTH // 3 * 2 + (WINDOW_WIDTH // 3 - self.width) // 2, SCORE_TEXT_TOP_OFFSET)

@@ -58,7 +58,7 @@ PLAYER_SPAWN_X = 25
 PLAYER_SPAWN_Y = MAP_TOP_BOUND
 PLAYER_SPEED = 5
 PLAYER_BASE_LIVES = 3
-PLAYER_BASE_SCORE = 0x7FFFFFFF
+PLAYER_BASE_SCORE = 0
 PLAYER_BASE_ROCKETS = 3
 
 UP = "up"
@@ -81,9 +81,12 @@ FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS = TextureAtlas(
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT, 
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP
 )
-FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_WIDTH = 8 * 3 * 3
-FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_HEIGHT = 5 * 3 * 3
+FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_WIDTH = FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_WIDTH * 3
+FONT_SPACE_IMPACT_COUNTERS_CHAR_SPRITE_HEIGHT = FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT * 3
 FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP = 1 * 3 * 3
+# Dictionary storing information for each character of the font.
+# [KEY]: The font character
+# [VALUE]: Another dictionary containing the 'coords' in the texture atlas and the 'size' of the rect, which defines the occupied space in the window
 FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP = {
     "0": {
         "coords": (0, 0),
@@ -147,10 +150,25 @@ FONT_SPACE_IMPACT_COUNTERS = Font(
     FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP
 )
 
+LIVES_TEXT_TOP_OFFSET = 25
+ROCKETS_TEXT_TOP_OFFSET = 25
+SCORE_TEXT_TOP_OFFSET = 25
 LIVES_TEXT_ABSOLUTE_WIDTH = Text.width_of("vvv", FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP)
 ROCKETS_TEXT_ABSOLUTE_WIDTH = Text.width_of(">00", FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP, FONT_SPACE_IMPACT_COUNTERS_CHAR_GAP)
 
-# Tells the game to use 16bit numbers for counters such as score, health and rockets. If False, uses 32bit integers
+# This section includes some debugging features and common settings
+
+# Use 16bit numbers for counters such as score, health and rockets. If False, uses 32bit integers
 USE_16BIT_INTEGERS = False
+# Freezes the score on overflow. 
+# When True, the score won't go past the maximum value allowed by the used integer (16bit or 32bit)
+# When False, the goes to negative and starts counting back up.
 FREEZE_SCORE_ON_OVERFLOW = False
-DEBUG_SHOW_RECTS = False
+# Shows the rects of the GameObjects. [⚠] Use only for debugging
+DEBUG_SHOW_RECTS = True
+# Displays the health bar above enemies. [⚠] Use only for debugging
+DEBUG_SHOW_HEALTH_BARS = True
+HEALTH_BAR_HEIGHT = 10
+HEALTH_BAR_OFFSET_Y = HEALTH_BAR_HEIGHT + 20
+HEALTH_BAR_UNDER_COLOR = (128, 128, 128)
+HEALTH_BAR_OVER_COLOR = (255, 0, 0)

@@ -89,8 +89,8 @@ class GameObject:
             rect_color : tuple[int, int, int] = (0, 0, 0)
         ):
 
-        from config import DEBUG_SHOW_RECTS as __show_rects__
-        self.__show_rects__ = __show_rects__
+        from config import DEBUG_SHOW_RECTS as show_rects
+        self.show_rects = show_rects
 
         self.context = context
         context.append(self)
@@ -109,7 +109,7 @@ class GameObject:
         if self.destroyed:
             return
 
-        if self.__show_rects__ or len(self.animations) == 0:
+        if self.show_rects or len(self.animations) == 0:
             pygame.draw.rect(Window.screen, self.rect_color, self.rect)
         if len(self.animations) > 0:
             Window.screen.blit(self.animations[self.current_animation].surface, self.rect)
@@ -155,8 +155,8 @@ class Text:
             font : Font
         ):
 
-        from config import FONT_RECT_COLOR as __font_rect_color__
-        self.__font_rect_color__ = __font_rect_color__
+        from config import FONT_RECT_COLOR as font_rect_color
+        self.font_rect_color = font_rect_color
 
         self.context = context
         self.font = font
@@ -187,7 +187,7 @@ class Text:
                 width = rect_size[0],
                 height = rect_size[1],
                 animations = [sprite],
-                rect_color = self.__font_rect_color__
+                rect_color = self.font_rect_color
             )
 
             self.characters.append(text_char)
