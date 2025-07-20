@@ -15,6 +15,8 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
                 player.shoot()
+            elif event.key == pygame.K_r:
+                player.rocket()
 
     Window.screen.fill((0, 0, 0))
 

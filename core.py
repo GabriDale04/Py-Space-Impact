@@ -101,8 +101,8 @@ class GameObject:
             rect_color : tuple[int, int, int] = (0, 0, 0)
         ):
 
-        from config import DEBUG_SHOW_RECTS as show_rects
-        self.show_rects = show_rects
+        from config import DEBUG_SHOW_RECTS as __show_rects__
+        self.__show_rects__ = __show_rects__
 
         self.context = context
         context.append(self)
@@ -121,7 +121,7 @@ class GameObject:
         if self.destroyed:
             return
 
-        if self.show_rects or len(self.animations) == 0:
+        if self.__show_rects__ or len(self.animations) == 0:
             pygame.draw.rect(Window.screen, self.rect_color, self.rect)
         if len(self.animations) > 0:
             Window.screen.blit(self.animations[self.current_animation].surface, self.rect)
@@ -221,7 +221,7 @@ class Text:
             char.rect.x = x
             char.rect.y = y
 
-            x += char.rect.width + self.font.char_gap
+            x += char.rect.width + self.font_gap
     
     @staticmethod
     def width_of(string : str, font : Font, font_size : int) -> int:

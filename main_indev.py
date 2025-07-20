@@ -21,6 +21,8 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
                 player.shoot()
+            elif event.key == pygame.K_r:
+                player.rocket()
 
     Window.screen.fill((0, 0, 0))
 
@@ -32,14 +34,16 @@ while running:
         player.move(DOWN)
 
     if get_ticks() - last_spawn >= 3000:
-        Enemy_ = Comet if random.randint(1, 2) == 1 else Shuttle if random.randint(2, 3) == 2 else Rocket
+        rand = random.randint(1, 3)
+
+        Enemy_ = Comet if rand == 1 else (Shuttle if rand == 2 else Rocket)
 
         Enemy_(game_context, MAP_RIGHT_BOUND, random.randint(100, 500), random.randint(1, 5), random.randint(1, 3), DOWN if random.randint(0, 1) == 0 else UP)
         last_spawn = get_ticks()
 
-    pygame.draw.rect(Window.screen, (100, 0, 0), pygame.Rect(0, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
-    pygame.draw.rect(Window.screen, (0, 100, 0), pygame.Rect(WINDOW_WIDTH // 3, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
-    pygame.draw.rect(Window.screen, (0, 0, 100), pygame.Rect((WINDOW_WIDTH // 3) * 2, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
+    # pygame.draw.rect(Window.screen, (100, 0, 0), pygame.Rect(0, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
+    # pygame.draw.rect(Window.screen, (0, 100, 0), pygame.Rect(WINDOW_WIDTH // 3, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
+    # pygame.draw.rect(Window.screen, (0, 0, 100), pygame.Rect((WINDOW_WIDTH // 3) * 2, 0, WINDOW_WIDTH // 3, WINDOW_HEIGHT))
 
     game_context.update()
     game_ui_context.update()

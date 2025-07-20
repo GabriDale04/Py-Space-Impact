@@ -17,32 +17,107 @@ class Player(GameObject):
             rect_color = BATTLE_SHIP_RECT_COLOR
         )
 
-        from scene import score_text as __score_text__
+        from scene import score_text as __score_text__, rockets_text as __rockets_text__
         self.__score_text__ = __score_text__
+        self.__rockets_text__ = __rockets_text__
 
         self.health = int_b(PLAYER_BASE_LIVES)
+        self.rockets = int_b(PLAYER_BASE_ROCKETS)
         self.score = int_b(PLAYER_BASE_SCORE)
     
     def move(self, direction : str):
         if direction == UP:
-            self.rect.y = clamp(self.rect.y - PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - BATTLE_SHIP_RECT_HEIGHT)
+            self.rect.y = clamp(self.rect.y - PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
         elif direction == DOWN:
-            self.rect.y = clamp(self.rect.y + PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - BATTLE_SHIP_RECT_HEIGHT)
+            self.rect.y = clamp(self.rect.y + PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
     
     def shoot(self):
-        self.context.append(Projectile(
-                self.context,
-                self.rect.x + BATTLE_SHIP_RECT_WIDTH, 
-                self.rect.y + (BATTLE_SHIP_RECT_HEIGHT // 2 - 6), 
-                RIGHT, 
-                TAG_PROJECTILE_PLAYER
-            ))
+        Pew(
+            self.context,
+            self.rect.x + self.rect.width, 
+            self.rect.y + (self.rect.height - PROJECTILE_PEW_RECT_HEIGHT) // 2, 
+            TAG_PROJECTILE_PLAYER,
+            RIGHT
+        )
+    
+    def rocket(self):
+        if self.rockets == 0:
+            return
+
+        self.rockets -= 1
+        self.__rockets_text__.set_amount(self.rockets)
+
+        RocketProjectile(
+            self.context,
+            self.rect.x + self.rect.width,
+            self.rect.y + (self.rect.height - PROJECTILE_ROCKET_RECT_HEIGHT) // 2,
+            TAG_PROJECTILE_PLAYER,
+            RIGHT
+        )
     
     def reward(self, score : int):
         self.score += score
         self.__score_text__.set_amount(self.score)
     
-class Enemy(GameObject):
+class Bouncy(GameObject):
+    """
+    Gives an object a 'bouncy movement' through `self.move()` function.<br/>
+    A Bouncy object will move both horizontally and vertically between `MAP_TOP_BOUND` and `MAP_BOTTOM_BOUND`.<br/>
+    The vertical direction is switched everytime the object reaches one of the vertical map bounds making the movement feel bouncy.
+    """
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            width : int,
+            height : int,
+            tag : str,
+            animations : list[Sprite],
+            rect_color : tuple[int, int, int],
+            horizontal_speed : int,
+            vertical_speed : int,
+            horizontal_direction : str,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            tag = tag,
+            animations = animations,
+            rect_color = rect_color
+        )
+
+        self.horizontal_speed = horizontal_speed
+        self.vertical_speed = vertical_speed
+        self.horizontal_direction = horizontal_direction
+        self.vertical_direction = vertical_direction
+    
+    def move(self):
+        if self.horizontal_direction == LEFT:
+            self.rect.x -= self.horizontal_speed
+        elif self.horizontal_direction == RIGHT:
+            self.rect.x += self.horizontal_speed
+
+        if self.vertical_direction == UP:
+            self.rect.y -= self.vertical_speed
+
+            if self.rect.y <= MAP_TOP_BOUND:
+                self.vertical_direction = DOWN
+        elif self.vertical_direction == DOWN:
+            self.rect.y += self.vertical_speed
+
+            if self.rect.y + self.rect.height >= MAP_BOTTOM_BOUND:
+                self.vertical_direction = UP
+
+        if self.rect.x <= MAP_LEFT_BOUND - self.rect.width or self.rect.y >= MAP_RIGHT_BOUND:
+            self.destroy()
+
+class Enemy(Bouncy):
     def __init__(
             self,
             context : Context,
@@ -55,10 +130,10 @@ class Enemy(GameObject):
             animations_interval : int,
             horizontal_speed : int,
             vertical_speed : int,
-            current_direction : str,
+            vertical_direction : str,
             health : int,
             hit_reward : int,
-            pop_reward : int
+            pop_reward : int,
         ):
 
         super().__init__(
@@ -69,7 +144,11 @@ class Enemy(GameObject):
             height = height,
             tag = TAG_ENEMY,
             animations = animations,
-            rect_color = rect_color
+            rect_color = rect_color,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            horizontal_direction = LEFT,
+            vertical_direction = vertical_direction
         )
 
         self.last_animation_time = get_ticks()
@@ -77,7 +156,7 @@ class Enemy(GameObject):
 
         self.horizontal_speed = horizontal_speed
         self.vertical_speed = vertical_speed
-        self.current_direction = current_direction
+        self.vertical_direction = vertical_direction
         self.max_health = health
         self.health = health
         self.hit_reward = hit_reward
@@ -113,23 +192,6 @@ class Enemy(GameObject):
         pygame.draw.rect(Window.screen, (128, 128, 128), self.__health_bar_under)
         pygame.draw.rect(Window.screen, (255, 0, 0), self.__health_bar_over)
     
-    def move(self):
-        self.rect.x -= self.horizontal_speed
-
-        if self.current_direction == UP:
-            self.rect.y -= self.vertical_speed
-
-            if self.rect.y <= MAP_TOP_BOUND:
-                self.current_direction = DOWN
-        elif self.current_direction == DOWN:
-            self.rect.y += self.vertical_speed
-
-            if self.rect.y + self.rect.height >= MAP_BOTTOM_BOUND:
-                self.current_direction = UP
-
-        if self.rect.x <= MAP_LEFT_BOUND - self.rect.width:
-            self.destroy()
-    
     def shoot(self):
         if get_ticks() - self.last_shoot_time < ENEMY_SHOOT_ROLL_INTERVAL:
             return
@@ -137,13 +199,13 @@ class Enemy(GameObject):
         roll = random.randint(1, 100)
 
         if roll <= ENEMY_SHOOT_CHANCE:
-            self.context.append(Projectile(
+            Pew(
                 self.context, 
-                self.rect.x, 
-                self.rect.y, 
-                LEFT, 
-                TAG_PROJECTILE_ENEMY
-            ))
+                self.rect.x - self.rect.width // 4, 
+                self.rect.y + (self.rect.height - PROJECTILE_PEW_RECT_HEIGHT) // 2,
+                TAG_PROJECTILE_ENEMY,
+                LEFT
+            )
 
         self.last_shoot_time = get_ticks()
 
@@ -155,7 +217,7 @@ class Comet(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            current_direction : str
+            vertical_direction : str
         ):
 
         super().__init__(
@@ -169,7 +231,7 @@ class Comet(Enemy):
             animations_interval = COMET_ANIMATIONS_INTERVAL,
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
-            current_direction = current_direction,
+            vertical_direction = vertical_direction,
             health = COMET_HEALTH,
             hit_reward = COMET_HIT_REWARD,
             pop_reward = COMET_POP_REWARD
@@ -183,7 +245,7 @@ class Shuttle(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            current_direction : str
+            vertical_direction : str
         ):
 
         super().__init__(
@@ -197,7 +259,7 @@ class Shuttle(Enemy):
             animations_interval = SHUTTLE_ANIMATIONS_INTERVAL,
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
-            current_direction = current_direction,
+            vertical_direction = vertical_direction,
             health = SHUTTLE_HEALTH,
             hit_reward = SHUTTLE_HIT_REWARD,
             pop_reward = SHUTTLE_POP_REWARD
@@ -211,7 +273,7 @@ class Rocket(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            current_direction : str
+            vertical_direction : str
         ):
 
         super().__init__(
@@ -225,68 +287,140 @@ class Rocket(Enemy):
             animations_interval = ROCKET_ANIMATIONS_INTERVAL,
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
-            current_direction = current_direction,
+            vertical_direction = vertical_direction,
             health = ROCKET_HEALTH,
             hit_reward = ROCKET_HIT_REWARD,
             pop_reward = SHUTTLE_POP_REWARD
         )
 
-class Projectile(GameObject):
+class Projectile(Bouncy):
     def __init__(
         self,
         context : Context,
         x : int,
         y : int,
-        move_direction : str,
-        tag : str
+        width : int,
+        height : int,
+        tag : str,
+        animations : list[Sprite],
+        rect_color : tuple[int, int, int],
+        horizontal_speed : int,
+        vertical_speed : int,
+        horizontal_direction : str,
+        vertical_direction : str,
+        damage : int
     ):
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = PROJECTILE_RECT_WIDTH,
-            height = PROJECTILE_RECT_HEIGHT,
+            width = width,
+            height = height,
             tag = tag,
-            animations = PROJECTILE_ANIMATIONS,
-            rect_color = PROJECTILE_RECT_COLOR
+            animations = animations,
+            rect_color = rect_color,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            horizontal_direction = horizontal_direction,
+            vertical_direction = vertical_direction
         )
 
         from scene import game_context, player
         self.game_context = game_context
         self.player = player
 
-        self.move_direction = move_direction
+        self.horizontal_direction = horizontal_direction
+        self.horizontal_speed = horizontal_speed
+        self.vertical_speed = vertical_speed
+        self.vertical_direction = vertical_direction
+        self.damage = damage
     
     def update(self):
         super().update()
 
         self.move()
+        self.check_collisions()
 
-    def move(self):
-        if self.move_direction == LEFT:
-            self.rect.x -= PROJECTILE_SPEED
-        elif self.move_direction == RIGHT:
-            self.rect.x += PROJECTILE_SPEED
-        
-        if self.rect.x <= MAP_LEFT_BOUND or self.rect.x >= MAP_RIGHT_BOUND + PROJECTILE_RECT_WIDTH:
-            self.destroy()
-        
+    def check_collisions(self):
         if self.tag == TAG_PROJECTILE_PLAYER:
-            for enemy in self.game_context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
+            for enemy in self.context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
                 if self.collide(enemy.rect):
                     if enemy.tag == TAG_ENEMY:
-                        enemy.health -= 1
+                        enemy.health -= self.damage
                         self.player.reward(enemy.hit_reward)
 
-                        if enemy.health == 0:
+                        if enemy.health <= 0:
                             self.player.reward(enemy.pop_reward)
-                            self.game_context.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
+
+                            Pop(self.context, 
+                                enemy.rect.x + (enemy.rect.width - POP_RECT_WIDTH) // 2, 
+                                enemy.rect.y + (enemy.rect.height - POP_RECT_HEIGHT) // 2
+                            )
+                            
                             enemy.destroy()
                     elif enemy.tag == TAG_PROJECTILE_ENEMY:
-                        self.context.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
+                        Pop(self.context, 
+                            enemy.rect.x + (enemy.rect.width - POP_RECT_WIDTH) // 2, 
+                            enemy.rect.y + (enemy.rect.height - POP_RECT_HEIGHT) // 2
+                        )
+                        
                         enemy.destroy()
                     
                     self.destroy()
+        elif self.tag == TAG_PROJECTILE_ENEMY:
+            pass
+
+class Pew(Projectile):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            tag : str,
+            horizontal_direction : str,
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = PROJECTILE_PEW_RECT_WIDTH,
+            height = PROJECTILE_PEW_RECT_HEIGHT,
+            tag = tag,
+            animations = PROJECTILE_PEW_ANIMATIONS,
+            rect_color = PROJECTILE_PEW_RECT_COLOR,
+            horizontal_speed = PROJECTILE_PEW_HORIZONTAL_SPEED,
+            vertical_speed = PROJECTILE_PEW_VERTICAL_SPEED,
+            horizontal_direction = horizontal_direction,
+            vertical_direction = UP,
+            damage = PROJECTILE_PEW_DAMAGE
+        )
+
+class RocketProjectile(Projectile):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            tag : str,
+            horizontal_direction : str,
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = PROJECTILE_ROCKET_RECT_WIDTH,
+            height = PROJECTILE_ROCKET_RECT_HEIGHT,
+            tag = tag,
+            animations = PROJECTILE_ROCKET_ANIMATIONS,
+            rect_color = PROJECTILE_ROCKET_RECT_COLOR,
+            horizontal_speed = PROJECTILE_ROCKET_HORIZONTAL_SPEED,
+            vertical_speed = PROJECTILE_ROCKET_VERTICAL_SPEED,
+            horizontal_direction = horizontal_direction,
+            vertical_direction = UP if random.randint(0, 1) == 0 else DOWN,
+            damage = PROJECTILE_ROCKET_DAMAGE
+        )
 
 class Pop(GameObject):
     def __init__(
