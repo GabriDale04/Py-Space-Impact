@@ -182,13 +182,13 @@ ROCKETS_TEXT_ABSOLUTE_WIDTH = Text.width_of(">00", FONT_SPACE_IMPACT_COUNTERS, R
 SCORE_TEXT_TOP_OFFSET = 25
 SCORE_TEXT_FONT_SIZE = 3
 
+# =================================================================
 # This section includes some debugging features and common settings
+# =================================================================
 
 # Use 16bit numbers for counters such as score, health and rockets. If False, uses 32bit integers
 USE_16BIT_INTEGERS = False
-# Freezes the score on overflow. 
-# When True, the score won't go past the maximum value allowed by the used integer (16bit or 32bit)
-# When False, the goes to negative and starts counting back up.
+# Freezes the score on overflow.
 FREEZE_SCORE_ON_OVERFLOW = False
 # Shows the rects of the GameObjects. [⚠] Use only for debugging
 DEBUG_SHOW_RECTS = False
