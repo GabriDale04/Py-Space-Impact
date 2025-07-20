@@ -56,7 +56,9 @@ class Enemy(GameObject):
             horizontal_speed : int,
             vertical_speed : int,
             current_direction : str,
-            health : int
+            health : int,
+            hit_reward : int,
+            pop_reward : int
         ):
 
         super().__init__(
@@ -78,6 +80,8 @@ class Enemy(GameObject):
         self.current_direction = current_direction
         self.max_health = health
         self.health = health
+        self.hit_reward = hit_reward
+        self.pop_reward = pop_reward
 
         self.last_shoot_time = get_ticks()
 
@@ -166,7 +170,9 @@ class Comet(Enemy):
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             current_direction = current_direction,
-            health = COMET_HEALTH
+            health = COMET_HEALTH,
+            hit_reward = COMET_HIT_REWARD,
+            pop_reward = COMET_POP_REWARD
         )
 
 class Shuttle(Enemy):
@@ -192,7 +198,9 @@ class Shuttle(Enemy):
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             current_direction = current_direction,
-            health = SHUTTLE_HEALTH
+            health = SHUTTLE_HEALTH,
+            hit_reward = SHUTTLE_HIT_REWARD,
+            pop_reward = SHUTTLE_POP_REWARD
         )
 
 class Rocket(Enemy):
@@ -218,7 +226,9 @@ class Rocket(Enemy):
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             current_direction = current_direction,
-            health = ROCKET_HEALTH
+            health = ROCKET_HEALTH,
+            hit_reward = ROCKET_HIT_REWARD,
+            pop_reward = SHUTTLE_POP_REWARD
         )
 
 class Projectile(GameObject):
@@ -266,9 +276,10 @@ class Projectile(GameObject):
                 if self.collide(enemy.rect):
                     if enemy.tag == TAG_ENEMY:
                         enemy.health -= 1
+                        self.player.reward(enemy.hit_reward)
 
                         if enemy.health == 0:
-                            self.player.reward(1)
+                            self.player.reward(enemy.pop_reward)
                             self.game_context.append(Pop(self.context, enemy.rect.x, enemy.rect.y))
                             enemy.destroy()
                     elif enemy.tag == TAG_PROJECTILE_ENEMY:
@@ -368,7 +379,7 @@ class ScoreText(Text):
         self.set_amount(PLAYER_BASE_SCORE)
 
     def set_amount(self, value : int):
-        text = str(int_b(value)).zfill(1)
+        text = str(int_b(value)).zfill(5)
 
         self.set_text(text)
         self.auto_pos()

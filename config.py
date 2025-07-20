@@ -26,6 +26,8 @@ COMET_RECT_COLOR = (255, 0, 0)
 COMET_ANIMATIONS = [Sprite.load("textures/comet1.png", 144, 144), Sprite.load("textures/comet2.png", 144, 144)]
 COMET_ANIMATIONS_INTERVAL = 100
 COMET_HEALTH = 1
+COMET_HIT_REWARD = 5
+COMET_POP_REWARD = 5
 
 SHUTTLE_RECT_WIDTH = 8 * 12
 SHUTTLE_RECT_HEIGHT = 5 * 12
@@ -33,6 +35,8 @@ SHUTTLE_RECT_COLOR = (255, 0, 0)
 SHUTTLE_ANIMATIONS = [Sprite.load("textures/shuttle1.png", 144, 144), Sprite.load("textures/shuttle2.png", 144, 144), Sprite.load("textures/shuttle3.png", 144, 144)]
 SHUTTLE_ANIMATIONS_INTERVAL = 100
 SHUTTLE_HEALTH = 1
+SHUTTLE_HIT_REWARD = 5
+SHUTTLE_POP_REWARD = 5
 
 ROCKET_RECT_WIDTH = 10 * 12
 ROCKET_RECT_HEIGHT = 5 * 12
@@ -40,6 +44,8 @@ ROCKET_RECT_COLOR = (255, 0, 0)
 ROCKET_ANIMATIONS = [Sprite.load("textures/rocket1.png", 144, 144), Sprite.load("textures/rocket2.png", 144, 144)]
 ROCKET_ANIMATIONS_INTERVAL = 100
 ROCKET_HEALTH = 3
+ROCKET_HIT_REWARD = 5
+ROCKET_POP_REWARD = 5
 
 PROJECTILE_RECT_WIDTH = 3 * 12
 PROJECTILE_RECT_HEIGHT = 1 * 12
@@ -176,7 +182,7 @@ USE_16BIT_INTEGERS = False
 # When False, the goes to negative and starts counting back up.
 FREEZE_SCORE_ON_OVERFLOW = False
 # Shows the rects of the GameObjects. [⚠] Use only for debugging
-DEBUG_SHOW_RECTS = True
+DEBUG_SHOW_RECTS = False
 # Displays the health bar above enemies. [⚠] Use only for debugging
 DEBUG_SHOW_HEALTH_BARS = True
 HEALTH_BAR_HEIGHT = 10
