@@ -1,10 +1,13 @@
 from core import *
 from game import *
 from scene import *
+from levels import *
 
 pygame.init()
 Window.init()
 clock = pygame.time.Clock()
+
+LEVEL1 = level1()
 
 running = True
 
@@ -29,6 +32,7 @@ while running:
 
     game_context.update()
     game_ui_context.update()
+    LEVEL1.update()
 
     pygame.display.flip()
     clock.tick(60)

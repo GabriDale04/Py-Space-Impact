@@ -38,6 +38,15 @@ SHUTTLE_HEALTH = 1
 SHUTTLE_HIT_REWARD = 5
 SHUTTLE_POP_REWARD = 5
 
+VSHIP_RECT_WIDTH = 6 * 12
+VSHIP_RECT_HEIGHT = 7 * 12
+VSHIP_RECT_COLOR = (255, 0, 0)
+VSHIP_ANIMATIONS = [Sprite.load("textures/vship1.png", 144, 144), Sprite.load("textures/vship2.png", 144, 144)]
+VSHIP_ANIMATIONS_INTERVAL = 100
+VSHIP_HEALTH = 1
+VSHIP_HIT_REWARD = 5
+VSHIP_POP_REWARD = 5
+
 ROCKET_RECT_WIDTH = 10 * 12
 ROCKET_RECT_HEIGHT = 5 * 12
 ROCKET_RECT_COLOR = (255, 0, 0)
@@ -202,9 +211,9 @@ USE_16BIT_INTEGERS = False
 # Freezes the score on overflow.
 FREEZE_SCORE_ON_OVERFLOW = False
 # Shows the rects of the GameObjects. [⚠] Use only for debugging
-DEBUG_SHOW_RECTS = True
+DEBUG_SHOW_RECTS = False
 # Displays the health bar above enemies. [⚠] Use only for debugging
-DEBUG_SHOW_HEALTH_BARS = True
+DEBUG_SHOW_HEALTH_BARS = False
 HEALTH_BAR_HEIGHT = 10
 HEALTH_BAR_OFFSET_Y = HEALTH_BAR_HEIGHT + 20
 HEALTH_BAR_UNDER_COLOR = (128, 128, 128)

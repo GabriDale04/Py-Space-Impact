@@ -1,4 +1,13 @@
-from config import USE_16BIT_INTEGERS, FREEZE_SCORE_ON_OVERFLOW
+import random
+
+from config import (
+    USE_16BIT_INTEGERS, 
+    FREEZE_SCORE_ON_OVERFLOW,
+    MAP_TOP_BOUND,
+    MAP_BOTTOM_BOUND,
+    UP,
+    DOWN
+)
 
 def clamp(value : int, min_value : int, max_value : int):
     return max(min(value, max_value), min_value)
@@ -17,3 +26,12 @@ def int_b(value : int):
         return wrap(value, INT_MIN_VALUE, INT_MAX_VALUE)
 
     return value
+
+def args(**kwArgs):
+    return kwArgs
+
+def random_y():
+    return random.randint(MAP_TOP_BOUND, MAP_BOTTOM_BOUND)
+
+def random_vertical_direction():
+    return DOWN if random.randint(0, 1) == 0 else UP

@@ -324,6 +324,34 @@ class Shuttle(Enemy):
             pop_reward = SHUTTLE_POP_REWARD
         )
 
+class VShip(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = VSHIP_RECT_WIDTH,
+            height = VSHIP_RECT_HEIGHT,
+            animations = VSHIP_ANIMATIONS,
+            rect_color = VSHIP_RECT_COLOR,
+            animations_interval = VSHIP_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = VSHIP_HEALTH,
+            hit_reward = VSHIP_HIT_REWARD,
+            pop_reward = VSHIP_POP_REWARD
+        )
+
 class Rocket(Enemy):
     def __init__(
             self,
@@ -349,7 +377,7 @@ class Rocket(Enemy):
             vertical_direction = vertical_direction,
             health = ROCKET_HEALTH,
             hit_reward = ROCKET_HIT_REWARD,
-            pop_reward = SHUTTLE_POP_REWARD
+            pop_reward = ROCKET_POP_REWARD
         )
 
 class Projectile(Bouncy):
