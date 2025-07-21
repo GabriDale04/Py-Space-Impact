@@ -54,14 +54,25 @@ PROJECTILE_PEW_ANIMATIONS = [Sprite.load("textures/pew.png", 144, 144)]
 PROJECTILE_PEW_HORIZONTAL_SPEED = 4
 PROJECTILE_PEW_VERTICAL_SPEED = 0
 PROJECTILE_PEW_DAMAGE = 1
+PROJECTILE_PEW_POP_REWARD = 5
 
-PROJECTILE_ROCKET_RECT_WIDTH = 5 * 12
-PROJECTILE_ROCKET_RECT_HEIGHT = 4 * 12
+PROJECTILE_ROCKET_RECT_WIDTH = 8 * 12
+PROJECTILE_ROCKET_RECT_HEIGHT = 7 * 12
 PROJECTILE_ROCKET_RECT_COLOR = (0, 59, 255)
 PROJECTILE_ROCKET_ANIMATIONS = [Sprite.load("textures/rocket_projectile.png", 144, 144)]
 PROJECTILE_ROCKET_HORIZONTAL_SPEED = 3
 PROJECTILE_ROCKET_VERTICAL_SPEED = 2
 PROJECTILE_ROCKET_DAMAGE = 10
+PROJECTILE_ROCKET_POP_REWARD = 10
+
+EYE_ORB_RECT_WIDTH = 8 * 12
+EYE_ORB_RECT_HEIGHT = 7 * 12
+EYE_ORB_RECT_COLOR = (135, 206, 235)
+EYE_ORB_ANIMATIONS = [Sprite.load("textures/eye_orb1.png", 144, 144), Sprite.load("textures/eye_orb2.png", 144, 144), Sprite.load("textures/eye_orb3.png", 144, 144), Sprite.load("textures/eye_orb4.png", 144, 144)]
+EYE_ORB_ANIMATIONS_INTERVAL = 100
+EYE_ORB_HORIZONTAL_SPEED = 2
+EYE_ORB_VERTICAL_SPEED = 0
+EYE_ORB_ROCKETS_REWARD = 3
 
 POP_RECT_WIDTH = 5 * 12
 POP_RECT_HEIGHT = 5 * 12
@@ -76,9 +87,9 @@ PLAYER_BASE_LIVES = 3
 PLAYER_BASE_SCORE = 0
 PLAYER_BASE_ROCKETS = 3
 
-# This interval tells the enemy after how much time he should try to shoot
+# The interval between enemy's attempted shots. A shot may not be performed as the chance of shooting is described by `ENEMY_SHOOT_CHANCE`.
 ENEMY_SHOOT_ROLL_INTERVAL = 1000
-# This value is the chance of shooting, in percent, every interval
+# This value is the chance of shooting, in percent, every `ENEMY_SHOOT_ROLL_INTERVAL`.
 ENEMY_SHOOT_CHANCE = 16
 
 UP = "up"
@@ -90,7 +101,7 @@ TAG_ENEMY = "enemy"
 TAG_PROJECTILE_PLAYER = "projectile_player"
 TAG_PROJECTILE_ENEMY = "projectile_enemy"
 
-FONT_RECT_COLOR = (255, 192, 203)
+FONT_RECT_COLOR = (186, 85, 211)
 
 FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_WIDTH = 8 * 3
 FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT = 5 * 3
@@ -191,7 +202,7 @@ USE_16BIT_INTEGERS = False
 # Freezes the score on overflow.
 FREEZE_SCORE_ON_OVERFLOW = False
 # Shows the rects of the GameObjects. [⚠] Use only for debugging
-DEBUG_SHOW_RECTS = False
+DEBUG_SHOW_RECTS = True
 # Displays the health bar above enemies. [⚠] Use only for debugging
 DEBUG_SHOW_HEALTH_BARS = True
 HEALTH_BAR_HEIGHT = 10

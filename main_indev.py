@@ -12,7 +12,7 @@ clock = pygame.time.Clock()
 
 running = True
 
-last_spawn = get_ticks()
+last_spawn = -3000
 
 while running:
     for event in pygame.event.get():

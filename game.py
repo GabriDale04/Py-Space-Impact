@@ -1,11 +1,61 @@
+import pygame.macosx
 from utils import clamp, int_b
 from pygame.time import get_ticks
 from core import *
 from config import *
 from typing import final
+import pygame
 import random
 
-class Player(GameObject):
+class SpaceImpactObject(GameObject):
+    def __init__(
+            self,
+            context : Context,
+            x : int = 0,
+            y : int = 0,
+            width : int = 0,
+            height : int = 0,
+            tag : str = None,
+            animations: list[Sprite] = [],
+            rect_color : tuple[int, int, int] = (0, 0, 0)
+        ):
+
+        self.current_animation = 0
+        self.animations = animations
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            tag = tag,
+            sprite = animations[self.current_animation],
+            rect_color = rect_color
+        )
+
+        self.default_animator = False
+        self.animations_interval = -1
+        self.last_animation_time = -1
+
+    def update(self):
+        super().update()
+
+        if self.default_animator:
+            if get_ticks() - self.last_animation_time >= self.animations_interval:
+                self.animate()
+                self.last_animation_time = get_ticks()
+
+    def animate(self):
+        self.current_animation = (self.current_animation + 1) % len(self.animations)
+        self.sprite = self.animations[self.current_animation]
+
+    def use_default_animator(self, animations_interval : int):
+        self.default_animator = True
+        self.animations_interval = animations_interval
+        self.last_animation_time = get_ticks()
+
+class Player(SpaceImpactObject):
     def __init__(self, context : Context):
         super().__init__(
             context = context,
@@ -21,10 +71,28 @@ class Player(GameObject):
         self.__score_text__ = __score_text__
         self.__rockets_text__ = __rockets_text__
 
-        self.health = int_b(PLAYER_BASE_LIVES)
-        self.rockets = int_b(PLAYER_BASE_ROCKETS)
-        self.score = int_b(PLAYER_BASE_SCORE)
+        self._health = int_b(PLAYER_BASE_LIVES)
+        self._rockets = int_b(PLAYER_BASE_ROCKETS)
+        self._score = int_b(PLAYER_BASE_SCORE)
     
+    @property
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, score : int):
+        self._score = score
+        self.__score_text__.set_amount(self._score)
+    
+    @property
+    def rockets(self):
+        return self._rockets
+
+    @rockets.setter
+    def rockets(self, rockets : int):
+        self._rockets = rockets
+        self.__rockets_text__.set_amount(self._rockets)
+
     def move(self, direction : str):
         if direction == UP:
             self.rect.y = clamp(self.rect.y - PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
@@ -55,30 +123,25 @@ class Player(GameObject):
             RIGHT
         )
     
-    def reward(self, score : int):
-        self.score += score
-        self.__score_text__.set_amount(self.score)
-    
-class Bouncy(GameObject):
+class Bouncy(SpaceImpactObject):
     """
-    Gives an object a 'bouncy movement' through `self.move()` function.<br/>
-    A Bouncy object will move both horizontally and vertically between `MAP_TOP_BOUND` and `MAP_BOTTOM_BOUND`.<br/>
-    The vertical direction is switched everytime the object reaches one of the vertical map bounds making the movement feel bouncy.
+    Represents a moving object that bounces between `MAP_TOP_BOUND` and `MAP_LEFT_BOUND`.
     """
     def __init__(
             self,
             context : Context,
-            x : int,
-            y : int,
-            width : int,
-            height : int,
-            tag : str,
-            animations : list[Sprite],
-            rect_color : tuple[int, int, int],
-            horizontal_speed : int,
-            vertical_speed : int,
-            horizontal_direction : str,
-            vertical_direction : str
+            x : int = 0,
+            y : int = 0,
+            width : int = 0,
+            height : int = 0,
+            tag : str = None,
+            animations : list[Sprite] = [],
+            rect_color : tuple[int, int, int] = (0, 0, 0),
+
+            horizontal_speed : int = 0,
+            vertical_speed : int = 0,
+            horizontal_direction : str = None,
+            vertical_direction : str = None
         ):
 
         super().__init__(
@@ -96,7 +159,7 @@ class Bouncy(GameObject):
         self.vertical_speed = vertical_speed
         self.horizontal_direction = horizontal_direction
         self.vertical_direction = vertical_direction
-    
+
     def move(self):
         if self.horizontal_direction == LEFT:
             self.rect.x -= self.horizontal_speed
@@ -114,7 +177,8 @@ class Bouncy(GameObject):
             if self.rect.y + self.rect.height >= MAP_BOTTOM_BOUND:
                 self.vertical_direction = UP
 
-        if self.rect.x <= MAP_LEFT_BOUND - self.rect.width or self.rect.y >= MAP_RIGHT_BOUND:
+        if (self.rect.x <= MAP_LEFT_BOUND - self.rect.width and self.horizontal_direction == LEFT) or (
+            self.rect.x >= MAP_RIGHT_BOUND and self.horizontal_direction == RIGHT):
             self.destroy()
 
 class Enemy(Bouncy):
@@ -151,8 +215,7 @@ class Enemy(Bouncy):
             vertical_direction = vertical_direction
         )
 
-        self.last_animation_time = get_ticks()
-        self.animations_interval = animations_interval
+        self.use_default_animator(animations_interval)
 
         self.horizontal_speed = horizontal_speed
         self.vertical_speed = vertical_speed
@@ -170,10 +233,6 @@ class Enemy(Bouncy):
     
     def update(self):
         super().update()
-
-        if get_ticks() - self.last_animation_time >= self.animations_interval:
-            self.animate()
-            self.last_animation_time = get_ticks()
         
         self.shoot()
         self.move()
@@ -308,7 +367,8 @@ class Projectile(Bouncy):
         vertical_speed : int,
         horizontal_direction : str,
         vertical_direction : str,
-        damage : int
+        damage : int,
+        pop_reward : int
     ):
         super().__init__(
             context = context,
@@ -325,15 +385,15 @@ class Projectile(Bouncy):
             vertical_direction = vertical_direction
         )
 
-        from scene import game_context, player
-        self.game_context = game_context
-        self.player = player
+        from scene import player as __player__
+        self.__player__ = __player__
 
         self.horizontal_direction = horizontal_direction
         self.horizontal_speed = horizontal_speed
         self.vertical_speed = vertical_speed
         self.vertical_direction = vertical_direction
         self.damage = damage
+        self.pop_reward = pop_reward
     
     def update(self):
         super().update()
@@ -347,10 +407,10 @@ class Projectile(Bouncy):
                 if self.collide(enemy.rect):
                     if enemy.tag == TAG_ENEMY:
                         enemy.health -= self.damage
-                        self.player.reward(enemy.hit_reward)
+                        self.__player__.score += enemy.hit_reward
 
                         if enemy.health <= 0:
-                            self.player.reward(enemy.pop_reward)
+                            self.__player__.score += enemy.pop_reward
 
                             Pop(self.context, 
                                 enemy.rect.x + (enemy.rect.width - POP_RECT_WIDTH) // 2, 
@@ -359,11 +419,12 @@ class Projectile(Bouncy):
                             
                             enemy.destroy()
                     elif enemy.tag == TAG_PROJECTILE_ENEMY:
-                        Pop(self.context, 
+                        Pop(self.context,
                             enemy.rect.x + (enemy.rect.width - POP_RECT_WIDTH) // 2, 
                             enemy.rect.y + (enemy.rect.height - POP_RECT_HEIGHT) // 2
                         )
                         
+                        self.__player__.score += enemy.pop_reward
                         enemy.destroy()
                     
                     self.destroy()
@@ -389,11 +450,14 @@ class Pew(Projectile):
             tag = tag,
             animations = PROJECTILE_PEW_ANIMATIONS,
             rect_color = PROJECTILE_PEW_RECT_COLOR,
+            
             horizontal_speed = PROJECTILE_PEW_HORIZONTAL_SPEED,
             vertical_speed = PROJECTILE_PEW_VERTICAL_SPEED,
             horizontal_direction = horizontal_direction,
             vertical_direction = UP,
-            damage = PROJECTILE_PEW_DAMAGE
+
+            damage = PROJECTILE_PEW_DAMAGE,
+            pop_reward = PROJECTILE_PEW_POP_REWARD
         )
 
 class RocketProjectile(Projectile):
@@ -415,14 +479,17 @@ class RocketProjectile(Projectile):
             tag = tag,
             animations = PROJECTILE_ROCKET_ANIMATIONS,
             rect_color = PROJECTILE_ROCKET_RECT_COLOR,
+            
             horizontal_speed = PROJECTILE_ROCKET_HORIZONTAL_SPEED,
             vertical_speed = PROJECTILE_ROCKET_VERTICAL_SPEED,
             horizontal_direction = horizontal_direction,
             vertical_direction = UP if random.randint(0, 1) == 0 else DOWN,
-            damage = PROJECTILE_ROCKET_DAMAGE
+
+            damage = PROJECTILE_ROCKET_DAMAGE,
+            pop_reward = PROJECTILE_ROCKET_POP_REWARD
         )
 
-class Pop(GameObject):
+class Pop(SpaceImpactObject):
     def __init__(
         self,
         context : Context,
@@ -453,12 +520,50 @@ class Pop(GameObject):
         if get_ticks() - self.spawn_time >= POP_DURATION:
             self.destroy()
 
+class EyeOrb(Bouncy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = EYE_ORB_RECT_WIDTH,
+            height = EYE_ORB_RECT_HEIGHT,
+            animations = EYE_ORB_ANIMATIONS,
+            rect_color = EYE_ORB_RECT_COLOR,
+
+            horizontal_speed = EYE_ORB_HORIZONTAL_SPEED,
+            vertical_speed= EYE_ORB_VERTICAL_SPEED,
+            horizontal_direction = LEFT,
+            vertical_direction = UP
+        )
+
+        from scene import player as __player__
+        self.__player__ = __player__
+
+        self.use_default_animator(EYE_ORB_ANIMATIONS_INTERVAL)
+    
+    def update(self):
+        super().update()
+
+        self.move()
+
+        if self.collide(self.__player__.rect):
+            self.__player__.rockets += EYE_ORB_ROCKETS_REWARD
+            self.destroy()
+
 class LivesText(Text):
     def __init__(
             self, 
             context : Context,
             font_size : int
         ):
+
         super().__init__(
             context = context,
             font = FONT_SPACE_IMPACT_COUNTERS,
@@ -493,9 +598,7 @@ class RocketsText(Text):
         self.set_amount(PLAYER_BASE_ROCKETS)
     
     def set_amount(self, value : int):
-        value = int_b(value)
-
-        self.set_text(">" + str(value).zfill(2))
+        self.set_text(">" + str(int_b(value)).zfill(2))
 
 class ScoreText(Text):
     def __init__(

@@ -71,14 +71,14 @@ class Context:
         self.game_objects.append(game_object)
 
     def find_with_tag(self, tag : str) -> list['GameObject']:
-        found : list[GameObject] = []
+        found : list['GameObject'] = []
 
         for obj in self.game_objects:
             if obj.tag == tag:
                 found.append(obj)
         
-        return found  
-
+        return found
+    
     def find_with_tags(self, tags : list[str]) -> list['GameObject']:
         found : list[GameObject] = []
 
@@ -97,7 +97,7 @@ class GameObject:
             width : int = 0,
             height : int = 0,
             tag : str = None,
-            animations: list[Sprite] = [],
+            sprite: Sprite = None,
             rect_color : tuple[int, int, int] = (0, 0, 0)
         ):
 
@@ -114,20 +114,16 @@ class GameObject:
 
         self.destroyed = False
 
-        self.animations = animations
-        self.current_animation = 0
-    
+        self.sprite = sprite
+
     def update(self):
         if self.destroyed:
             return
 
-        if self.__show_rects__ or len(self.animations) == 0:
+        if self.__show_rects__:
             pygame.draw.rect(Window.screen, self.rect_color, self.rect)
-        if len(self.animations) > 0:
-            Window.screen.blit(self.animations[self.current_animation].surface, self.rect)
-    
-    def animate(self):
-        self.current_animation = (self.current_animation + 1) % len(self.animations)
+        if self.sprite != None:
+            Window.screen.blit(self.sprite.surface, self.rect)
 
     def destroy(self):
         self.destroyed = True
@@ -203,7 +199,7 @@ class Text:
                 y = self.y,
                 width = rect_width,
                 height = rect_height,
-                animations = [sprite],
+                sprite = sprite,
                 rect_color = self.__font_rect_color__
             )
 
