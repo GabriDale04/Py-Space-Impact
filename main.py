@@ -7,7 +7,8 @@ pygame.init()
 Window.init()
 clock = pygame.time.Clock()
 
-level1.start()
+#level1.start()
+AlienJellyfishBoss(game_context, MAP_RIGHT_BOUND, MAP_TOP_BOUND, horizontal_speed=3, vertical_speed=1, vertical_direction=DOWN)
 
 running = True
 
