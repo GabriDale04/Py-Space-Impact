@@ -3,7 +3,7 @@ from core import *
 from config import *
 from utils import random_y, random_vertical_direction, args
 from pygame.time import get_ticks
-from game import SpaceImpactObject, Comet, Shuttle, VShip, Rocket
+from game import EyeOrb, SpaceImpactObject, Comet, Shuttle, VShip, Rocket
 from scene import game_context
 
 class Wave:
@@ -66,16 +66,11 @@ class Level:
             self.current_wave += 1
             self.last_wave_time = get_ticks()
 
-        self.cleared = True
-
         for wave_dict in self.waves:
             wave : Wave = wave_dict["wave"]
 
-            if not wave.cleared:
-                if wave.started:
-                    wave.update()
-
-                self.cleared = False
+            if not wave.cleared and wave.started:
+                wave.update()
     
     def after(self, delay : int, wave : Wave) -> 'Level':
         self.waves.append({
@@ -85,16 +80,20 @@ class Level:
 
         return self
 
-def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_max : int, y : int = -1, vdir : str = -1):
+def makeargs_any(y : int = -1, **kwArgs):
     if y == -1:
         y = random_y()
+
+    return args(context=game_context, x=MAP_RIGHT_BOUND, y=y, **kwArgs)
+
+def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_max : int, y : int = -1, vdir : str = -1):
     if vdir == -1:
         vdir = random_vertical_direction()
     
     hspeed = random.randint(hspeed_min, hspeed_max)
     vspeed = random.randint(vspeed_min, vspeed_max)
 
-    return args(context=game_context, x=MAP_RIGHT_BOUND, y=y, horizontal_speed=hspeed, vertical_speed=vspeed, vertical_direction=vdir)
+    return makeargs_any(y=y, horizontal_speed=hspeed, vertical_speed=vspeed, vertical_direction=vdir)
 
 level1 = Level().after(
     2000,
@@ -114,4 +113,9 @@ level1 = Level().after(
 ).after(
     3250,
     Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1))
+).after(
+    500,
+    Wave(0, 3, EyeOrb, **makeargs_any())
 )
+
+#level1 = Level().after(0, Wave(0, 1, EyeOrb, **makeargs_any()))

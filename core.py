@@ -56,12 +56,13 @@ class TextureAtlas:
 class Context:
     def __init__(self):
         self.game_objects : list[GameObject] = []
-    
+
     def update(self):
         new_list = []
 
         for obj in self.game_objects:
             if not obj.destroyed:
+                obj.on_render()
                 obj.update()
                 new_list.append(obj)
 
@@ -116,14 +117,14 @@ class GameObject:
 
         self.sprite = sprite
 
-    def update(self):
-        if self.destroyed:
-            return
-
+    def on_render(self):
         if self.__show_rects__:
             pygame.draw.rect(Window.screen, self.rect_color, self.rect)
         if self.sprite != None:
             Window.screen.blit(self.sprite.surface, self.rect)
+
+    def update(self):
+        pass
 
     def destroy(self):
         self.destroyed = True

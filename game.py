@@ -38,9 +38,10 @@ class SpaceImpactObject(GameObject):
         self.animations_interval = -1
         self.last_animation_time = -1
 
-    def update(self):
-        super().update()
-
+    @final
+    def on_render(self):
+        super().on_render()
+    
         if self.default_animator:
             if get_ticks() - self.last_animation_time >= self.animations_interval:
                 self.animate()
@@ -67,23 +68,24 @@ class Player(SpaceImpactObject):
             rect_color = BATTLE_SHIP_RECT_COLOR
         )
 
-        from scene import score_text as __score_text__, rockets_text as __rockets_text__
-        self.__score_text__ = __score_text__
-        self.__rockets_text__ = __rockets_text__
+        from scene import lives_text, rockets_text, score_text
+        self.__lives_text__ = lives_text
+        self.__score_text__ = score_text
+        self.__rockets_text__ = rockets_text
 
-        self._health = int_b(PLAYER_BASE_LIVES)
+        self._lives = int_b(PLAYER_BASE_LIVES)
         self._rockets = int_b(PLAYER_BASE_ROCKETS)
         self._score = int_b(PLAYER_BASE_SCORE)
     
     @property
-    def score(self):
-        return self._score
+    def lives(self):
+        return self._lives
 
-    @score.setter
-    def score(self, score : int):
-        self._score = score
-        self.__score_text__.set_amount(self._score)
-    
+    @lives.setter
+    def lives(self, lives : int):
+        self._lives = lives
+        self.__lives_text__.set_amount(lives)
+
     @property
     def rockets(self):
         return self._rockets
@@ -91,7 +93,16 @@ class Player(SpaceImpactObject):
     @rockets.setter
     def rockets(self, rockets : int):
         self._rockets = rockets
-        self.__rockets_text__.set_amount(self._rockets)
+        self.__rockets_text__.set_amount(rockets)
+
+    @property
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, score : int):
+        self._score = score
+        self.__score_text__.set_amount(score)
 
     def move(self, direction : str):
         if direction == UP:
@@ -125,7 +136,9 @@ class Player(SpaceImpactObject):
     
 class Bouncy(SpaceImpactObject):
     """
-    Represents a moving object that bounces between `MAP_TOP_BOUND` and `MAP_LEFT_BOUND`.
+    Represents a moving object that bounces between `MAP_TOP_BOUND` and `MAP_LEFT_BOUND`.\n
+    Call `self.move()` in update to make the object move every frame.\n
+    Call `self.out_bounds()` to check if the object is out of the map.
     """
     def __init__(
             self,
@@ -177,9 +190,12 @@ class Bouncy(SpaceImpactObject):
             if self.rect.y + self.rect.height >= MAP_BOTTOM_BOUND:
                 self.vertical_direction = UP
 
-        if (self.rect.x <= MAP_LEFT_BOUND - self.rect.width and self.horizontal_direction == LEFT) or (
-            self.rect.x >= MAP_RIGHT_BOUND and self.horizontal_direction == RIGHT):
+        if self.out_bounds():
             self.destroy()
+
+    def out_bounds(self) -> bool:
+        return (self.rect.x <= MAP_LEFT_BOUND - self.rect.width and self.horizontal_direction == LEFT) or \
+               (self.rect.x >= MAP_RIGHT_BOUND and self.horizontal_direction == RIGHT)
 
 class Enemy(Bouncy):
     def __init__(
@@ -215,6 +231,9 @@ class Enemy(Bouncy):
             vertical_direction = vertical_direction
         )
 
+        from scene import player
+        self.__player__ = player
+
         self.use_default_animator(animations_interval)
 
         self.horizontal_speed = horizontal_speed
@@ -232,13 +251,14 @@ class Enemy(Bouncy):
             self.__health_bar_over = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
     
     def update(self):
-        super().update()
-        
         self.shoot()
         self.move()
 
         if DEBUG_SHOW_HEALTH_BARS:
             self.debug()
+        
+        if self.out_bounds():
+            self.__player__.lives -= 1
     
     @final
     def debug(self):
@@ -413,8 +433,8 @@ class Projectile(Bouncy):
             vertical_direction = vertical_direction
         )
 
-        from scene import player as __player__
-        self.__player__ = __player__
+        from scene import player
+        self.__player__ = player
 
         self.horizontal_direction = horizontal_direction
         self.horizontal_speed = horizontal_speed
@@ -424,8 +444,6 @@ class Projectile(Bouncy):
         self.pop_reward = pop_reward
     
     def update(self):
-        super().update()
-
         self.move()
         self.check_collisions()
 
@@ -457,7 +475,8 @@ class Projectile(Bouncy):
                     
                     self.destroy()
         elif self.tag == TAG_PROJECTILE_ENEMY:
-            pass
+            if self.collide(self.__player__.rect):
+                pass
 
 class Pew(Projectile):
     def __init__(
@@ -539,8 +558,6 @@ class Pop(SpaceImpactObject):
         self.animations_interval = POP_DURATION // 2
 
     def update(self):
-        super().update()
-
         if get_ticks() - self.last_animation_time >= self.animations_interval:
             self.animate()
             self.last_animation_time = get_ticks()
@@ -575,10 +592,8 @@ class EyeOrb(Bouncy):
         self.__player__ = __player__
 
         self.use_default_animator(EYE_ORB_ANIMATIONS_INTERVAL)
-    
-    def update(self):
-        super().update()
 
+    def update(self):
         self.move()
 
         if self.collide(self.__player__.rect):
