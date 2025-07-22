@@ -12,23 +12,16 @@ level1.start()
 running = True
 
 while running:
+    Input.keysdown.clear()
+    Input.keys = pygame.key.get_pressed()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_e:
-                player.shoot()
-            elif event.key == pygame.K_r:
-                player.rocket()
+            Input.keysdown.append(event.key)
 
     Window.screen.fill((0, 0, 0))
-
-    keys = pygame.key.get_pressed()
-    
-    if keys[pygame.K_UP]:
-        player.move(UP)
-    if keys[pygame.K_DOWN]:
-        player.move(DOWN)
 
     game_context.update()
     game_ui_context.update()

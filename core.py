@@ -129,11 +129,11 @@ class GameObject:
     def destroy(self):
         self.destroyed = True
 
-    def collide(self, other : pygame.Rect) -> bool:
-        if self.destroyed:
+    def collide(self, other : 'GameObject') -> bool:
+        if self.destroyed or other.destroyed:
             return False
 
-        return self.rect.colliderect(other)
+        return self.rect.colliderect(other.rect)
 
 class Font:
     def __init__(
@@ -228,3 +228,15 @@ class Text:
             width += (font.font_map[char]["size"][0] + font.char_gap) * font_size
         
         return width
+
+class Input:
+    keys : list[int] = []
+    keysdown : list[int] = []
+    
+    @staticmethod
+    def getkeydown(key : int) -> bool:
+        return key in Input.keysdown
+
+    @staticmethod
+    def getkey(key : int) -> bool:
+        return Input.keys[key]

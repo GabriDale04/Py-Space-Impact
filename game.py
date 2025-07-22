@@ -104,6 +104,16 @@ class Player(SpaceImpactObject):
         self._score = score
         self.__score_text__.set_amount(score)
 
+    def update(self):
+        if Input.getkey(pygame.K_UP):
+            self.move(UP)
+        if Input.getkey(pygame.K_DOWN):
+            self.move(DOWN)
+        if Input.getkeydown(pygame.K_e):
+            self.shoot()
+        if Input.getkeydown(pygame.K_r):
+            self.rocket()
+
     def move(self, direction : str):
         if direction == UP:
             self.rect.y = clamp(self.rect.y - PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
@@ -133,6 +143,12 @@ class Player(SpaceImpactObject):
             TAG_PROJECTILE_PLAYER,
             RIGHT
         )
+    
+    def damage(self):
+        self.lives -= 1
+
+        if self.lives == 0:
+            pass
     
 class Bouncy(SpaceImpactObject):
     """
@@ -258,7 +274,7 @@ class Enemy(Bouncy):
             self.debug()
         
         if self.out_bounds():
-            self.__player__.lives -= 1
+            self.__player__.damage()
     
     @final
     def debug(self):
@@ -450,7 +466,7 @@ class Projectile(Bouncy):
     def check_collisions(self):
         if self.tag == TAG_PROJECTILE_PLAYER:
             for enemy in self.context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
-                if self.collide(enemy.rect):
+                if self.collide(enemy):
                     if enemy.tag == TAG_ENEMY:
                         enemy.health -= self.damage
                         self.__player__.score += enemy.hit_reward
@@ -475,8 +491,9 @@ class Projectile(Bouncy):
                     
                     self.destroy()
         elif self.tag == TAG_PROJECTILE_ENEMY:
-            if self.collide(self.__player__.rect):
-                pass
+            if self.collide(self.__player__):
+                self.__player__.damage()
+                self.destroy()
 
 class Pew(Projectile):
     def __init__(
@@ -557,11 +574,9 @@ class Pop(SpaceImpactObject):
         self.last_animation_time = get_ticks()
         self.animations_interval = POP_DURATION // 2
 
-    def update(self):
-        if get_ticks() - self.last_animation_time >= self.animations_interval:
-            self.animate()
-            self.last_animation_time = get_ticks()
+        self.use_default_animator(self.animations_interval)
 
+    def update(self):
         if get_ticks() - self.spawn_time >= POP_DURATION:
             self.destroy()
 
@@ -596,7 +611,7 @@ class EyeOrb(Bouncy):
     def update(self):
         self.move()
 
-        if self.collide(self.__player__.rect):
+        if self.collide(self.__player__):
             self.__player__.rockets += EYE_ORB_ROCKETS_REWARD
             self.destroy()
 

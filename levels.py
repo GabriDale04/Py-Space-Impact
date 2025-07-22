@@ -115,7 +115,7 @@ level1 = Level().after(
     Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1))
 ).after(
     500,
-    Wave(0, 3, EyeOrb, **makeargs_any())
+    Wave(0, 1, EyeOrb, **makeargs_any())
 )
 
 #level1 = Level().after(0, Wave(0, 1, EyeOrb, **makeargs_any()))
