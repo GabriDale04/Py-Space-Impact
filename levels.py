@@ -3,71 +3,81 @@ from core import *
 from config import *
 from utils import random_y, random_vertical_direction, args
 from pygame.time import get_ticks
-from game import Enemy, Comet, Shuttle, VShip, Rocket
+from game import SpaceImpactObject, Comet, Shuttle, VShip, Rocket
 from scene import game_context
 
 class Wave:
-    def __init__(self):
-        self.enemies : list[dict] = []
-        self.current_enemy : int = 0
-        self.last_spawn_time = None
+    def __init__(
+            self,
+            spawn_delay : int,
+            wave_size : int,
+            entity_cls : type[SpaceImpactObject],
+            **arguments
+        ):
 
+        self.spawn_delay = spawn_delay
+        self.wave_size = wave_size
+        self.entity_cls = entity_cls
+        self.arguments = arguments
+
+        self.cleared = False
+        self.spawned_entities : list[SpaceImpactObject] = []
+        self.spawned_count = 0
+        self.last_spawn_time = None
+    
     def start(self):
-        self.last_spawn_time = get_ticks()
+        self.last_spawn_time = get_ticks() - self.spawn_delay
 
     def update(self):
-        if self.last_spawn_time == None:
+        if self.last_spawn_time == None or self.cleared:
             return
 
-        if self.current_enemy < len(self.enemies) and get_ticks() - self.last_spawn_time >= self.enemies[self.current_enemy]["delay"]:
-            self.spawn(self.enemies[self.current_enemy])
-            self.current_enemy += 1
+        if self.spawned_count != self.wave_size and get_ticks() - self.last_spawn_time >= self.spawn_delay:
+            entity = self.entity_cls(**self.arguments)
+            self.spawned_entities.append(entity)
+            self.spawned_count += 1
             self.last_spawn_time = get_ticks()
-    
-    def spawn(self, enemy : dict):
-        Enemy_cls = enemy["enemy"]
-        Enemy_cls(**enemy["arguments"])
 
-    def after(self, delay : int, enemy_cls : type[Enemy], **arguments) -> 'Wave':
-        self.enemies.append({
-            "delay": delay,
-            "enemy": enemy_cls,
-            "arguments": arguments
-        })
-
-        return self
-    
-    @staticmethod
-    def build(delays : list[int], enemies_cls : list[type[Enemy]], arguments) -> 'Wave':
-        wave = Wave()
-
-        for i in range(0, len(enemies_cls)):
-            Enemy_cls = enemies_cls[i]
-
-            wave.after(delays[i], Enemy_cls, **arguments)
-        
-        return wave
+        for entity in self.spawned_entities:
+            if not entity.destroyed:
+                return
 
 class Level:
     def __init__(self):
         self.waves : list[dict] = []
-        self.current_wave : int = 0
+        
+        self.cleared = False
+        self.current_wave = 0
+        self.last_wave_time = None
+    
+    def start(self):
         self.last_wave_time = get_ticks()
 
-        self.started_waves : list[Wave] = []
-    
     def update(self):
+        if self.last_wave_time == None or self.cleared:
+            return
+
         if self.current_wave < len(self.waves) and get_ticks() - self.last_wave_time >= self.waves[self.current_wave]["delay"]:
             wave : Wave = self.waves[self.current_wave]["wave"]
             wave.start()
-            self.started_waves.append(wave)
 
             self.current_wave += 1
             self.last_wave_time = get_ticks()
 
-        for wave in self.started_waves:
-            wave.update()
+        new_wave_list : list[dict] = []
 
+        for wave_dict in self.waves:
+            wave : Wave = wave_dict["wave"]
+
+            if not wave.cleared:
+                wave.update()
+                new_wave_list.append(wave_dict)
+        
+        self.waves = new_wave_list
+        
+        if len(self.waves) == 0:
+            self.cleared = True
+    
     def after(self, delay : int, wave : Wave) -> 'Level':
         self.waves.append({
             "delay": delay,
@@ -76,64 +86,27 @@ class Level:
 
         return self
 
-def wave_args_builder(min_hspeed : int, max_hspeed : int, min_vspeed : int, max_vspeed : int, y : int = None, vertical_dir : str = None):
-    if y == None:
+def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_max : int, y : int = -1, vdir : str = -1):
+    if y == -1:
         y = random_y()
-    if vertical_dir == None:
-        vertical_dir = random_vertical_direction()
+    if vdir == -1:
+        vdir = random_vertical_direction()
+    
+    hspeed = random.randint(hspeed_min, hspeed_max)
+    vspeed = random.randint(vspeed_min, vspeed_max)
 
-    return args(
-        context=game_context,
-        x=MAP_RIGHT_BOUND,
-        y=y,
-        horizontal_speed=random.randint(min_hspeed, max_hspeed),
-        vertical_speed=random.randint(min_vspeed, max_vspeed),
-        vertical_direction=random_vertical_direction()
-    )
+    return args(context=game_context, x=MAP_RIGHT_BOUND, y=y, horizontal_speed=hspeed, vertical_speed=vspeed, vertical_direction=vdir)
 
-def level1() -> Level:
-    WAVE1_DELAYS = [0, 1250, 1250]
-    WAVE1_ENEMIES = [Comet, Comet, Comet]
-    WAVE1_MIN_HORIZONTAL_SPEED = 2
-    WAVE1_MAX_HORIZONTAL_SPEED = 3
-    WAVE1_MIN_VERTICAL_SPEED = 1
-    WAVE1_MAX_VERTICAL_SPEED = 2
-    WAVE1_ARGS = wave_args_builder(WAVE1_MIN_HORIZONTAL_SPEED, WAVE1_MAX_HORIZONTAL_SPEED, WAVE1_MIN_VERTICAL_SPEED, WAVE1_MAX_VERTICAL_SPEED)
-
-    WAVE2_DELAYS = [0, 1250, 1250]
-    WAVE2_ENEMIES = [Shuttle, Shuttle, Shuttle]
-    WAVE2_MIN_HORIZONTAL_SPEED = 2
-    WAVE2_MAX_HORIZONTAL_SPEED = 3
-    WAVE2_MIN_VERTICAL_SPEED = 1
-    WAVE2_MAX_VERTICAL_SPEED = 2
-    WAVE2_ARGS = wave_args_builder(WAVE2_MIN_HORIZONTAL_SPEED, WAVE2_MAX_HORIZONTAL_SPEED, WAVE2_MIN_VERTICAL_SPEED, WAVE2_MAX_VERTICAL_SPEED)
-
-    WAVE3_DELAYS = [0, 1250, 1250]
-    WAVE3_ENEMIES = [VShip, VShip, VShip]
-    WAVE3_MIN_HORIZONTAL_SPEED = 2
-    WAVE3_MAX_HORIZONTAL_SPEED = 3
-    WAVE3_MIN_VERTICAL_SPEED = 1
-    WAVE3_MAX_VERTICAL_SPEED = 2
-    WAVE3_ARGS = wave_args_builder(WAVE3_MIN_HORIZONTAL_SPEED, WAVE3_MAX_HORIZONTAL_SPEED, WAVE3_MIN_VERTICAL_SPEED, WAVE3_MAX_VERTICAL_SPEED)
-
-    WAVE4_DELAYS = [0, 1250, 1250]
-    WAVE4_ENEMIES = [Rocket, Rocket, Rocket]
-    WAVE4_MIN_HORIZONTAL_SPEED = 3
-    WAVE4_MAX_HORIZONTAL_SPEED = 4
-    WAVE4_MIN_VERTICAL_SPEED = 1
-    WAVE4_MAX_VERTICAL_SPEED = 1
-    WAVE4_ARGS = wave_args_builder(WAVE4_MIN_HORIZONTAL_SPEED, WAVE4_MAX_HORIZONTAL_SPEED, WAVE4_MIN_VERTICAL_SPEED, WAVE4_MAX_VERTICAL_SPEED)
-
-    return Level().after(
-        2000,
-        Wave.build(WAVE1_DELAYS, WAVE1_ENEMIES, WAVE1_ARGS)
-    ).after(
-        5000,
-        Wave.build(WAVE2_DELAYS, WAVE2_ENEMIES, WAVE2_ARGS)
-    ).after(
-        5000,
-        Wave.build(WAVE3_DELAYS, WAVE3_ENEMIES, WAVE3_ARGS)
-    ).after(
-        5000,
-        Wave.build(WAVE4_DELAYS, WAVE4_ENEMIES, WAVE4_ARGS)
-    )
+level1 = Level().after(
+    2000,
+    Wave(1000, 3, Comet, **makeargs_enemy(2, 3, 2, 2))
+).after(
+    5000,
+    Wave(1000, 3, Shuttle, **makeargs_enemy(2, 3, 2, 2))
+).after(
+    5000,
+    Wave(1000, 3, VShip, **makeargs_enemy(2, 3, 2, 2))
+).after(
+    5000,
+    Wave(1000, 3, Rocket, **makeargs_enemy(3, 4, 1, 1))
+)

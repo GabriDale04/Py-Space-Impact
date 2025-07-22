@@ -7,7 +7,7 @@ pygame.init()
 Window.init()
 clock = pygame.time.Clock()
 
-LEVEL1 = level1()
+level1.start()
 
 running = True
 
@@ -32,7 +32,7 @@ while running:
 
     game_context.update()
     game_ui_context.update()
-    LEVEL1.update()
+    level1.update()
 
     pygame.display.flip()
     clock.tick(60)

@@ -207,7 +207,7 @@ SCORE_TEXT_FONT_SIZE = 3
 # =================================================================
 
 # Use 16bit numbers for counters such as score, health and rockets. If False, uses 32bit integers
-USE_16BIT_INTEGERS = False
+USE_16BIT_INTEGERS = True
 # Freezes the score on overflow.
 FREEZE_SCORE_ON_OVERFLOW = False
 # Shows the rects of the GameObjects. [⚠] Use only for debugging
