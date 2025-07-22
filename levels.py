@@ -20,13 +20,16 @@ class Wave:
         self.entity_cls = entity_cls
         self.arguments = arguments
 
+        self.started = False
         self.cleared = False
         self.spawned_entities : list[SpaceImpactObject] = []
         self.spawned_count = 0
         self.last_spawn_time = None
     
     def start(self):
-        self.last_spawn_time = get_ticks() - self.spawn_delay
+        if not self.started:
+            self.last_spawn_time = get_ticks() - self.spawn_delay
+            self.started = True
 
     def update(self):
         if self.last_spawn_time == None or self.cleared:
@@ -38,9 +41,8 @@ class Wave:
             self.spawned_count += 1
             self.last_spawn_time = get_ticks()
 
-        for entity in self.spawned_entities:
-            if not entity.destroyed:
-                return
+        if self.spawned_count == self.wave_size:
+            self.cleared = all(entity.destroyed for entity in self.spawned_entities)
 
 class Level:
     def __init__(self):
@@ -64,19 +66,16 @@ class Level:
             self.current_wave += 1
             self.last_wave_time = get_ticks()
 
-        new_wave_list : list[dict] = []
+        self.cleared = True
 
         for wave_dict in self.waves:
             wave : Wave = wave_dict["wave"]
 
             if not wave.cleared:
-                wave.update()
-                new_wave_list.append(wave_dict)
-        
-        self.waves = new_wave_list
-        
-        if len(self.waves) == 0:
-            self.cleared = True
+                if wave.started:
+                    wave.update()
+
+                self.cleared = False
     
     def after(self, delay : int, wave : Wave) -> 'Level':
         self.waves.append({
@@ -99,14 +98,20 @@ def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_
 
 level1 = Level().after(
     2000,
-    Wave(1000, 3, Comet, **makeargs_enemy(2, 3, 2, 2))
+    Wave(1000, 3, Comet, **makeargs_enemy(2, 2, 2, 2))
 ).after(
-    5000,
-    Wave(1000, 3, Shuttle, **makeargs_enemy(2, 3, 2, 2))
+    7000,
+    Wave(1000, 3, Shuttle, **makeargs_enemy(2, 2, 2, 2))
 ).after(
-    5000,
-    Wave(1000, 3, VShip, **makeargs_enemy(2, 3, 2, 2))
+    7000,
+    Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 2, 2))
 ).after(
-    5000,
-    Wave(1000, 3, Rocket, **makeargs_enemy(3, 4, 1, 1))
+    7000,
+    Wave(1000, 3, Rocket, **makeargs_enemy(4, 4, 1, 1))
+).after(
+    7000,
+    Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1))
+).after(
+    3250,
+    Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1))
 )
