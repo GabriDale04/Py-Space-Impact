@@ -3,7 +3,7 @@ from core import *
 from config import *
 from utils import random_y, random_vertical_direction, args
 from pygame.time import get_ticks
-from game import EyeOrb, SpaceImpactObject, Comet, Shuttle, VShip, Rocket
+from game import AlienJellyfishBoss, EyeOrb, SpaceImpactObject, Comet, Shuttle, VShip, Rocket
 from scene import game_context
 
 class Wave:
@@ -12,6 +12,7 @@ class Wave:
             spawn_delay : int,
             wave_size : int,
             entity_cls : type[SpaceImpactObject],
+            dont_consider_for_clear = False,
             **cls_args
         ):
 
@@ -32,7 +33,7 @@ class Wave:
             self.started = True
 
     def update(self):
-        if self.last_spawn_time == None or self.cleared:
+        if self.cleared or self.last_spawn_time == None:
             return
 
         if self.spawned_count != self.wave_size and get_ticks() - self.last_spawn_time >= self.spawn_delay:
@@ -50,34 +51,45 @@ class Level:
         self.boss_cls = boss_cls
         self.cls_args = cls_args
         
-        self.cleared = False
         self.current_wave = 0
         self.last_wave_time = None
+        self.is_boss_stage = False
     
     def start(self):
         self.last_wave_time = get_ticks()
 
     def update(self):
-        if self.last_wave_time == None or self.cleared:
-            return
+        spawn_boss = True
 
+        for wave_dict in self.waves:
+            wave : Wave = wave_dict["wave"]
+
+            if not wave.cleared:
+                if wave_dict["requires_clear"]:
+                    spawn_boss = False
+
+                if wave.started:
+                    wave.update()
+
+        if self.last_wave_time == None or self.is_boss_stage:
+            return
+    
         if self.current_wave < len(self.waves) and get_ticks() - self.last_wave_time >= self.waves[self.current_wave]["delay"]:
             wave : Wave = self.waves[self.current_wave]["wave"]
             wave.start()
 
             self.current_wave += 1
             self.last_wave_time = get_ticks()
+        
+        if spawn_boss:
+            self.is_boss_stage = True
+            self.boss_cls(**self.cls_args)
 
-        for wave_dict in self.waves:
-            wave : Wave = wave_dict["wave"]
-
-            if not wave.cleared and wave.started:
-                wave.update()
-    
-    def after(self, delay : int, wave : Wave) -> 'Level':
+    def after(self, delay : int, wave : Wave, requires_clear = True) -> 'Level':
         self.waves.append({
             "delay": delay,
-            "wave": wave
+            "wave": wave,
+            "requires_clear": requires_clear
         })
 
         return self
@@ -97,7 +109,7 @@ def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_
 
     return makeargs_any(y=y, horizontal_speed=hspeed, vertical_speed=vspeed, vertical_direction=vdir)
 
-level1 = Level(None).after(
+level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     2000,
     Wave(1000, 3, Comet, **makeargs_enemy(2, 2, 2, 2))
 ).after(
@@ -117,7 +129,6 @@ level1 = Level(None).after(
     Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1))
 ).after(
     500,
-    Wave(0, 1, EyeOrb, **makeargs_any())
+    Wave(0, 1, EyeOrb, **makeargs_any()),
+    requires_clear=False
 )
-
-#level1 = Level().after(0, Wave(0, 1, EyeOrb, **makeargs_any()))

@@ -106,7 +106,7 @@ POP_DURATION = 100
 PLAYER_SPAWN_X = 25
 PLAYER_SPAWN_Y = MAP_TOP_BOUND
 PLAYER_SPEED = 5
-PLAYER_BASE_LIVES = -0x7FFF
+PLAYER_BASE_LIVES = 3
 PLAYER_BASE_SCORE = 0
 PLAYER_BASE_ROCKETS = 3
 
@@ -190,10 +190,6 @@ FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP = {
     "-": {
         "coords": (0, 3),
         "size": (9, 15)
-    },
-    "/": {
-        "coords": (1, 3),
-        "size": (9, 15)
     }
 }
 
@@ -225,7 +221,7 @@ USE_16BIT_INTEGERS = True
 # Freezes the score on overflow.
 FREEZE_SCORE_ON_OVERFLOW = False
 # Shows the rects of the GameObjects. [⚠] Use only for debugging
-DEBUG_SHOW_RECTS = True
+DEBUG_SHOW_RECTS = False
 # Displays the health bar above enemies. [⚠] Use only for debugging
 DEBUG_SHOW_HEALTH_BARS = True
 HEALTH_BAR_HEIGHT = 10

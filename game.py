@@ -638,8 +638,8 @@ class EyeOrb(Bouncy):
             vertical_direction = UP
         )
 
-        from scene import player as __player__
-        self.__player__ = __player__
+        from scene import player
+        self.__player__ = player
 
         self.use_default_animator(EYE_ORB_ANIMATIONS_INTERVAL)
 
