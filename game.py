@@ -76,6 +76,11 @@ class Player(SpaceImpactObject):
         self._lives = int_b(PLAYER_BASE_LIVES)
         self._rockets = int_b(PLAYER_BASE_ROCKETS)
         self._score = int_b(PLAYER_BASE_SCORE)
+
+        self.flight_mode = False
+        self.flight_speed = 0
+        self.flight_max_speed = PLAYER_FLIGHT_MAX_SPEED
+        self.flight_acceleration = PLAYER_FLIGHT_ACCELERATION
     
     @property
     def lives(self):
@@ -105,6 +110,11 @@ class Player(SpaceImpactObject):
         self.__score_text__.set_amount(score)
 
     def update(self):
+        if self.flight_mode:
+            self.flight_speed = clamp(self.flight_speed + self.flight_acceleration, 0, self.flight_max_speed)
+            self.rect.x += self.flight_speed
+            return
+
         if Input.getkey(pygame.K_UP):
             self.move(UP)
         if Input.getkey(pygame.K_DOWN):
@@ -143,6 +153,10 @@ class Player(SpaceImpactObject):
             TAG_PROJECTILE_PLAYER,
             RIGHT
         )
+
+    def fly_away(self):
+        self.flight_mode = True
+        self.flight_speed = 0
     
     def damage(self):
         self.lives -= 1

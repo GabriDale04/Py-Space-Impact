@@ -7,7 +7,6 @@ pygame.init()
 Window.init()
 clock = pygame.time.Clock()
 
-level1.start()
 #AlienJellyfishBoss(game_context, MAP_RIGHT_BOUND, MAP_TOP_BOUND, horizontal_speed=3, vertical_speed=1, vertical_direction=DOWN)
 
 running = True
@@ -26,7 +25,7 @@ while running:
 
     game_context.update()
     game_ui_context.update()
-    level1.update()
+    level_manager.update()
 
     pygame.display.flip()
     clock.tick(60)

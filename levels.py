@@ -4,7 +4,7 @@ from config import *
 from utils import random_y, random_vertical_direction, args
 from pygame.time import get_ticks
 from game import AlienJellyfishBoss, EyeOrb, SpaceImpactObject, Comet, Shuttle, VShip, Rocket
-from scene import game_context
+from scene import *
 
 class Wave:
     def __init__(
@@ -12,7 +12,6 @@ class Wave:
             spawn_delay : int,
             wave_size : int,
             entity_cls : type[SpaceImpactObject],
-            dont_consider_for_clear = False,
             **cls_args
         ):
 
@@ -51,9 +50,12 @@ class Level:
         self.boss_cls = boss_cls
         self.cls_args = cls_args
         
+        self.started = False
+        self.cleared = False
         self.current_wave = 0
         self.last_wave_time = None
         self.is_boss_stage = False
+        self.boss : SpaceImpactObject = None
     
     def start(self):
         self.last_wave_time = get_ticks()
@@ -71,7 +73,11 @@ class Level:
                 if wave.started:
                     wave.update()
 
-        if self.last_wave_time == None or self.is_boss_stage:
+        if self.is_boss_stage and self.boss.destroyed:
+            self.cleared = True
+            return
+
+        if self.last_wave_time == None:
             return
     
         if self.current_wave < len(self.waves) and get_ticks() - self.last_wave_time >= self.waves[self.current_wave]["delay"]:
@@ -83,7 +89,7 @@ class Level:
         
         if spawn_boss:
             self.is_boss_stage = True
-            self.boss_cls(**self.cls_args)
+            self.boss = self.boss_cls(**self.cls_args)
 
     def after(self, delay : int, wave : Wave, requires_clear = True) -> 'Level':
         self.waves.append({
@@ -93,6 +99,25 @@ class Level:
         })
 
         return self
+
+class LevelManager:
+    def __init__(self, levels : list[Level]):
+        self.levels = levels
+        self.current_level : Level = None
+        self.current_level_index = 0
+    
+    def update(self):
+        current_level = self.levels[self.current_level_index]
+
+        if not current_level.started:
+           current_level.start()
+           self.current_level = current_level
+        
+        current_level.update()
+
+        if current_level.cleared:
+            player.fly_away()
+
 
 def makeargs_any(y : int = -1, **kwArgs):
     if y == -1:
@@ -128,7 +153,18 @@ level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, D
     3250,
     Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1))
 ).after(
-    500,
+    7000,
+    Wave(0, 1, Shuttle, **makeargs_enemy(3, 5, 1, 1))
+).after(
+    3000,
+    Wave(1000, 2, Shuttle, **makeargs_enemy(3, 3, 2, 3))
+).after(
+    4000,
+    Wave(1000, 3, Comet, **makeargs_enemy(3, 3, 1, 1))
+).after(
+    2000,
     Wave(0, 1, EyeOrb, **makeargs_any()),
     requires_clear=False
 )
+
+level_manager = LevelManager([level1])

@@ -109,6 +109,8 @@ PLAYER_SPEED = 5
 PLAYER_BASE_LIVES = 3
 PLAYER_BASE_SCORE = 0
 PLAYER_BASE_ROCKETS = 3
+PLAYER_FLIGHT_ACCELERATION = 0.05
+PLAYER_FLIGHT_MAX_SPEED = 50
 
 # The interval between enemy's attempted shots. A shot may not be performed as the chance of shooting is described by `ENEMY_SHOOT_CHANCE`.
 ENEMY_SHOOT_ROLL_INTERVAL = 1000
