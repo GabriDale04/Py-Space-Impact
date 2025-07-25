@@ -75,8 +75,8 @@ class Level:
                 if wave.started:
                     wave.update()
 
-        if self.is_boss_stage and self.boss.destroyed:
-            self.cleared = True
+        if self.is_boss_stage:
+            self.cleared = self.boss.destroyed
             return
 
         if self.last_wave_time == None:
@@ -170,6 +170,11 @@ level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, D
     2000,
     Wave(0, 1, EyeOrb, **makeargs_any()),
     requires_clear=False
+)
+
+level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+    0,
+    Wave(1000, 3, Comet, **makeargs_enemy(2, 2, 2, 2))
 )
 
 level_manager = LevelManager([level1])
