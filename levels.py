@@ -114,14 +114,18 @@ class LevelManager:
         if not current_level.started:
            current_level.start()
            self.current_level = current_level
-        
-        current_level.update()
-
-        if current_level.cleared:
+        elif not player.flight_mode and current_level.cleared:
             player.fly_away()
             
             for projectile in game_context.find_with_tags([TAG_PROJECTILE_ENEMY, TAG_PROJECTILE_PLAYER]):
-                projectile.vertical_speed = 0
+                projectile.vertical_speed = 0    
+        # When the player has flew at least three 'windows', go to next level
+        elif player.flight_mode and player.rect.x >= WINDOW_WIDTH * 3:
+            player.flight_mode = False
+            self.current_level_index += 1
+            player.recall()
+
+        current_level.update()
 
 
 def makeargs_any(y : int = -1, **kwArgs):
@@ -174,7 +178,12 @@ level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, D
 
 level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     0,
-    Wave(1000, 3, Comet, **makeargs_enemy(2, 2, 2, 2))
+    Wave(1000, 1, Comet, **makeargs_enemy(2, 2, 2, 2))
 )
 
-level_manager = LevelManager([level1])
+level2 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+    0,
+    Wave(1000, 1, Comet, **makeargs_enemy(2, 2, 2, 2))
+)
+
+level_manager = LevelManager([level1, level2])

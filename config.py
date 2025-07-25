@@ -110,8 +110,8 @@ POP_RECT_COLOR = (0, 100, 0)
 POP_ANIMATIONS = [Sprite.load("textures/pop1.png", SPRITE_SMALL_WIDTH, SPRITE_SMALL_HEIGHT), Sprite.load("textures/pop2.png", SPRITE_SMALL_WIDTH, SPRITE_SMALL_HEIGHT)]
 POP_DURATION = 100
 
-PLAYER_SPAWN_X = 25
-PLAYER_SPAWN_Y = MAP_TOP_BOUND
+PLAYER_SPAWN_X = MAP_LEFT_BOUND + 25
+PLAYER_SPAWN_Y = MAP_TOP_BOUND + (WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND) - BATTLE_SHIP_RECT_HEIGHT) // 2
 PLAYER_SPEED = 5
 PLAYER_BASE_LIVES = 3
 PLAYER_BASE_SCORE = 0
@@ -221,9 +221,9 @@ ROCKETS_TEXT_ABSOLUTE_WIDTH = Text.width_of(">00", FONT_SPACE_IMPACT_COUNTERS, R
 SCORE_TEXT_TOP_OFFSET = 25
 SCORE_TEXT_FONT_SIZE = 3
 
-# =================================================================
-# This section includes some debugging features and common settings
-# =================================================================
+# ==========================================================
+# This section includes some debugging features and settings
+# ==========================================================
 
 # Use 16bit numbers for counters such as score, health and rockets. If False, uses 32bit integers
 USE_16BIT_INTEGERS = True
@@ -237,3 +237,5 @@ HEALTH_BAR_HEIGHT = 10
 HEALTH_BAR_OFFSET_Y = HEALTH_BAR_HEIGHT + 20
 HEALTH_BAR_UNDER_COLOR = (128, 128, 128)
 HEALTH_BAR_OVER_COLOR = (255, 0, 0)
+# Shows a rect representing the game field. [⚠] Use only for debugging
+DEBUG_SHOW_MAP_BOUNDS = True

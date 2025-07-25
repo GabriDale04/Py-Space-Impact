@@ -160,6 +160,10 @@ class Player(SpaceImpactObject):
         self.flight_mode = True
         self.flight_speed = 0
     
+    def recall(self):
+        self.rect.x = PLAYER_SPAWN_X
+        self.rect.y = PLAYER_SPAWN_Y
+
     def damage(self):
         if self.shield_powerup != None and not self.shield_powerup.destroyed:
             return
