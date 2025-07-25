@@ -8,6 +8,7 @@ Window.init()
 clock = pygame.time.Clock()
 
 #AlienJellyfishBoss(game_context, MAP_RIGHT_BOUND, MAP_TOP_BOUND, horizontal_speed=3, vertical_speed=1, vertical_direction=DOWN)
+player.shield_powerup = BattleshipShield(game_context, player)
 
 running = True
 

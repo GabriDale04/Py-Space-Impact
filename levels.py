@@ -58,7 +58,9 @@ class Level:
         self.boss : SpaceImpactObject = None
     
     def start(self):
-        self.last_wave_time = get_ticks()
+        if not self.started:
+            self.started = True
+            self.last_wave_time = get_ticks()
 
     def update(self):
         spawn_boss = True
@@ -117,6 +119,9 @@ class LevelManager:
 
         if current_level.cleared:
             player.fly_away()
+            
+            for projectile in game_context.find_with_tags([TAG_PROJECTILE_ENEMY, TAG_PROJECTILE_PLAYER]):
+                projectile.vertical_speed = 0
 
 
 def makeargs_any(y : int = -1, **kwArgs):

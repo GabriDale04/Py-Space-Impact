@@ -73,9 +73,11 @@ class Player(SpaceImpactObject):
         self.__score_text__ = score_text
         self.__rockets_text__ = rockets_text
 
-        self._lives = int_b(PLAYER_BASE_LIVES)
-        self._rockets = int_b(PLAYER_BASE_ROCKETS)
-        self._score = int_b(PLAYER_BASE_SCORE)
+        self.lives = PLAYER_BASE_LIVES
+        self.rockets = PLAYER_BASE_ROCKETS
+        self.score = PLAYER_BASE_SCORE
+
+        self.shield_powerup : BattleshipShield = None
 
         self.flight_mode = False
         self.flight_speed = 0
@@ -159,6 +161,10 @@ class Player(SpaceImpactObject):
         self.flight_speed = 0
     
     def damage(self):
+        if self.shield_powerup != None and not self.shield_powerup.destroyed:
+            return
+
+        self.shield_powerup = None
         self.lives -= 1
 
         if self.lives == 0:
@@ -662,6 +668,33 @@ class EyeOrb(Bouncy):
 
         if self.collide(self.__player__):
             self.__player__.rockets += EYE_ORB_ROCKETS_REWARD
+            self.destroy()
+
+class BattleshipShield(SpaceImpactObject):
+    def __init__(
+            self,
+            context : Context,
+            owner : SpaceImpactObject
+        ):
+
+        super().__init__(
+            context = context,
+            x = 0,
+            y = 0,
+            width = BATTLE_SHIP_SHIELD_RECT_WIDTH,
+            height = BATTLE_SHIP_SHIELD_RECT_HEIGHT,
+            animations = BATTLE_SHIP_SHIELD_ANIMATIONS,
+            rect_color = BATTLE_SHIP_SHIELD_RECT_COLOR
+        )
+
+        self.use_default_animator(BATTLE_SHIP_SHIELD_ANIMATIONS_INTERVAL)
+        self.owner = owner
+        self.start_time = get_ticks()
+    
+    def update(self):
+        self.rect.center = self.owner.rect.center
+
+        if get_ticks() - self.start_time >= BATTLE_SHIP_SHIELD_DURATION:
             self.destroy()
 
 class LivesText(Text):
