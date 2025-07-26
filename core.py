@@ -167,13 +167,17 @@ class Font:
 
         return Sprite.from_surface(self.font_source.get_sprite(coords[0], coords[1], size[0], size[1]).surface, size[0] * font_size, size[1] * font_size)
 
-class Text:
+class Text(GameObject):
     def __init__(
             self,
             context : Context,
             font : Font,
             font_size : int
         ):
+
+        super().__init__(
+            context = context
+        )
 
         from config import FONT_RECT_COLOR
         self.__font_rect_color__ = FONT_RECT_COLOR

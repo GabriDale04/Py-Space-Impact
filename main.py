@@ -8,8 +8,8 @@ Window.init()
 clock = pygame.time.Clock()
 
 map_bounds = pygame.Rect(MAP_LEFT_BOUND, MAP_TOP_BOUND, WINDOW_WIDTH - MAP_LEFT_BOUND - (WINDOW_WIDTH - MAP_RIGHT_BOUND), WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND))
-
 player.shield_powerup = BattleshipShield(game_context, player)
+GameManager.set_theme(NOKIA_LIGHT, SKY_WALLPAPER)
 
 running = True
 
@@ -28,6 +28,7 @@ while running:
     if DEBUG_SHOW_MAP_BOUNDS:
         pygame.draw.rect(Window.screen, (53, 90, 33), map_bounds)
 
+    GameManager.update()
     game_context.update()
     game_ui_context.update()
     level_manager.update()

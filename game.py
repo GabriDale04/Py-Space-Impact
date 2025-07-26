@@ -8,11 +8,23 @@ import pygame
 import random
 
 class GameManager:
-    objects_color = NOKIA_LIGHT
+    objects_tint = NOKIA_LIGHT_COLOR
+    wallpaper = None
+
+    @staticmethod
+    def set_theme(theme : str, wallpaper : Sprite):
+        GameManager.wallpaper = wallpaper
+
+        if theme == NOKIA_LIGHT:
+            GameManager.objects_tint = NOKIA_DARK_COLOR
+            wallpaper.tint(NOKIA_LIGHT_COLOR)
+        else:
+            GameManager.objects_tint = NOKIA_LIGHT_COLOR
+            wallpaper.tint(NOKIA_DARK_COLOR)
 
     @staticmethod
     def update():
-        pass
+        Window.screen.blit(GameManager.wallpaper.surface, (0, 0))
 
 class SpaceImpactObject(GameObject):
     def __init__(
@@ -27,11 +39,13 @@ class SpaceImpactObject(GameObject):
             rect_color : tuple[int, int, int] = (0, 0, 0)
         ):
 
+        self.current_tint = GameManager.objects_tint
+
         self.current_animation = 0
         self.animations = animations
 
         for animation in self.animations:
-            animation.tint(GameManager.objects_color)
+            animation.tint(self.current_tint)
 
         super().__init__(
             context = context,
@@ -52,6 +66,12 @@ class SpaceImpactObject(GameObject):
     def on_render(self):
         super().on_render()
     
+        if self.current_tint != GameManager.objects_tint:
+            self.current_tint = GameManager.objects_tint
+
+            for animation in self.animations:
+                animation.tint(self.current_tint)
+
         if self.default_animator:
             if get_ticks() - self.last_animation_time >= self.animations_interval:
                 self.animate()
@@ -724,12 +744,26 @@ class ThemeText(Text):
             font = font,
             font_size = font_size
         )
+
+        self.current_tint = GameManager.objects_tint
+
+        for char in self.characters:
+            self.current_tint = GameManager.objects_tint
+            char.sprite.tint(self.current_tint)
+
+    def on_render(self):
+        super().on_render()
+
+        if self.current_tint != GameManager.objects_tint:
+            for char in self.characters:
+                self.current_tint = GameManager.objects_tint
+                char.sprite.tint(self.current_tint)
     
-    def set_text(self, value):
+    def set_text(self, value : str):
         super().set_text(value)
 
         for char in self.characters:
-            char.sprite.tint(GameManager.objects_color)
+            char.sprite.tint(self.current_tint)
 
 class LivesText(ThemeText):
     def __init__(
