@@ -7,6 +7,13 @@ from typing import final
 import pygame
 import random
 
+class GameManager:
+    objects_color = NOKIA_LIGHT
+
+    @staticmethod
+    def update():
+        pass
+
 class SpaceImpactObject(GameObject):
     def __init__(
             self,
@@ -22,6 +29,9 @@ class SpaceImpactObject(GameObject):
 
         self.current_animation = 0
         self.animations = animations
+
+        for animation in self.animations:
+            animation.tint(GameManager.objects_color)
 
         super().__init__(
             context = context,
@@ -701,7 +711,27 @@ class BattleshipShield(SpaceImpactObject):
         if get_ticks() - self.start_time >= BATTLE_SHIP_SHIELD_DURATION:
             self.destroy()
 
-class LivesText(Text):
+class ThemeText(Text):
+    def __init__(
+            self,
+            context : Context,
+            font : Font,
+            font_size : int
+        ):
+
+        super().__init__(
+            context = context,
+            font = font,
+            font_size = font_size
+        )
+    
+    def set_text(self, value):
+        super().set_text(value)
+
+        for char in self.characters:
+            char.sprite.tint(GameManager.objects_color)
+
+class LivesText(ThemeText):
     def __init__(
             self, 
             context : Context,
@@ -725,7 +755,7 @@ class LivesText(Text):
         else:
             self.set_text("v" + str(value).zfill(2))
 
-class RocketsText(Text):
+class RocketsText(ThemeText):
     def __init__(
             self, 
             context : Context,
@@ -744,7 +774,7 @@ class RocketsText(Text):
     def set_amount(self, value : int):
         self.set_text(">" + str(int_b(value)).zfill(2))
 
-class ScoreText(Text):
+class ScoreText(ThemeText):
     def __init__(
             self, 
             context : Context,

@@ -16,7 +16,16 @@ class Sprite:
             surface : pygame.Surface
         ):
             self.surface = surface
+            self.surface_untouched = surface
+            self.tint_color : tuple[int, int, int] = (-1, -1, -1)
     
+    def tint(self, color : tuple[int, int, int]):
+        if self.tint_color == color:
+            return
+        
+        self.surface = self.surface_untouched.copy()
+        self.surface.fill(color, special_flags=pygame.BLEND_RGBA_MULT)
+
     @staticmethod
     def load(resource : str, width : int, height : int):
         surface = pygame.image.load(resource)
@@ -166,8 +175,8 @@ class Text:
             font_size : int
         ):
 
-        from config import FONT_RECT_COLOR as __font_rect_color__
-        self.__font_rect_color__ = __font_rect_color__
+        from config import FONT_RECT_COLOR
+        self.__font_rect_color__ = FONT_RECT_COLOR
 
         self.context = context
         self.font = font
