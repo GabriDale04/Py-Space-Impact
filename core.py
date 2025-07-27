@@ -243,7 +243,7 @@ class Text(GameObject):
         return width
 
 class Input:
-    keys : list[int] = []
+    keys = None
     keysdown : list[int] = []
     
     @staticmethod

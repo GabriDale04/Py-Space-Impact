@@ -9,7 +9,7 @@ import random
 
 class GameManager:
     objects_tint = NOKIA_LIGHT_COLOR
-    wallpaper = None
+    wallpaper = VOID_WALLPAPER
 
     @staticmethod
     def set_theme(theme : str, wallpaper : Sprite):

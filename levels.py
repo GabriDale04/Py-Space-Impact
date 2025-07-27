@@ -45,8 +45,10 @@ class Wave:
             self.cleared = all(entity.destroyed for entity in self.spawned_entities)
 
 class Level:
-    def __init__(self, boss_cls : type[SpaceImpactObject], **cls_args):
+    def __init__(self, theme : str, wallpaper : Sprite, boss_cls : type[SpaceImpactObject], **cls_args):
         self.waves : list[dict] = []
+        self.theme = theme
+        self.wallpaper = wallpaper
         self.boss_cls = boss_cls
         self.cls_args = cls_args
         
@@ -61,6 +63,7 @@ class Level:
         if not self.started:
             self.started = True
             self.last_wave_time = get_ticks()
+            GameManager.set_theme(self.theme, self.wallpaper)
 
     def update(self):
         spawn_boss = True
@@ -143,7 +146,7 @@ def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_
 
     return makeargs_any(y=y, horizontal_speed=hspeed, vertical_speed=vspeed, vertical_direction=vdir)
 
-level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     2000,
     Wave(1000, 3, Comet, **makeargs_enemy(2, 2, 2, 2))
 ).after(
@@ -176,12 +179,12 @@ level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, D
     requires_clear=False
 )
 
-level1 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
-    0,
-    Wave(1000, 1, Comet, **makeargs_enemy(2, 2, 2, 2))
+level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+    2000,
+    Wave(1000, 3, EyeOrb, **makeargs_any())
 )
 
-level2 = Level(AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     0,
     Wave(1000, 1, Comet, **makeargs_enemy(2, 2, 2, 2))
 )
