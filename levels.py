@@ -3,7 +3,7 @@ from core import *
 from config import *
 from utils import random_y, random_vertical_direction, args
 from pygame.time import get_ticks
-from game import AlienJellyfishBoss, EyeOrb, SpaceImpactObject, Comet, Shuttle, VShip, Rocket
+from game import *
 from scene import *
 
 class Wave:
@@ -179,14 +179,14 @@ level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(
     requires_clear=False
 )
 
-level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
-    2000,
-    Wave(1000, 3, EyeOrb, **makeargs_any())
-)
+# level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+#     2000,
+#     Wave(1000, 3, EyeOrb, **makeargs_any())
+# )
 
-level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level1 = level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     0,
-    Wave(1000, 1, Comet, **makeargs_enemy(2, 2, 2, 2))
+    Wave(1000, 1, Acorn, **makeargs_enemy(2, 2, 2, 2))
 )
 
 level_manager = LevelManager([level1, level2])

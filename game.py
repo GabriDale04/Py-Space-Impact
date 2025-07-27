@@ -3,7 +3,7 @@ from utils import clamp, int_b
 from pygame.time import get_ticks
 from core import *
 from config import *
-from typing import final
+from typing import final, cast
 import pygame
 import random
 
@@ -62,7 +62,6 @@ class SpaceImpactObject(GameObject):
         self.animations_interval = -1
         self.last_animation_time = -1
 
-    @final
     def on_render(self):
         super().on_render()
     
@@ -357,6 +356,9 @@ class Enemy(Bouncy):
             )
 
         self.last_shoot_time = get_ticks()
+    
+    def damage(self, amount : int):
+        self.health -= amount
 
 class Comet(Enemy):
     def __init__(
@@ -470,6 +472,34 @@ class Rocket(Enemy):
             pop_reward = ROCKET_POP_REWARD
         )
 
+class Acorn(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = ACORN_RECT_WIDTH,
+            height = ACORN_RECT_HEIGHT,
+            animations = ACORN_ANIMATIONS,
+            rect_color = ACORN_RECT_COLOR,
+            animations_interval = ACORN_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = ACORN_HEALTH,
+            hit_reward = ACORN_HIT_REWARD,
+            pop_reward = ACORN_POP_REWARD
+        )
+
 class AlienJellyfishBoss(Enemy):
     def __init__(
             self,
@@ -498,12 +528,25 @@ class AlienJellyfishBoss(Enemy):
             pop_reward = ALIEN_JELLYFISH_BOSS_POP_REWARD
         )
 
+        self.blink_start_time = 0
+        self.blink_duration = 75
+
     def update(self):
         super().update()
 
         if self.rect.x <= MAP_RIGHT_BOUND - self.rect.width - self.rect.width // 4:
             self.horizontal_speed = 0
             self.vertical_speed = 4
+        
+        if get_ticks() - self.blink_start_time >= self.blink_duration:
+            self.hidden = False
+        
+    def damage(self, amount):
+        super().damage(amount)
+
+        if not self.hidden:
+            self.hidden = True
+            self.blink_start_time = get_ticks()
 
 class Projectile(Bouncy):
     def __init__(
@@ -557,7 +600,9 @@ class Projectile(Bouncy):
             for enemy in self.context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
                 if self.collide(enemy):
                     if enemy.tag == TAG_ENEMY:
-                        enemy.health -= self.damage
+                        enemy = cast(Enemy, enemy)
+
+                        enemy.damage(self.damage)
                         self.__player__.score += enemy.hit_reward
 
                         if enemy.health <= 0:
@@ -570,6 +615,8 @@ class Projectile(Bouncy):
                             
                             enemy.destroy()
                     elif enemy.tag == TAG_PROJECTILE_ENEMY:
+                        enemy = cast(Projectile, enemy)
+
                         Pop(self.context,
                             enemy.rect.x + (enemy.rect.width - POP_RECT_WIDTH) // 2, 
                             enemy.rect.y + (enemy.rect.height - POP_RECT_HEIGHT) // 2

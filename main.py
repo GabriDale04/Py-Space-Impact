@@ -32,7 +32,6 @@ while running:
     game_ui_context.update()
     level_manager.update()
 
-
     pygame.display.flip()
     clock.tick(60)
 

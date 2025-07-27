@@ -111,8 +111,8 @@ class GameObject:
             rect_color : tuple[int, int, int] = (0, 0, 0)
         ):
 
-        from config import DEBUG_SHOW_RECTS as __show_rects__
-        self.__show_rects__ = __show_rects__
+        from config import DEBUG_SHOW_RECTS
+        self.__show_rects__ = DEBUG_SHOW_RECTS
 
         self.context = context
         context.append(self)
@@ -122,6 +122,7 @@ class GameObject:
         
         self.tag = tag
 
+        self.hidden = False
         self.destroyed = False
 
         self.sprite = sprite
@@ -129,7 +130,7 @@ class GameObject:
     def on_render(self):
         if self.__show_rects__:
             pygame.draw.rect(Window.screen, self.rect_color, self.rect)
-        if self.sprite != None:
+        if self.sprite != None and not self.hidden:
             Window.screen.blit(self.sprite.surface, self.rect)
 
     def update(self):
