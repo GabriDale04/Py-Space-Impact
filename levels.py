@@ -186,7 +186,10 @@ level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(
 
 level1 = level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     0,
-    Wave(1000, 1, Acorn, **makeargs_enemy(2, 2, 2, 2))
+    Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1, y=MAP_TOP_BOUND + 100, vdir=DOWN))
+).after(
+    0,
+    Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1, y=MAP_BOTTOM_BOUND - 100, vdir=UP))
 )
 
 level_manager = LevelManager([level1, level2])
