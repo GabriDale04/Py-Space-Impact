@@ -197,8 +197,9 @@ class Player(SpaceImpactObject):
         if self.shield_powerup != None and not self.shield_powerup.destroyed:
             return
 
-        self.shield_powerup = None
         self.lives -= 1
+        self.shield_powerup = BattleshipShield(self.context, self)
+        self.recall()
 
         if self.lives == 0:
             pass
@@ -502,7 +503,59 @@ class Acorn(Enemy):
             pop_reward = ACORN_POP_REWARD
         )
 
-class AlienJellyfishBoss(Enemy):
+class BossEnemy(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            width : int,
+            height : int,
+            animations : list[Sprite],
+            rect_color : tuple[int, int, int],
+            animations_interval : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str,
+            health : int,
+            hit_reward : int,
+            pop_reward : int,
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            animations = animations,
+            rect_color = rect_color,
+            animations_interval = animations_interval,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = health,
+            hit_reward = hit_reward,
+            pop_reward = pop_reward
+        )
+
+        self.blink_start_time = BOSS_ENEMY_DAMAGE_BLINK_DURATION
+        self.blink_duration = 75
+
+    def update(self):
+        super().update()
+        
+        if get_ticks() - self.blink_start_time >= self.blink_duration:
+            self.hidden = False
+
+    def damage(self, amount):
+        super().damage(amount)
+
+        if not self.hidden:
+            self.hidden = True
+            self.blink_start_time = get_ticks()
+
+class AlienJellyfishBoss(BossEnemy):
     def __init__(
             self,
             context : Context,
@@ -530,8 +583,40 @@ class AlienJellyfishBoss(Enemy):
             pop_reward = ALIEN_JELLYFISH_BOSS_POP_REWARD
         )
 
-        self.blink_start_time = 0
-        self.blink_duration = 75
+    def update(self):
+        super().update()
+
+        if self.rect.x <= MAP_RIGHT_BOUND - self.rect.width - self.rect.width // 4:
+            self.horizontal_speed = 0
+            self.vertical_speed = 4
+
+class PythonBoss(BossEnemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = PYTHON_BOSS_RECT_WIDTH,
+            height = PYTHON_BOSS_RECT_HEIGHT,
+            animations = PYTHON_BOSS_ANIMATIONS,
+            rect_color = PYTHON_BOSS_RECT_COLOR,
+            animations_interval = PYTHON_BOSS_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = PYTHON_BOSS_HEALTH,
+            hit_reward = PYTHON_BOSS_HIT_REWARD,
+            pop_reward = PYTHON_BOSS_POP_REWARD
+        )
 
     def update(self):
         super().update()
@@ -539,16 +624,6 @@ class AlienJellyfishBoss(Enemy):
         if self.rect.x <= MAP_RIGHT_BOUND - self.rect.width - self.rect.width // 4:
             self.horizontal_speed = 0
             self.vertical_speed = 4
-        
-        if get_ticks() - self.blink_start_time >= self.blink_duration:
-            self.hidden = False
-        
-    def damage(self, amount):
-        super().damage(amount)
-
-        if not self.hidden:
-            self.hidden = True
-            self.blink_start_time = get_ticks()
 
 class Projectile(Bouncy):
     def __init__(

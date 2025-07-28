@@ -146,7 +146,7 @@ def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_
 
     return makeargs_any(y=y, horizontal_speed=hspeed, vertical_speed=vspeed, vertical_direction=vdir)
 
-level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 5, 5, MAP_TOP_BOUND, DOWN)).after(
     2000,
     Wave(1000, 3, Comet, **makeargs_enemy(2, 2, 2, 2))
 ).after(
@@ -179,17 +179,52 @@ level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(
     requires_clear=False
 )
 
-# level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
-#     2000,
-#     Wave(1000, 3, EyeOrb, **makeargs_any())
-# )
-
-level1 = level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     0,
     Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1, y=MAP_TOP_BOUND + 100, vdir=DOWN))
 ).after(
     0,
-    Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1, y=MAP_BOTTOM_BOUND - 100, vdir=UP))
+    Wave(1000, 3, VShip, **makeargs_enemy(2, 2, 1, 1, y=MAP_BOTTOM_BOUND - 100 - VSHIP_RECT_HEIGHT, vdir=UP))
+).after(
+    3250,
+    Wave(0, 1, EyeOrb, **makeargs_any()),
+    requires_clear=False
+).after(
+    4000,
+    Wave(1000, 3, Acorn, **makeargs_enemy(2, 2, 1, 1, y=MAP_TOP_BOUND + 100, vdir=UP))
+).after(
+    0,
+    Wave(1000, 3, Acorn, **makeargs_enemy(2, 2, 1, 1, y=MAP_BOTTOM_BOUND - 100 - ACORN_RECT_HEIGHT, vdir=UP))
+).after(
+    5000,
+    Wave(0, 1, Shuttle, **makeargs_enemy(2, 5, 1, 2))
+).after(
+    1000,
+    Wave(0, 1, Shuttle, **makeargs_enemy(2, 5, 1, 2))
+).after(
+    1000,
+    Wave(0, 1, Shuttle, **makeargs_enemy(2, 5, 1, 2))
+).after(
+    2500,
+    Wave(1000, 3, Shuttle, **makeargs_enemy(3, 3, 1, 1))
+).after(
+    4000,
+    Wave(1000, 3, Rocket, **makeargs_enemy(4, 4, 1, 1))
+).after(
+    4000,
+    Wave(0, 1, Rocket, **makeargs_enemy(4, 4, 1, 1))
+).after(
+    1000,
+    Wave(0, 1, Rocket, **makeargs_enemy(4, 4, 1, 1))
+).after(
+    4000,
+    Wave(2500, 5, Rocket, **makeargs_enemy(4, 4, 1, 1))
+)
+
+level1 = level2 = Level(NOKIA_DARK, VOID_WALLPAPER, PythonBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+    2000,
+    Wave(1000, 3, EyeOrb, **makeargs_any()),
+    requires_clear=False
 )
 
 level_manager = LevelManager([level1, level2])
