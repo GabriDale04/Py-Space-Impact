@@ -747,6 +747,47 @@ class PythonBoss(BossEnemy):
             self.horizontal_speed = 0
             self.vertical_speed = 4
 
+class PufferfishBoss(BossEnemy):
+    stop_distance = MAP_RIGHT_BOUND - PUFFERFISH_BOSS_RECT_WIDTH - 50
+
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = PUFFERFISH_BOSS_RECT_WIDTH,
+            height = PUFFERFISH_BOSS_RECT_HEIGHT,
+            animations = PUFFERFISH_BOSS_ANIMATIONS,
+            rect_color = PUFFERFISH_BOSS_RECT_COLOR,
+            animations_interval = PUFFERFISH_BOSS_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = PUFFERFISH_BOSS_HEALTH,
+            hit_reward = PUFFERFISH_BOSS_HIT_REWARD,
+            pop_reward = PUFFERFISH_BOSS_POP_REWARD,
+            shoot_chance = PUFFERFISH_BOSS_SHOOT_CHANCE
+        )
+
+        self.has_stopped = False
+
+    def update(self):
+        super().update()
+
+        if not self.has_stopped and self.rect.x <= PufferfishBoss.stop_distance:
+            self.has_stopped = True
+            self.horizontal_speed = 0
+            self.vertical_speed = 4
+
 class Projectile(Bouncy):
     def __init__(
         self,
