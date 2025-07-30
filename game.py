@@ -503,6 +503,90 @@ class Acorn(Enemy):
             pop_reward = ACORN_POP_REWARD
         )
 
+class Snake(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = SNAKE_RECT_WIDTH,
+            height = SNAKE_RECT_HEIGHT,
+            animations = SNAKE_ANIMATIONS,
+            rect_color = SNAKE_RECT_COLOR,
+            animations_interval = SNAKE_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = SNAKE_HEALTH,
+            hit_reward = SNAKE_HIT_REWARD,
+            pop_reward = SNAKE_POP_REWARD
+        )
+
+class Drone(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = DRONE_RECT_WIDTH,
+            height = DRONE_RECT_HEIGHT,
+            animations = DRONE_ANIMATIONS,
+            rect_color = DRONE_RECT_COLOR,
+            animations_interval = DRONE_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = DRONE_HEALTH,
+            hit_reward = DRONE_HIT_REWARD,
+            pop_reward = DRONE_POP_REWARD
+        )
+
+class Virus(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = VIRUS_RECT_WIDTH,
+            height = VIRUS_RECT_HEIGHT,
+            animations = VIRUS_ANIMATIONS,
+            rect_color = VIRUS_RECT_COLOR,
+            animations_interval = VIRUS_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = VIRUS_HEALTH,
+            hit_reward = VIRUS_HIT_REWARD,
+            pop_reward = VIRUS_POP_REWARD
+        )
+
 class BossEnemy(Enemy):
     def __init__(
             self,

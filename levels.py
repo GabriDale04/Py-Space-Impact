@@ -78,19 +78,19 @@ class Level:
                 if wave.started:
                     wave.update()
 
-        if self.is_boss_stage:
-            self.cleared = self.boss.destroyed
-            return
-
-        if self.last_wave_time == None:
-            return
-    
         if self.current_wave < len(self.waves) and get_ticks() - self.last_wave_time >= self.waves[self.current_wave]["delay"]:
             wave : Wave = self.waves[self.current_wave]["wave"]
             wave.start()
 
             self.current_wave += 1
             self.last_wave_time = get_ticks()
+
+        if self.is_boss_stage:
+            self.cleared = self.boss.destroyed
+            return
+
+        if self.last_wave_time == None:
+            return
         
         if spawn_boss:
             self.is_boss_stage = True
@@ -223,7 +223,15 @@ level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, PythonBoss, **makeargs_enemy(3, 3, 3,
 
 level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, PythonBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     2000,
-    Wave(1000, 3, EyeOrb, **makeargs_any()),
+    Wave(1000, 1, Snake, **makeargs_enemy(1, 1, 1, 1)),
+    requires_clear=False
+).after(
+    2000,
+    Wave(1000, 1, Virus, **makeargs_enemy(1, 1, 1, 1)),
+    requires_clear=False
+).after(
+    2000,
+    Wave(1000, 1, Drone, **makeargs_enemy(1, 1, 1, 1)),
     requires_clear=False
 )
 
