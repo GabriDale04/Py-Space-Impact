@@ -23,7 +23,7 @@ class Sprite:
         if self.tint_color == color:
             return
         
-        self.surface = self.surface_untouched.copy()
+        self.surface = self.surface_untouched.copy().convert_alpha()
         self.surface.fill(color, special_flags=pygame.BLEND_RGBA_MULT)
 
     @staticmethod

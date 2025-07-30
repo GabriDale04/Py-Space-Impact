@@ -17,10 +17,10 @@ class GameManager:
 
         if theme == NOKIA_LIGHT:
             GameManager.objects_tint = NOKIA_DARK_COLOR
-            wallpaper.tint(NOKIA_LIGHT_COLOR)
         else:
             GameManager.objects_tint = NOKIA_LIGHT_COLOR
-            wallpaper.tint(NOKIA_DARK_COLOR)
+
+        wallpaper.tint(NOKIA_LIGHT_COLOR)
 
     @staticmethod
     def update():

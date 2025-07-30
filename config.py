@@ -130,6 +130,12 @@ POP_DURATION = 100
 
 VOID_WALLPAPER = Sprite.load("textures/wallpapers/void.png", WINDOW_WIDTH, WINDOW_HEIGHT)
 SKY_WALLPAPER = Sprite.load("textures/wallpapers/sky.png", WINDOW_WIDTH, WINDOW_HEIGHT)
+MOUNTAINS_WALLPAPER = Sprite.load("textures/wallpapers/mountains.png", WINDOW_WIDTH, WINDOW_HEIGHT)
+CITY_WALLPAPER = Sprite.load("textures/wallpapers/city.png", WINDOW_WIDTH, WINDOW_HEIGHT)
+CURSED_WALLPAPER = Sprite.load("textures/wallpapers/cursed.png", WINDOW_WIDTH, WINDOW_HEIGHT)
+CURSED2_WALLPAPER = Sprite.load("textures/wallpapers/cursed2.png", WINDOW_WIDTH, WINDOW_HEIGHT)
+ROAD_WALLPAPER = Sprite.load("textures/wallpapers/road.png", WINDOW_WIDTH, WINDOW_HEIGHT)
+ROAD2_WALLPAPER = Sprite.load("textures/wallpapers/road2.png", WINDOW_WIDTH, WINDOW_HEIGHT)
 
 PLAYER_SPAWN_X = MAP_LEFT_BOUND + 25
 PLAYER_SPAWN_Y = MAP_TOP_BOUND + (WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND) - BATTLE_SHIP_RECT_HEIGHT) // 2

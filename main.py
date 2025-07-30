@@ -1,11 +1,13 @@
-from core import *
+import pygame
 from game import *
-from scene import *
-from levels import *
 
 pygame.init()
 Window.init()
 clock = pygame.time.Clock()
+
+from core import *
+from scene import *
+from levels import *
 
 map_bounds = pygame.Rect(MAP_LEFT_BOUND, MAP_TOP_BOUND, WINDOW_WIDTH - MAP_LEFT_BOUND - (WINDOW_WIDTH - MAP_RIGHT_BOUND), WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND))
 player.shield_powerup = BattleshipShield(game_context, player)
