@@ -331,8 +331,9 @@ class Enemy(Bouncy):
         if DEBUG_SHOW_HEALTH_BARS:
             self.debug()
         
-        if self.out_bounds():
+        if self.collide(self.__player__):
             self.__player__.damage()
+            self.destroy()
     
     @final
     def debug(self):
