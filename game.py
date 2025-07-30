@@ -284,6 +284,7 @@ class Enemy(Bouncy):
             health : int,
             hit_reward : int,
             pop_reward : int,
+            shoot_chance : int
         ):
 
         super().__init__(
@@ -313,6 +314,7 @@ class Enemy(Bouncy):
         self.health = health
         self.hit_reward = hit_reward
         self.pop_reward = pop_reward
+        self.shoot_chance = shoot_chance
 
         self.last_shoot_time = get_ticks()
 
@@ -349,7 +351,7 @@ class Enemy(Bouncy):
 
         roll = random.randint(1, 100)
 
-        if roll <= ENEMY_SHOOT_CHANCE:
+        if roll <= self.shoot_chance:
             Pew(
                 self.context, 
                 self.rect.x - self.rect.width // 4, 
@@ -388,7 +390,8 @@ class Comet(Enemy):
             vertical_direction = vertical_direction,
             health = COMET_HEALTH,
             hit_reward = COMET_HIT_REWARD,
-            pop_reward = COMET_POP_REWARD
+            pop_reward = COMET_POP_REWARD,
+            shoot_chance = COMET_SHOOT_CHANCE
         )
 
 class Shuttle(Enemy):
@@ -416,7 +419,8 @@ class Shuttle(Enemy):
             vertical_direction = vertical_direction,
             health = SHUTTLE_HEALTH,
             hit_reward = SHUTTLE_HIT_REWARD,
-            pop_reward = SHUTTLE_POP_REWARD
+            pop_reward = SHUTTLE_POP_REWARD,
+            shoot_chance = SHUTTLE_SHOOT_CHANCE
         )
 
 class VShip(Enemy):
@@ -444,7 +448,8 @@ class VShip(Enemy):
             vertical_direction = vertical_direction,
             health = VSHIP_HEALTH,
             hit_reward = VSHIP_HIT_REWARD,
-            pop_reward = VSHIP_POP_REWARD
+            pop_reward = VSHIP_POP_REWARD,
+            shoot_chance = VSHIP_SHOOT_CHANCE
         )
 
 class Rocket(Enemy):
@@ -472,7 +477,8 @@ class Rocket(Enemy):
             vertical_direction = vertical_direction,
             health = ROCKET_HEALTH,
             hit_reward = ROCKET_HIT_REWARD,
-            pop_reward = ROCKET_POP_REWARD
+            pop_reward = ROCKET_POP_REWARD,
+            shoot_chance = ROCKET_SHOOT_CHANCE
         )
 
 class Acorn(Enemy):
@@ -500,7 +506,8 @@ class Acorn(Enemy):
             vertical_direction = vertical_direction,
             health = ACORN_HEALTH,
             hit_reward = ACORN_HIT_REWARD,
-            pop_reward = ACORN_POP_REWARD
+            pop_reward = ACORN_POP_REWARD,
+            shoot_chance = ACORN_SHOOT_CHANCE
         )
 
 class Snake(Enemy):
@@ -528,7 +535,8 @@ class Snake(Enemy):
             vertical_direction = vertical_direction,
             health = SNAKE_HEALTH,
             hit_reward = SNAKE_HIT_REWARD,
-            pop_reward = SNAKE_POP_REWARD
+            pop_reward = SNAKE_POP_REWARD,
+            shoot_chance = SNAKE_SHOOT_CHANCE
         )
 
 class Drone(Enemy):
@@ -556,10 +564,13 @@ class Drone(Enemy):
             vertical_direction = vertical_direction,
             health = DRONE_HEALTH,
             hit_reward = DRONE_HIT_REWARD,
-            pop_reward = DRONE_POP_REWARD
+            pop_reward = DRONE_POP_REWARD,
+            shoot_chance = DRONE_SHOOT_CHANCE
         )
 
 class Virus(Enemy):
+    stop_distance = MAP_LEFT_BOUND + (WINDOW_WIDTH - MAP_LEFT_BOUND - (WINDOW_WIDTH - MAP_RIGHT_BOUND)) * (1.5 / 3)
+
     def __init__(
             self,
             context : Context,
@@ -584,10 +595,22 @@ class Virus(Enemy):
             vertical_direction = vertical_direction,
             health = VIRUS_HEALTH,
             hit_reward = VIRUS_HIT_REWARD,
-            pop_reward = VIRUS_POP_REWARD
+            pop_reward = VIRUS_POP_REWARD,
+            shoot_chance = VIRUS_SHOOT_CHANCE
         )
 
-class BossEnemy(Enemy):
+        self.has_stopped = False
+
+    def update(self):
+        super().update()
+
+        if not self.has_stopped and self.rect.x <= Virus.stop_distance:
+            self.has_stopped = True
+            self.horizontal_speed = 0
+            self.vertical_speed = 5
+            self.shoot_chance = 100
+
+class BossEnemy(Enemy):    
     def __init__(
             self,
             context : Context,
@@ -604,6 +627,7 @@ class BossEnemy(Enemy):
             health : int,
             hit_reward : int,
             pop_reward : int,
+            shoot_chance : int
         ):
 
         super().__init__(
@@ -620,7 +644,8 @@ class BossEnemy(Enemy):
             vertical_direction = vertical_direction,
             health = health,
             hit_reward = hit_reward,
-            pop_reward = pop_reward
+            pop_reward = pop_reward,
+            shoot_chance=shoot_chance
         )
 
         self.blink_start_time = BOSS_ENEMY_DAMAGE_BLINK_DURATION
@@ -640,6 +665,8 @@ class BossEnemy(Enemy):
             self.blink_start_time = get_ticks()
 
 class AlienJellyfishBoss(BossEnemy):
+    stop_distance = MAP_RIGHT_BOUND - ALIEN_JELLYFISH_BOSS_RECT_WIDTH - 50
+
     def __init__(
             self,
             context : Context,
@@ -664,17 +691,23 @@ class AlienJellyfishBoss(BossEnemy):
             vertical_direction = vertical_direction,
             health = ALIEN_JELLYFISH_BOSS_HEALTH,
             hit_reward = ALIEN_JELLYFISH_BOSS_HIT_REWARD,
-            pop_reward = ALIEN_JELLYFISH_BOSS_POP_REWARD
+            pop_reward = ALIEN_JELLYFISH_BOSS_POP_REWARD,
+            shoot_chance = ALIEN_JELLYFISH_BOSS_SHOOT_CHANCE
         )
+
+        self.has_stopped = False
 
     def update(self):
         super().update()
 
-        if self.rect.x <= MAP_RIGHT_BOUND - self.rect.width - self.rect.width // 4:
+        if not self.has_stopped and self.rect.x <= AlienJellyfishBoss.stop_distance:
+            self.has_stopped = True
             self.horizontal_speed = 0
             self.vertical_speed = 4
 
 class PythonBoss(BossEnemy):
+    stop_distance = MAP_RIGHT_BOUND - PYTHON_BOSS_RECT_WIDTH - 50
+
     def __init__(
             self,
             context : Context,
@@ -699,13 +732,17 @@ class PythonBoss(BossEnemy):
             vertical_direction = vertical_direction,
             health = PYTHON_BOSS_HEALTH,
             hit_reward = PYTHON_BOSS_HIT_REWARD,
-            pop_reward = PYTHON_BOSS_POP_REWARD
+            pop_reward = PYTHON_BOSS_POP_REWARD,
+            shoot_chance = PYTHON_BOSS_SHOOT_CHANCE
         )
+
+        self.has_stopped = False
 
     def update(self):
         super().update()
 
-        if self.rect.x <= MAP_RIGHT_BOUND - self.rect.width - self.rect.width // 4:
+        if not self.has_stopped and self.rect.x <= PythonBoss.stop_distance:
+            self.has_stopped = True
             self.horizontal_speed = 0
             self.vertical_speed = 4
 

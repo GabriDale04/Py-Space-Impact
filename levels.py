@@ -221,17 +221,9 @@ level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, PythonBoss, **makeargs_enemy(3, 3, 3,
     Wave(2500, 5, Rocket, **makeargs_enemy(4, 4, 1, 1))
 )
 
-level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, PythonBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     2000,
-    Wave(1000, 1, Snake, **makeargs_enemy(1, 1, 1, 1)),
-    requires_clear=False
-).after(
-    2000,
-    Wave(1000, 1, Virus, **makeargs_enemy(1, 1, 1, 1)),
-    requires_clear=False
-).after(
-    2000,
-    Wave(1000, 1, Drone, **makeargs_enemy(1, 1, 1, 1)),
+    Wave(0, 1, Drone, **makeargs_enemy(3, 3, 0, 0)),
     requires_clear=False
 )
 
