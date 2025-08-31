@@ -3,10 +3,14 @@ import random
 from config import (
     USE_16BIT_INTEGERS, 
     FREEZE_SCORE_ON_OVERFLOW,
+    MAP_LEFT_BOUND,
+    MAP_RIGHT_BOUND,
     MAP_TOP_BOUND,
     MAP_BOTTOM_BOUND,
     UP,
-    DOWN
+    DOWN,
+    WINDOW_WIDTH,
+    WINDOW_HEIGHT
 )
 
 def clamp(value : int, min_value : int, max_value : int) -> int:
@@ -35,3 +39,6 @@ def random_y():
 
 def random_vertical_direction():
     return DOWN if random.randint(0, 1) == 0 else UP
+
+def center_y(top_offset : int) -> int:
+    return MAP_TOP_BOUND + (WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND)) // 2 + top_offset

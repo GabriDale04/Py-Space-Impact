@@ -1,5 +1,5 @@
 import pygame.macosx
-from utils import clamp, int_b
+from utils import clamp, int_b, center_y
 from pygame.time import get_ticks
 from core import *
 from config import *
@@ -297,7 +297,80 @@ class Bouncy(SpaceImpactObject):
         return (self.rect.x <= MAP_LEFT_BOUND - self.rect.width and self.horizontal_direction == LEFT) or \
                (self.rect.x >= MAP_RIGHT_BOUND and self.horizontal_direction == RIGHT)
 
-class Enemy(Bouncy):
+class Living(Bouncy):
+    def __init__(
+            self,
+            context : Context,
+            x : int = 0,
+            y : int = 0,
+            width : int = 0,
+            height : int = 0,
+            tag : str = None,
+            animations : list[Sprite] = [],
+            rect_color : tuple[int, int, int] = (0, 0, 0),
+
+            horizontal_speed : int = 0,
+            vertical_speed : int = 0,
+            horizontal_direction : str = None,
+            vertical_direction : str = None,
+
+            health : int = 0
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            tag = tag,
+            animations = animations,
+            rect_color = rect_color,
+
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            horizontal_direction = horizontal_direction,
+            vertical_direction = vertical_direction
+        )
+
+        self.health = health
+        self.max_health = health
+
+        if DEBUG_SHOW_HEALTH_BARS:
+            self.__health_bar_under = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
+            self.__health_bar_over = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
+
+    def update(self):
+        super().update()
+
+        if DEBUG_SHOW_HEALTH_BARS:
+            self.__debug()
+
+    def damage(self, amount : int):
+        self.health -= amount
+
+        if self.health <= 0:
+            self.pop()
+    
+    def pop(self):
+        Pop(self.context, 
+            self.rect.x + (self.rect.width - POP_RECT_WIDTH) // 2, 
+            self.rect.y + (self.rect.height - POP_RECT_HEIGHT) // 2
+        )
+
+        self.destroy()
+
+    def __debug(self):
+        self.__health_bar_under.x = self.rect.x
+        self.__health_bar_under.y = self.rect.y - HEALTH_BAR_OFFSET_Y
+        self.__health_bar_over.x = self.rect.x
+        self.__health_bar_over.y = self.rect.y - HEALTH_BAR_OFFSET_Y
+        self.__health_bar_over.width = (self.health / self.max_health) * self.__health_bar_under.width
+
+        pygame.draw.rect(Window.screen, (128, 128, 128), self.__health_bar_under)
+        pygame.draw.rect(Window.screen, (255, 0, 0), self.__health_bar_over)
+
+class Enemy(Living):
     def __init__(
             self,
             context : Context,
@@ -326,10 +399,13 @@ class Enemy(Bouncy):
             tag = TAG_ENEMY,
             animations = animations,
             rect_color = rect_color,
+
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             horizontal_direction = LEFT,
-            vertical_direction = vertical_direction
+            vertical_direction = vertical_direction,
+
+            health = health
         )
 
         from scene import player
@@ -340,41 +416,26 @@ class Enemy(Bouncy):
         self.horizontal_speed = horizontal_speed
         self.vertical_speed = vertical_speed
         self.vertical_direction = vertical_direction
-        self.max_health = health
-        self.health = health
         self.hit_reward = hit_reward
         self.pop_reward = pop_reward
         self.shoot_chance = shoot_chance
 
         self.last_shoot_time = get_ticks()
 
-        if DEBUG_SHOW_HEALTH_BARS:
-            self.__health_bar_under = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
-            self.__health_bar_over = pygame.Rect(self.rect.x, self.rect.y - HEALTH_BAR_OFFSET_Y, self.rect.width, HEALTH_BAR_HEIGHT)
-
         self.rect.y = clamp(self.rect.y, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
     
     def update(self):
+        super().update()
+
         self.shoot()
         self.move()
-
-        if DEBUG_SHOW_HEALTH_BARS:
-            self.debug()
         
         if self.collide(self.__player__):
             self.__player__.damage()
-            self.destroy()
+            self.pop()
     
-    @final
-    def debug(self):
-        self.__health_bar_under.x = self.rect.x
-        self.__health_bar_under.y = self.rect.y - HEALTH_BAR_OFFSET_Y
-        self.__health_bar_over.x = self.rect.x
-        self.__health_bar_over.y = self.rect.y - HEALTH_BAR_OFFSET_Y
-        self.__health_bar_over.width = (self.health / self.max_health) * self.__health_bar_under.width
-
-        pygame.draw.rect(Window.screen, (128, 128, 128), self.__health_bar_under)
-        pygame.draw.rect(Window.screen, (255, 0, 0), self.__health_bar_over)
+    def move(self):
+        super().move()
     
     def shoot(self):
         if get_ticks() - self.last_shoot_time < ENEMY_SHOOT_ROLL_INTERVAL:
@@ -394,7 +455,12 @@ class Enemy(Bouncy):
         self.last_shoot_time = get_ticks()
     
     def damage(self, amount : int):
-        self.health -= amount
+        super().damage(amount)
+        
+        self.__player__.score += self.hit_reward
+        
+        if self.destroyed:
+            self.__player__.score += self.pop_reward
 
 class Comet(Enemy):
     def __init__(
@@ -806,8 +872,8 @@ class PythonBoss(BossEnemy):
             self.horizontal_speed = 0
             self.vertical_speed = 4
 
-class PufferfishBoss(BossEnemy):
-    stop_distance = MAP_RIGHT_BOUND - PUFFERFISH_BOSS_RECT_WIDTH - 50
+class PiranhaBoss(BossEnemy):
+    stop_distance = MAP_RIGHT_BOUND - PIRANHA_BOSS_RECT_WIDTH - 50
 
     def __init__(
             self,
@@ -823,31 +889,102 @@ class PufferfishBoss(BossEnemy):
             context = context,
             x = x,
             y = y,
-            width = PUFFERFISH_BOSS_RECT_WIDTH,
-            height = PUFFERFISH_BOSS_RECT_HEIGHT,
-            animations = PUFFERFISH_BOSS_ANIMATIONS,
-            rect_color = PUFFERFISH_BOSS_RECT_COLOR,
-            animations_interval = PUFFERFISH_BOSS_ANIMATIONS_INTERVAL,
+            width = PIRANHA_BOSS_RECT_WIDTH,
+            height = PIRANHA_BOSS_RECT_HEIGHT,
+            animations = PIRANHA_BOSS_ANIMATIONS,
+            rect_color = PIRANHA_BOSS_RECT_COLOR,
+            animations_interval = PIRANHA_BOSS_ANIMATIONS_INTERVAL,
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = PUFFERFISH_BOSS_HEALTH,
-            hit_reward = PUFFERFISH_BOSS_HIT_REWARD,
-            pop_reward = PUFFERFISH_BOSS_POP_REWARD,
-            shoot_chance = PUFFERFISH_BOSS_SHOOT_CHANCE
+            health = PIRANHA_BOSS_HEALTH,
+            hit_reward = PIRANHA_BOSS_HIT_REWARD,
+            pop_reward = PIRANHA_BOSS_POP_REWARD,
+            shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE
         )
 
         self.has_stopped = False
 
+        self.casting = False
+        self.ability_position_phase = False
+        self.ability_shoot_phase = False
+        self.ability_last_shoot_time = 0
+        self.ability_shots_done = 0
+        self.ability_projectiles_distance = PIRANHA_BOSS_ABILITY_PROJECTILES_COVERED_SURFACE_HEIGHT // PIRANHA_BOSS_ABILITY_PROJECTILES_COUNT
+        self.ability_shoot_pos = center_y(-self.rect.height // 2)
+        self.ability_last_cast_time = get_ticks()
+
     def update(self):
         super().update()
 
-        if not self.has_stopped and self.rect.x <= PufferfishBoss.stop_distance:
+        self.ability()
+
+        if not self.has_stopped and self.rect.x <= PiranhaBoss.stop_distance:
             self.has_stopped = True
             self.horizontal_speed = 0
             self.vertical_speed = 4
+            self.shoot_chance = PIRANHA_BOSS_ABILITY_SHOOT_CHANCE
 
-class Projectile(Bouncy):
+    def ability(self):
+        if not self.casting and get_ticks() - self.ability_last_cast_time > PIRANHA_BOSS_ABILITY_COOLDOWN:
+            self.casting = True
+            self.ability_position_phase = True
+            self.ability_shots_done = 0
+            self.vertical_speed = PIRANHA_BOSS_ABILITY_POSITION_PHASE_VERTICAL_SPEED
+
+            if self.rect.y > self.ability_shoot_pos:
+                self.vertical_direction = UP
+            else:
+                self.vertical_direction = DOWN      
+        elif self.ability_position_phase:
+            if self.vertical_direction == UP:
+                self.rect.y = clamp(self.rect.y, self.ability_shoot_pos, 2147483647)
+            else:
+                self.rect.y = clamp(self.rect.y, -2147483648, self.ability_shoot_pos)
+            
+            if self.rect.y == self.ability_shoot_pos:
+                self.vertical_speed = 0
+                self.ability_position_phase = False
+                self.ability_shoot_phase = True    
+        elif self.ability_shoot_phase and get_ticks() - self.ability_last_shoot_time >= PIRANHA_BOSS_ABILITY_SHOOT_INTERVAL:
+            for i in range(0, PIRANHA_BOSS_ABILITY_PROJECTILES_COUNT):
+                if i == 0:
+                    Pew(
+                        self.context,
+                        self.rect.x - 8,
+                        self.rect.centery,
+                        TAG_PROJECTILE_ENEMY,
+                        LEFT
+                    )            
+                elif i % 2 == 0:
+                    Pew(
+                        self.context,
+                        self.rect.x - 8,
+                        self.rect.centery + i * self.ability_projectiles_distance,
+                        TAG_PROJECTILE_ENEMY,
+                        LEFT
+                    )
+                else:
+                    Pew(
+                        self.context,
+                        self.rect.x - 8,
+                        self.rect.centery - i * self.ability_projectiles_distance - PROJECTILE_PEW_RECT_HEIGHT * 2,
+                        TAG_PROJECTILE_ENEMY,
+                        LEFT
+                    )
+
+            self.ability_shots_done += 1
+            self.ability_last_shoot_time = get_ticks()
+
+            if self.ability_shots_done == PIRANHA_BOSS_ABILITY_SHOTS_COUNT:
+                self.vertical_speed = 4
+                self.shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE
+                self.ability_shoot_phase = False
+                self.casting = False
+                self.ability_last_cast_time = get_ticks()
+            
+    
+class Projectile(Living):
     def __init__(
         self,
         context : Context,
@@ -858,11 +995,16 @@ class Projectile(Bouncy):
         tag : str,
         animations : list[Sprite],
         rect_color : tuple[int, int, int],
+
         horizontal_speed : int,
         vertical_speed : int,
         horizontal_direction : str,
         vertical_direction : str,
-        damage : int,
+
+        health : int,
+
+        hit_damage : int,
+        hit_reward : int,
         pop_reward : int
     ):
         super().__init__(
@@ -874,10 +1016,13 @@ class Projectile(Bouncy):
             tag = tag,
             animations = animations,
             rect_color = rect_color,
+
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             horizontal_direction = horizontal_direction,
-            vertical_direction = vertical_direction
+            vertical_direction = vertical_direction,
+
+            health = health
         )
 
         from scene import player
@@ -887,7 +1032,8 @@ class Projectile(Bouncy):
         self.horizontal_speed = horizontal_speed
         self.vertical_speed = vertical_speed
         self.vertical_direction = vertical_direction
-        self.damage = damage
+        self.hit_damage = hit_damage
+        self.hit_reward = hit_reward
         self.pop_reward = pop_reward
     
     def update(self):
@@ -898,37 +1044,23 @@ class Projectile(Bouncy):
         if self.tag == TAG_PROJECTILE_PLAYER:
             for enemy in self.context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
                 if self.collide(enemy):
-                    if enemy.tag == TAG_ENEMY:
-                        enemy = cast(Enemy, enemy)
+                    enemy = cast(Enemy, enemy)
+                    enemy.damage(self.hit_damage)
 
-                        enemy.damage(self.damage)
-                        self.__player__.score += enemy.hit_reward
-
-                        if enemy.health <= 0:
-                            self.__player__.score += enemy.pop_reward
-
-                            Pop(self.context, 
-                                enemy.rect.x + (enemy.rect.width - POP_RECT_WIDTH) // 2, 
-                                enemy.rect.y + (enemy.rect.height - POP_RECT_HEIGHT) // 2
-                            )
-                            
-                            enemy.destroy()
-                    elif enemy.tag == TAG_PROJECTILE_ENEMY:
-                        enemy = cast(Projectile, enemy)
-
-                        Pop(self.context,
-                            enemy.rect.x + (enemy.rect.width - POP_RECT_WIDTH) // 2, 
-                            enemy.rect.y + (enemy.rect.height - POP_RECT_HEIGHT) // 2
-                        )
-                        
-                        self.__player__.score += enemy.pop_reward
-                        enemy.destroy()
-                    
                     self.destroy()
         elif self.tag == TAG_PROJECTILE_ENEMY:
             if self.collide(self.__player__):
                 self.__player__.damage()
                 self.destroy()
+
+    def damage(self, amount : int):
+        super().damage(amount)
+
+        if self.tag == TAG_PROJECTILE_ENEMY:
+            self.__player__.score += self.hit_reward
+
+            if self.destroyed:
+                self.__player__.score += self.pop_reward
 
 class Pew(Projectile):
     def __init__(
@@ -955,7 +1087,10 @@ class Pew(Projectile):
             horizontal_direction = horizontal_direction,
             vertical_direction = UP,
 
-            damage = PROJECTILE_PEW_DAMAGE,
+            health = PROJECTILE_PEW_HEALTH,
+
+            hit_damage = PROJECTILE_PEW_DAMAGE,
+            hit_reward = PROJECTILE_PEW_HIT_REWARD,
             pop_reward = PROJECTILE_PEW_POP_REWARD
         )
 
@@ -984,7 +1119,10 @@ class RocketProjectile(Projectile):
             horizontal_direction = horizontal_direction,
             vertical_direction = UP if random.randint(0, 1) == 0 else DOWN,
 
-            damage = PROJECTILE_ROCKET_DAMAGE,
+            health = PROJECTILE_ROCKET_HEALTH,
+
+            hit_damage = PROJECTILE_ROCKET_DAMAGE,
+            hit_reward = PROJECTILE_ROCKET_HIT_REWARD,
             pop_reward = PROJECTILE_ROCKET_POP_REWARD
         )
 

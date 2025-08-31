@@ -26,10 +26,12 @@ while running:
 
     Window.screen.fill((0, 0, 0))
 
-    if DEBUG_SHOW_MAP_BOUNDS:
-        pygame.draw.rect(Window.screen, (53, 90, 33), map_bounds)
 
     GameManager.update()
+
+    if DEBUG_SHOW_MAP_BOUNDS:
+        pygame.draw.rect(Window.screen, (53, 90, 33), map_bounds)
+        
     game_context.update()
     game_ui_context.update()
     level_manager.update()
