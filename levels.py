@@ -232,7 +232,7 @@ level2 = Level(NOKIA_LIGHT, SKY_WALLPAPER, PythonBoss, **makeargs_enemy(3, 3, 3,
     Wave(2500, 5, Rocket, **makeargs_enemy(4, 4, 1, 1))
 )
 
-level3 = Level(NOKIA_LIGHT, MOUNTAINS_WALLPAPER, PufferfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level3 = Level(NOKIA_LIGHT, MOUNTAINS_WALLPAPER, PiranhaBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     1000,
     Wave(1250, 6, Snake, **makeargs_enemy(1, 1, 1, 1))
 ).after(
@@ -261,11 +261,7 @@ level3 = Level(NOKIA_LIGHT, MOUNTAINS_WALLPAPER, PufferfishBoss, **makeargs_enem
     Wave(0, 1, Virus, **makeargs_enemy(2, 2, 0, 0, y=(VIRUS_RECT_HEIGHT + WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND)) // 2))
 )
 
-level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
-    2000,
-    Wave(0, 1, Drone, **makeargs_enemy(3, 3, 0, 0)),
-    requires_clear=False
-)
+level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, PiranhaBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
 
-level_manager = LevelManager([level1, level2])
-level_manager = LevelManager([level3])
+level_manager = LevelManager([level1, level2, level3])
+level_manager = LevelManager([level_test])

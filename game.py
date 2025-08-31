@@ -1,5 +1,5 @@
 import pygame.macosx
-from utils import clamp, int_b
+from utils import clamp, int_b, center_y
 from pygame.time import get_ticks
 from core import *
 from config import *
@@ -813,8 +813,8 @@ class PythonBoss(BossEnemy):
             self.horizontal_speed = 0
             self.vertical_speed = 4
 
-class PufferfishBoss(BossEnemy):
-    stop_distance = MAP_RIGHT_BOUND - PUFFERFISH_BOSS_RECT_WIDTH - 50
+class PiranhaBoss(BossEnemy):
+    stop_distance = MAP_RIGHT_BOUND - PIRANHA_BOSS_RECT_WIDTH - 50
 
     def __init__(
             self,
@@ -830,29 +830,100 @@ class PufferfishBoss(BossEnemy):
             context = context,
             x = x,
             y = y,
-            width = PUFFERFISH_BOSS_RECT_WIDTH,
-            height = PUFFERFISH_BOSS_RECT_HEIGHT,
-            animations = PUFFERFISH_BOSS_ANIMATIONS,
-            rect_color = PUFFERFISH_BOSS_RECT_COLOR,
-            animations_interval = PUFFERFISH_BOSS_ANIMATIONS_INTERVAL,
+            width = PIRANHA_BOSS_RECT_WIDTH,
+            height = PIRANHA_BOSS_RECT_HEIGHT,
+            animations = PIRANHA_BOSS_ANIMATIONS,
+            rect_color = PIRANHA_BOSS_RECT_COLOR,
+            animations_interval = PIRANHA_BOSS_ANIMATIONS_INTERVAL,
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = PUFFERFISH_BOSS_HEALTH,
-            hit_reward = PUFFERFISH_BOSS_HIT_REWARD,
-            pop_reward = PUFFERFISH_BOSS_POP_REWARD,
-            shoot_chance = PUFFERFISH_BOSS_SHOOT_CHANCE
+            health = PIRANHA_BOSS_HEALTH,
+            hit_reward = PIRANHA_BOSS_HIT_REWARD,
+            pop_reward = PIRANHA_BOSS_POP_REWARD,
+            shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE
         )
 
         self.has_stopped = False
 
+        self.casting = False
+        self.ability_position_phase = False
+        self.ability_shoot_phase = False
+        self.ability_last_shoot_time = 0
+        self.ability_shots_done = 0
+        self.ability_projectiles_distance = PIRANHA_BOSS_ABILITY_PROJECTILES_COVERED_SURFACE_HEIGHT // PIRANHA_BOSS_ABILITY_PROJECTILES_COUNT
+        self.ability_shoot_pos = center_y(-self.rect.height // 2)
+        self.ability_last_cast_time = get_ticks()
+
     def update(self):
         super().update()
 
-        if not self.has_stopped and self.rect.x <= PufferfishBoss.stop_distance:
+        self.ability()
+
+        if not self.has_stopped and self.rect.x <= PiranhaBoss.stop_distance:
             self.has_stopped = True
             self.horizontal_speed = 0
             self.vertical_speed = 4
+            self.shoot_chance = PIRANHA_BOSS_ABILITY_SHOOT_CHANCE
+
+    def ability(self):
+        if not self.casting and get_ticks() - self.ability_last_cast_time > PIRANHA_BOSS_ABILITY_COOLDOWN:
+            self.casting = True
+            self.ability_position_phase = True
+            self.ability_shots_done = 0
+            self.vertical_speed = PIRANHA_BOSS_ABILITY_POSITION_PHASE_VERTICAL_SPEED
+
+            if self.rect.y > self.ability_shoot_pos:
+                self.vertical_direction = UP
+            else:
+                self.vertical_direction = DOWN      
+        elif self.ability_position_phase:
+            if self.vertical_direction == UP:
+                self.rect.y = clamp(self.rect.y, self.ability_shoot_pos, 2147483647)
+            else:
+                self.rect.y = clamp(self.rect.y, -2147483648, self.ability_shoot_pos)
+            
+            if self.rect.y == self.ability_shoot_pos:
+                self.vertical_speed = 0
+                self.ability_position_phase = False
+                self.ability_shoot_phase = True    
+        elif self.ability_shoot_phase and get_ticks() - self.ability_last_shoot_time >= PIRANHA_BOSS_ABILITY_SHOOT_INTERVAL:
+            for i in range(0, PIRANHA_BOSS_ABILITY_PROJECTILES_COUNT):
+                if i == 0:
+                    Pew(
+                        self.context,
+                        self.rect.x - 8,
+                        self.rect.centery,
+                        TAG_PROJECTILE_ENEMY,
+                        LEFT
+                    )            
+                elif i % 2 == 0:
+                    Pew(
+                        self.context,
+                        self.rect.x - 8,
+                        self.rect.centery + i * self.ability_projectiles_distance,
+                        TAG_PROJECTILE_ENEMY,
+                        LEFT
+                    )
+                else:
+                    Pew(
+                        self.context,
+                        self.rect.x - 8,
+                        self.rect.centery - i * self.ability_projectiles_distance - PROJECTILE_PEW_RECT_HEIGHT * 2,
+                        TAG_PROJECTILE_ENEMY,
+                        LEFT
+                    )
+
+            self.ability_shots_done += 1
+            self.ability_last_shoot_time = get_ticks()
+
+            if self.ability_shots_done == PIRANHA_BOSS_ABILITY_SHOTS_COUNT:
+                self.vertical_speed = 4
+                self.shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE
+                self.ability_shoot_phase = False
+                self.casting = False
+                self.ability_last_cast_time = get_ticks()
+            
     
 class Projectile(Living):
     def __init__(
