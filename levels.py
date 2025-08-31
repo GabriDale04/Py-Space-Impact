@@ -261,11 +261,49 @@ level3 = Level(NOKIA_LIGHT, MOUNTAINS_WALLPAPER, PufferfishBoss, **makeargs_enem
     Wave(0, 1, Virus, **makeargs_enemy(2, 2, 0, 0, y=(VIRUS_RECT_HEIGHT + WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND)) // 2))
 )
 
+level4 = Level(NOKIA_LIGHT, CITY_WALLPAPER, PufferfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+    2000,
+    Wave(1000, 5, Cockroach, **makeargs_enemy(3, 3, 0, 0))
+).after(
+    6000,
+    Wave(1000, 5, Cockroach, **makeargs_enemy(3, 3, 2, 2))
+).after(
+    6000,
+    Wave(1000, 3, Rocket, **makeargs_enemy(2, 3, 1, 2))
+).after(
+    4000,
+    Wave(0, 1, Rocket, **makeargs_enemy(3, 4, 1, 1))
+).after(
+    3000,
+    Wave(0, 1, Drone, **makeargs_enemy(2, 2, 0, 0, y=MAP_TOP_BOUND))
+).after(
+    1000,
+    Wave(0, 1, Drone, **makeargs_enemy(2, 2, 0, 0, y=(DRONE_RECT_HEIGHT + WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND)) // 2))
+).after(
+    1000,
+    Wave(0, 1, Drone, **makeargs_enemy(2, 2, 0, 0, y=MAP_BOTTOM_BOUND - DRONE_RECT_HEIGHT))
+).after(
+    3000,
+    Wave(0, 1, Drone, **makeargs_enemy(2, 2, 0, 0, y=MAP_TOP_BOUND))
+).after(
+    1000,
+    Wave(0, 1, Drone, **makeargs_enemy(2, 2, 0, 0, y=MAP_BOTTOM_BOUND - DRONE_RECT_HEIGHT))
+).after(
+    1000,
+    Wave(0, 1, Drone, **makeargs_enemy(2, 2, 0, 0, y=(DRONE_RECT_HEIGHT + WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND)) // 2))
+).after(
+    1000,
+    Wave(0, 1, EyeOrb, **makeargs_any(reward_kind=LASER_REWARD))
+).after(
+    4500,
+    Wave(1000, 5, Cockroach, **makeargs_enemy(3, 4, 2, 3))
+)
+
 level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     2000,
     Wave(0, 1, Drone, **makeargs_enemy(3, 3, 0, 0)),
     requires_clear=False
 )
 
-level_manager = LevelManager([level1, level2])
-level_manager = LevelManager([level3])
+level_manager = LevelManager([level1, level2, level3, level4])
+# level_manager = LevelManager([level4])

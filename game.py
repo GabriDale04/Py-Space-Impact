@@ -97,13 +97,16 @@ class Player(SpaceImpactObject):
             rect_color = BATTLE_SHIP_RECT_COLOR
         )
 
-        from scene import lives_text, rockets_text, score_text
+        from scene import lives_text, weapon_text, score_text
         self.__lives_text__ = lives_text
         self.__score_text__ = score_text
-        self.__rockets_text__ = rockets_text
+        self.__weapon_text__ = weapon_text
+
+        self.current_weapon = PLAYER_DEFAULT_WEAPON
 
         self.lives = PLAYER_BASE_LIVES
         self.rockets = PLAYER_BASE_ROCKETS
+        self.lasers = PLAYER_BASE_LASERS
         self.score = PLAYER_BASE_SCORE
 
         self.shield_powerup : BattleshipShield = None
@@ -129,7 +132,15 @@ class Player(SpaceImpactObject):
     @rockets.setter
     def rockets(self, rockets : int):
         self._rockets = rockets
-        self.__rockets_text__.set_amount(rockets)
+        self.__weapon_text__.set_amount(rockets)
+    
+    @property
+    def lasers(self):
+        return self._lasers
+    
+    @lasers.setter
+    def lasers(self, lasers : int):
+        self._lasers = lasers
 
     @property
     def score(self):
@@ -153,7 +164,7 @@ class Player(SpaceImpactObject):
         if Input.getkeydown(pygame.K_e):
             self.shoot()
         if Input.getkeydown(pygame.K_r):
-            self.rocket()
+            self.weapon()
 
     def move(self, direction : str):
         if direction == UP:
@@ -161,6 +172,12 @@ class Player(SpaceImpactObject):
         elif direction == DOWN:
             self.rect.y = clamp(self.rect.y + PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
     
+    def set_weapon(self, weapon : int):
+        if weapon == WEAPON_ROCKET:
+            self.__weapon_text__.set_weapon(weapon, self.rockets)
+        elif weapon == WEAPON_LASER:
+            self.__weapon_text__.set_weapon(weapon, self.lasers)
+
     def shoot(self):
         Pew(
             self.context,
@@ -169,13 +186,19 @@ class Player(SpaceImpactObject):
             TAG_PROJECTILE_PLAYER,
             RIGHT
         )
+
+    def weapon(self):
+        if self.current_weapon == WEAPON_ROCKET:
+            self.rocket()
+        elif self.current_weapon == WEAPON_LASER:
+            self.laser()
     
     def rocket(self):
         if self.rockets == 0:
             return
 
         self.rockets -= 1
-        self.__rockets_text__.set_amount(self.rockets)
+        self.__weapon_text__.set_amount(self.rockets)
 
         RocketProjectile(
             self.context,
@@ -183,6 +206,13 @@ class Player(SpaceImpactObject):
             self.rect.y + (self.rect.height - PROJECTILE_ROCKET_RECT_HEIGHT) // 2,
             TAG_PROJECTILE_PLAYER,
             RIGHT
+        )
+    
+    def laser(self):
+        Laser(
+            self.context,
+            self.rect.x + self.rect.width + self.rect.width // 4,
+            self.rect.y
         )
 
     def fly_away(self):
@@ -611,6 +641,35 @@ class Virus(Enemy):
             self.vertical_speed = 5
             self.shoot_chance = 100
 
+class Cockroach(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = COCKROACH_RECT_WIDTH,
+            height = COCKROACH_RECT_HEIGHT,
+            animations = COCKROACH_ANIMATIONS,
+            rect_color = COCKROACH_RECT_COLOR,
+            animations_interval = COCKROACH_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = COCKROACH_HEALTH,
+            hit_reward = COCKROACH_HIT_REWARD,
+            pop_reward = COCKROACH_POP_REWARD,
+            shoot_chance = COCKROACH_SHOOT_CHANCE
+        )
+
 class BossEnemy(Enemy):    
     def __init__(
             self,
@@ -929,6 +988,36 @@ class RocketProjectile(Projectile):
             pop_reward = PROJECTILE_ROCKET_POP_REWARD
         )
 
+class Laser:
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int
+        ):
+
+        self.parts : list[SpaceImpactObject] = []
+
+        for i in range(0, PROJECTILE_LASER_PARTS):
+            part = SpaceImpactObject(
+                context = context,
+                x = x,
+                y = y,
+                width = PROJECTILE_LASER_RECT_WIDTH,
+                height = PROJECTILE_LASER_RECT_HEIGHT,
+                rect_color = PROJECTILE_LASER_RECT_COLOR,
+                animations = PROJECTILE_LASER_ANIMATIONS
+            )
+
+            x += PROJECTILE_LASER_RECT_WIDTH
+
+            self.parts.append(part)
+        
+        for enemy in context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
+            for p in self.parts:
+                if p.collide(enemy) and enemy.tag == TAG_ENEMY:
+                    enemy.damage(20)
+
 class Pop(SpaceImpactObject):
     def __init__(
         self,
@@ -961,7 +1050,8 @@ class EyeOrb(Bouncy):
             self,
             context : Context,
             x : int,
-            y : int
+            y : int,
+            reward_kind : int = ROCKETS_REWARD
         ):
 
         super().__init__(
@@ -982,13 +1072,19 @@ class EyeOrb(Bouncy):
         from scene import player
         self.__player__ = player
 
+        self.reward_kind = reward_kind
+
         self.use_default_animator(EYE_ORB_ANIMATIONS_INTERVAL)
 
     def update(self):
         self.move()
 
         if self.collide(self.__player__):
-            self.__player__.rockets += EYE_ORB_ROCKETS_REWARD
+            if self.reward_kind == ROCKETS_REWARD:
+                self.__player__.rockets += EYE_ORB_ROCKETS_REWARD
+            elif self.reward_kind == LASER_REWARD:
+                pass
+
             self.destroy()
 
 class BattleshipShield(SpaceImpactObject):
@@ -1076,7 +1172,7 @@ class LivesText(ThemeText):
         else:
             self.set_text("v" + str(value).zfill(2))
 
-class RocketsText(ThemeText):
+class WeaponText(ThemeText):
     def __init__(
             self, 
             context : Context,
@@ -1089,11 +1185,21 @@ class RocketsText(ThemeText):
             font_size = font_size
         )
 
-        self.set_pos(WINDOW_WIDTH // 3 + (WINDOW_WIDTH // 3 - ROCKETS_TEXT_ABSOLUTE_WIDTH) // 2, ROCKETS_TEXT_TOP_OFFSET)
+        self.weapon = ">"
+
+        self.set_pos(WINDOW_WIDTH // 3 + (WINDOW_WIDTH // 3 - WEAPON_TEXT_ABSOLUTE_WIDTH) // 2, WEAPON_TEXT_TOP_OFFSET)
         self.set_amount(PLAYER_BASE_ROCKETS)
     
     def set_amount(self, value : int):
-        self.set_text(">" + str(int_b(value)).zfill(2))
+        self.set_text(self.weapon + str(int_b(value)).zfill(2))
+
+    def set_weapon(self, weapon : int, amount : int):
+        if weapon == WEAPON_ROCKET:
+            self.weapon = ">"
+        elif weapon == WEAPON_LASER:
+            self.weapon = "T"
+        
+        self.set_amount(amount)
 
 class ScoreText(ThemeText):
     def __init__(
