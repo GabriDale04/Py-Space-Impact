@@ -3,7 +3,7 @@ from utils import clamp, int_b, center_y
 from pygame.time import get_ticks
 from core import *
 from config import *
-from typing import final, cast
+from typing import cast
 import pygame
 import random
 
@@ -115,6 +115,11 @@ class Player(SpaceImpactObject):
         self.flight_speed = 0
         self.flight_max_speed = PLAYER_FLIGHT_MAX_SPEED
         self.flight_acceleration = PLAYER_FLIGHT_ACCELERATION
+
+        if self.current_weapon == WEAPON_ROCKET:
+            self.__weapon_text__.set_amount(PLAYER_BASE_ROCKETS)
+        elif self.current_weapon == WEAPON_LASER:
+            self.__weapon_text__.set_amount(PLAYER_BASE_LASERS)
     
     @property
     def lives(self):
@@ -173,6 +178,8 @@ class Player(SpaceImpactObject):
             self.rect.y = clamp(self.rect.y + PLAYER_SPEED, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
     
     def set_weapon(self, weapon : int):
+        self.current_weapon = weapon
+
         if weapon == WEAPON_ROCKET:
             self.__weapon_text__.set_weapon(weapon, self.rockets)
         elif weapon == WEAPON_LASER:
@@ -209,6 +216,12 @@ class Player(SpaceImpactObject):
         )
     
     def laser(self):
+        if self.lasers == 0:
+            return
+        
+        self.lasers -= 1
+        self.__weapon_text__.set_amount(self.lasers)
+
         Laser(
             self.context,
             self.rect.x + self.rect.width + self.rect.width // 4,
@@ -1126,7 +1139,7 @@ class RocketProjectile(Projectile):
             pop_reward = PROJECTILE_ROCKET_POP_REWARD
         )
 
-class Laser:
+class Laser(SpaceImpactObject):
     def __init__(
             self,
             context : Context,
@@ -1134,27 +1147,27 @@ class Laser:
             y : int
         ):
 
-        self.parts : list[SpaceImpactObject] = []
+        self.spawn_time = get_ticks()
 
-        for i in range(0, PROJECTILE_LASER_PARTS):
-            part = SpaceImpactObject(
-                context = context,
-                x = x,
-                y = y,
-                width = PROJECTILE_LASER_RECT_WIDTH,
-                height = PROJECTILE_LASER_RECT_HEIGHT,
-                rect_color = PROJECTILE_LASER_RECT_COLOR,
-                animations = PROJECTILE_LASER_ANIMATIONS
-            )
-
-            x += PROJECTILE_LASER_RECT_WIDTH
-
-            self.parts.append(part)
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = PROJECTILE_LASER_RECT_WIDTH,
+            height = PROJECTILE_LASER_RECT_HEIGHT,
+            animations = PROJECTILE_LASER_ANIMATIONS,
+            rect_color = PROJECTILE_LASER_RECT_COLOR
+        )
         
         for enemy in context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
-            for p in self.parts:
-                if p.collide(enemy) and enemy.tag == TAG_ENEMY:
-                    enemy.damage(20)
+            enemy = cast(Living, enemy)
+
+            if self.collide(enemy):
+                enemy.damage(20)
+    
+    def update(self):
+        if get_ticks() - PROJECTILE_LASER_LIFE >= self.spawn_time:
+            self.destroy()
 
 class Pop(SpaceImpactObject):
     def __init__(
@@ -1211,6 +1224,7 @@ class EyeOrb(Bouncy):
         self.__player__ = player
 
         self.reward_kind = reward_kind
+        print(self.reward_kind)
 
         self.use_default_animator(EYE_ORB_ANIMATIONS_INTERVAL)
 
@@ -1220,8 +1234,10 @@ class EyeOrb(Bouncy):
         if self.collide(self.__player__):
             if self.reward_kind == ROCKETS_REWARD:
                 self.__player__.rockets += EYE_ORB_ROCKETS_REWARD
+                self.__player__.set_weapon(WEAPON_ROCKET)
             elif self.reward_kind == LASER_REWARD:
-                pass
+                self.__player__.lasers += EYE_ORB_LASERS_REWARD
+                self.__player__.set_weapon(WEAPON_LASER)
 
             self.destroy()
 
@@ -1323,10 +1339,10 @@ class WeaponText(ThemeText):
             font_size = font_size
         )
 
-        self.weapon = ">"
+        self.weapon = ">" if PLAYER_DEFAULT_WEAPON == WEAPON_ROCKET else "T"
 
         self.set_pos(WINDOW_WIDTH // 3 + (WINDOW_WIDTH // 3 - WEAPON_TEXT_ABSOLUTE_WIDTH) // 2, WEAPON_TEXT_TOP_OFFSET)
-        self.set_amount(PLAYER_BASE_ROCKETS)
+        self.set_amount(0)
     
     def set_amount(self, value : int):
         self.set_text(self.weapon + str(int_b(value)).zfill(2))
