@@ -31,8 +31,8 @@ while running:
     if DEBUG_SHOW_MAP_BOUNDS:
         pygame.draw.rect(Window.screen, (53, 90, 33), map_bounds)
     
-    if GameManager.game_over:
-        Window.screen.fill(NOKIA_LIGHT_COLOR)
+    if not GameManager.game_over:
+        Window.screen.fill((100, 100, 100))
         game_over_context.update()
     else:
         game_context.update()

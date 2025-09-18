@@ -164,9 +164,9 @@ class Font:
     def get_sprite(self, char : str, font_size : int) -> Sprite:
         item = self.font_map[char]
         coords = item["coords"]
-        size = item["size"]
+        width = item["width"]
 
-        return Sprite.from_surface(self.font_source.get_sprite(coords[0], coords[1], size[0], size[1]).surface, size[0] * font_size, size[1] * font_size)
+        return Sprite.from_surface(self.font_source.get_sprite(coords[0], coords[1], width, self.char_height).surface, width * font_size, self.char_height * font_size)
 
 class Text(GameObject):
     def __init__(
@@ -202,18 +202,18 @@ class Text(GameObject):
         self.clear()
         x = self.x
         self.width = 0 if len(value) == 0 else -self.font_gap
+        self.height = self.font.char_height * self.font_size
 
         for char in value:
             sprite = self.font.get_sprite(char, self.font_size)
-            rect_width = self.font.font_map[char]["size"][0] * self.font_size
-            rect_height = self.font.font_map[char]["size"][1] * self.font_size
+            rect_width = self.font.font_map[char]["width"] * self.font_size
 
             text_char = GameObject(
                 context = self.context,
                 x = x,
                 y = self.y,
                 width = rect_width,
-                height = rect_height,
+                height = self.height,
                 sprite = sprite,
                 rect_color = self.__font_rect_color__
             )
@@ -239,7 +239,7 @@ class Text(GameObject):
         width = 0 if len(string) == 0 else -font.char_gap * font_size
 
         for char in string:
-            width += (font.font_map[char]["size"][0] + font.char_gap) * font_size
+            width += (font.font_map[char]["width"] + font.char_gap) * font_size
         
         return width
 

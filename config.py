@@ -284,62 +284,20 @@ FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS = TextureAtlas(
 # [KEY]: The font character
 # [VALUE]: Another dictionary containing the 'coords' (x, y) in the texture atlas and the 'size', which is the portion of the texture atlas to extract
 FONT_SPACE_IMPACT_COUNTERS_CHAR_MAP = {
-    "0": {
-        "coords": (0, 0),
-        "size": (9, 15)
-    },
-    "1": {
-        "coords": (1, 0),
-        "size": (9, 15)
-    },
-    "2": {
-        "coords": (2, 0),
-        "size": (9, 15)
-    },
-    "3": {
-        "coords": (3, 0),
-        "size": (9, 15)
-    },
-    "4": {
-        "coords": (0, 1),
-        "size": (9, 15)
-    },
-    "5": {
-        "coords": (1, 1),
-        "size": (9, 15)
-    },
-    "6": {
-        "coords": (2, 1),
-        "size": (9, 15)
-    },
-    "7": {
-        "coords": (3, 1),
-        "size": (9, 15)
-    },
-    "8": {
-        "coords": (0, 2),
-        "size": (9, 15)
-    },
-    "9": {
-        "coords": (1, 2),
-        "size": (9, 15)
-    },
-    "v": {
-        "coords": (2, 2),
-        "size": (15, 15)
-    },
-    ">": {
-        "coords": (3, 2),
-        "size": (16, 15)
-    },
-    "-": {
-        "coords": (0, 3),
-        "size": (9, 15)
-    },
-    "T": {
-        "coords": (1, 3),
-        "size": (9, 15)
-    }
+    "0": {"coords": (0, 0), "width": 9},
+    "1": {"coords": (1, 0), "width": 9},
+    "2": {"coords": (2, 0), "width": 9},
+    "3": {"coords": (3, 0), "width": 9},
+    "4": {"coords": (0, 1), "width": 9},
+    "5": {"coords": (1, 1), "width": 9},
+    "6": {"coords": (2, 1), "width": 9},
+    "7": {"coords": (3, 1), "width": 9},
+    "8": {"coords": (0, 2), "width": 9},
+    "9": {"coords": (1, 2), "width": 9},
+    "v": {"coords": (2, 2), "width": 15},
+    ">": {"coords": (3, 2), "width": 16},
+    "-": {"coords": (0, 3), "width": 9},
+    "T": {"coords": (1, 3), "width": 9}
 }
 
 FONT_SPACE_IMPACT_COUNTERS = Font(
@@ -361,74 +319,74 @@ FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS = TextureAtlas(
 )
 
 FONT_SPACE_IMPACT_MENUS_CHAR_MAP = {
-    "A": {"coords": (0, 0), "size": (5, 10)},
-    "B": {"coords": (1, 0), "size": (5, 10)},
-    "C": {"coords": (2, 0), "size": (5, 10)},
-    "D": {"coords": (3, 0), "size": (5, 10)},
-    "E": {"coords": (4, 0), "size": (5, 10)},
-    "F": {"coords": (5, 0), "size": (5, 10)},
-    "G": {"coords": (6, 0), "size": (5, 10)},
-    "H": {"coords": (7, 0), "size": (5, 10)},
-    "I": {"coords": (8, 0), "size": (5, 10)},
-    "J": {"coords": (9, 0), "size": (5, 10)},
-    "K": {"coords": (10, 0), "size": (5, 10)},
-    "L": {"coords": (11, 0), "size": (5, 10)},
-    "M": {"coords": (12, 0), "size": (5, 10)},
-    "N": {"coords": (13, 0), "size": (5, 10)},
-    "O": {"coords": (14, 0), "size": (5, 10)},
-    "P": {"coords": (15, 0), "size": (5, 10)},
-    "Q": {"coords": (16, 0), "size": (5, 10)},
-    "R": {"coords": (17, 0), "size": (5, 10)},
-    "S": {"coords": (18, 0), "size": (5, 10)},
-    "T": {"coords": (19, 0), "size": (5, 10)},
-    "U": {"coords": (20, 0), "size": (5, 10)},
-    "V": {"coords": (21, 0), "size": (5, 10)},
-    "W": {"coords": (22, 0), "size": (5, 10)},
-    "X": {"coords": (23, 0), "size": (5, 10)},
-    "Y": {"coords": (24, 0), "size": (5, 10)},
-    "Z": {"coords": (25, 0), "size": (5, 10)},
+    "A": {"coords": (0, 0), "width": 5},
+    "B": {"coords": (1, 0), "width": 5},
+    "C": {"coords": (2, 0), "width": 5},
+    "D": {"coords": (3, 0), "width": 5},
+    "E": {"coords": (4, 0), "width": 5},
+    "F": {"coords": (5, 0), "width": 5},
+    "G": {"coords": (6, 0), "width": 5},
+    "H": {"coords": (7, 0), "width": 5},
+    "I": {"coords": (8, 0), "width": 5},
+    "J": {"coords": (9, 0), "width": 5},
+    "K": {"coords": (10, 0), "width": 5},
+    "L": {"coords": (11, 0), "width": 5},
+    "M": {"coords": (12, 0), "width": 5},
+    "N": {"coords": (13, 0), "width": 5},
+    "O": {"coords": (14, 0), "width": 5},
+    "P": {"coords": (15, 0), "width": 5},
+    "Q": {"coords": (16, 0), "width": 5},
+    "R": {"coords": (17, 0), "width": 5},
+    "S": {"coords": (18, 0), "width": 5},
+    "T": {"coords": (19, 0), "width": 5},
+    "U": {"coords": (20, 0), "width": 5},
+    "V": {"coords": (21, 0), "width": 5},
+    "W": {"coords": (22, 0), "width": 5},
+    "X": {"coords": (23, 0), "width": 5},
+    "Y": {"coords": (24, 0), "width": 5},
+    "Z": {"coords": (25, 0), "width": 5},
 
-    "a": {"coords": (0, 1), "size": (5, 10)},
-    "b": {"coords": (1, 1), "size": (5, 10)},
-    "c": {"coords": (2, 1), "size": (5, 10)},
-    "d": {"coords": (3, 1), "size": (5, 10)},
-    "e": {"coords": (4, 1), "size": (5, 10)},
-    "f": {"coords": (5, 1), "size": (5, 10)},
-    "g": {"coords": (6, 1), "size": (5, 10)},
-    "h": {"coords": (7, 1), "size": (5, 10)},
-    "i": {"coords": (8, 1), "size": (5, 10)},
-    "j": {"coords": (9, 1), "size": (5, 10)},
-    "k": {"coords": (10, 1), "size": (5, 10)},
-    "l": {"coords": (11, 1), "size": (5, 10)},
-    "m": {"coords": (12, 1), "size": (5, 10)},
-    "n": {"coords": (13, 1), "size": (5, 10)},
-    "o": {"coords": (14, 1), "size": (5, 10)},
-    "p": {"coords": (15, 1), "size": (5, 10)},
-    "q": {"coords": (16, 1), "size": (5, 10)},
-    "r": {"coords": (17, 1), "size": (5, 10)},
-    "s": {"coords": (18, 1), "size": (5, 10)},
-    "t": {"coords": (19, 1), "size": (5, 10)},
-    "u": {"coords": (20, 1), "size": (5, 10)},
-    "v": {"coords": (21, 1), "size": (5, 10)},
-    "w": {"coords": (22, 1), "size": (5, 10)},
-    "x": {"coords": (23, 1), "size": (5, 10)},
-    "y": {"coords": (24, 1), "size": (5, 10)},
-    "z": {"coords": (25, 1), "size": (5, 10)},
+    "a": {"coords": (0, 1), "width": 5},
+    "b": {"coords": (1, 1), "width": 5},
+    "c": {"coords": (2, 1), "width": 5},
+    "d": {"coords": (3, 1), "width": 5},
+    "e": {"coords": (4, 1), "width": 5},
+    "f": {"coords": (5, 1), "width": 5},
+    "g": {"coords": (6, 1), "width": 5},
+    "h": {"coords": (7, 1), "width": 5},
+    "i": {"coords": (8, 1), "width": 5},
+    "j": {"coords": (9, 1), "width": 5},
+    "k": {"coords": (10, 1), "width": 5},
+    "l": {"coords": (11, 1), "width": 5},
+    "m": {"coords": (12, 1), "width": 5},
+    "n": {"coords": (13, 1), "width": 5},
+    "o": {"coords": (14, 1), "width": 5},
+    "p": {"coords": (15, 1), "width": 5},
+    "q": {"coords": (16, 1), "width": 5},
+    "r": {"coords": (17, 1), "width": 5},
+    "s": {"coords": (18, 1), "width": 5},
+    "t": {"coords": (19, 1), "width": 5},
+    "u": {"coords": (20, 1), "width": 5},
+    "v": {"coords": (21, 1), "width": 5},
+    "w": {"coords": (22, 1), "width": 5},
+    "x": {"coords": (23, 1), "width": 5},
+    "y": {"coords": (24, 1), "width": 5},
+    "z": {"coords": (25, 1), "width": 5},
 
-    "0": {"coords": (0, 2), "size": (5, 10)},
-    "1": {"coords": (1, 2), "size": (5, 10)},
-    "2": {"coords": (2, 2), "size": (5, 10)},
-    "3": {"coords": (3, 2), "size": (5, 10)},
-    "4": {"coords": (4, 2), "size": (5, 10)},
-    "5": {"coords": (5, 2), "size": (5, 10)},
-    "6": {"coords": (6, 2), "size": (5, 10)},
-    "7": {"coords": (7, 2), "size": (5, 10)},
-    "8": {"coords": (8, 2), "size": (5, 10)},
-    "9": {"coords": (9, 2), "size": (5, 10)},
+    "0": {"coords": (0, 2), "width": 5},
+    "1": {"coords": (1, 2), "width": 5},
+    "2": {"coords": (2, 2), "width": 5},
+    "3": {"coords": (3, 2), "width": 5},
+    "4": {"coords": (4, 2), "width": 5},
+    "5": {"coords": (5, 2), "width": 5},
+    "6": {"coords": (6, 2), "width": 5},
+    "7": {"coords": (7, 2), "width": 5},
+    "8": {"coords": (8, 2), "width": 5},
+    "9": {"coords": (9, 2), "width": 5},
 
-    " ": {"coords": (10, 2), "size": (5, 10)},
-    "-": {"coords": (11, 2), "size": (5, 10)},
-    ":": {"coords": (12, 2), "size": (5, 10)}
+    " ": {"coords": (10, 2), "width": 5},
+    "-": {"coords": (11, 2), "width": 5},
+    ":": {"coords": (12, 2), "width": 5}
 }
 
 FONT_SPACE_IMPACT_MENUS = Font(
