@@ -796,6 +796,7 @@ class BossEnemy(Enemy):
 
         self.blink_start_time = BOSS_ENEMY_DAMAGE_BLINK_DURATION
         self.blink_duration = 75
+        self.stop_distance = MAP_RIGHT_BOUND - self.rect.width - 50
 
     def update(self):
         super().update()
@@ -1002,7 +1003,48 @@ class PiranhaBoss(BossEnemy):
                 self.ability_shoot_phase = False
                 self.casting = False
                 self.ability_last_cast_time = get_ticks()
-    
+
+class YotsuBoss(BossEnemy):
+    stop_distance = MAP_RIGHT_BOUND - YOTSU_BOSS_RECT_WIDTH - 50
+
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = YOTSU_BOSS_RECT_WIDTH,
+            height = YOTSU_BOSS_RECT_HEIGHT,
+            animations = YOTSU_BOSS_ANIMATIONS,
+            rect_color = YOTSU_BOSS_RECT_COLOR,
+            animations_interval = YOTSU_BOSS_ANIMATIONS_INTERVAL,
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = YOTSU_BOSS_HEALTH,
+            hit_reward = YOTSU_BOSS_HIT_REWARD,
+            pop_reward = YOTSU_BOSS_POP_REWARD,
+            shoot_chance = YOTSU_BOSS_SHOOT_CHANCE
+        )
+
+        self.has_stopped = False
+
+    def update(self):
+        super().update()
+
+        if not self.has_stopped and self.rect.x <= YotsuBoss.stop_distance:
+            self.has_stopped = True
+            self.horizontal_speed = 0
+            self.vertical_speed = 4
+
 class Projectile(Living):
     def __init__(
         self,

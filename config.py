@@ -161,6 +161,16 @@ PIRANHA_BOSS_ABILITY_SHOTS_COUNT = 5
 # OTHER
 PIRANHA_BOSS_VERTICAL_SPEED_ON_STOP = 4
 
+YOTSU_BOSS_RECT_WIDTH = 16 * 12
+YOTSU_BOSS_RECT_HEIGHT = 24 * 12
+YOTSU_BOSS_RECT_COLOR = (255, 0, 0)
+YOTSU_BOSS_ANIMATIONS = [Sprite.load("textures/yotsu1.png", SPRITE_LARGE_WIDTH, SPRITE_LARGE_HEIGHT), Sprite.load("textures/yotsu2.png", SPRITE_LARGE_WIDTH, SPRITE_LARGE_HEIGHT)]
+YOTSU_BOSS_ANIMATIONS_INTERVAL = 250
+YOTSU_BOSS_HEALTH = 137
+YOTSU_BOSS_HIT_REWARD = 10
+YOTSU_BOSS_POP_REWARD = 200
+YOTSU_BOSS_SHOOT_CHANCE = 43
+
 # █▀█ █▀█ █▀█ ░░█ █▀▀ █▀▀ ▀█▀ █ █░░ █▀▀ █▀
 # █▀▀ █▀▄ █▄█ █▄█ ██▄ █▄▄ ░█░ █ █▄▄ ██▄ ▄█
 
@@ -415,7 +425,7 @@ FREEZE_SCORE_ON_OVERFLOW = False
 # Shows the rects of the GameObjects. [⚠] Use only for debugging
 DEBUG_SHOW_RECTS = False
 # Displays the health bar above enemies. [⚠] Use only for debugging
-DEBUG_SHOW_HEALTH_BARS = True
+DEBUG_SHOW_HEALTH_BARS = False
 HEALTH_BAR_HEIGHT = 10
 HEALTH_BAR_OFFSET_Y = HEALTH_BAR_HEIGHT + 20
 HEALTH_BAR_UNDER_COLOR = (128, 128, 128)
