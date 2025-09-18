@@ -26,15 +26,18 @@ while running:
 
     Window.screen.fill((0, 0, 0))
 
-
     GameManager.update()
 
     if DEBUG_SHOW_MAP_BOUNDS:
         pygame.draw.rect(Window.screen, (53, 90, 33), map_bounds)
-        
-    game_context.update()
-    game_ui_context.update()
-    level_manager.update()
+    
+    if GameManager.game_over:
+        Window.screen.fill(NOKIA_LIGHT_COLOR)
+        game_over_context.update()
+    else:
+        game_context.update()
+        game_ui_context.update()
+        level_manager.update()
 
     pygame.display.flip()
     clock.tick(60)

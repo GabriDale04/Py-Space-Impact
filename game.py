@@ -1,4 +1,3 @@
-import pygame.macosx
 from utils import clamp, int_b, center_y
 from pygame.time import get_ticks
 from core import *
@@ -10,6 +9,7 @@ import random
 class GameManager:
     objects_tint = NOKIA_LIGHT_COLOR
     wallpaper = VOID_WALLPAPER
+    game_over : bool = False
 
     @staticmethod
     def set_theme(theme : str, wallpaper : Sprite):
@@ -24,7 +24,8 @@ class GameManager:
 
     @staticmethod
     def update():
-        Window.screen.blit(GameManager.wallpaper.surface, (0, 0))
+        if GameManager.wallpaper != None:
+            Window.screen.blit(GameManager.wallpaper.surface, (0, 0))
 
 class SpaceImpactObject(GameObject):
     def __init__(
@@ -97,10 +98,11 @@ class Player(SpaceImpactObject):
             rect_color = BATTLE_SHIP_RECT_COLOR
         )
 
-        from scene import lives_text, weapon_text, score_text
+        from scene import lives_text, weapon_text, score_text, game_over_score_value_text
         self.__lives_text__ = lives_text
         self.__score_text__ = score_text
         self.__weapon_text__ = weapon_text
+        self.__game_over_score_value_text__ = game_over_score_value_text
 
         self.current_weapon = PLAYER_DEFAULT_WEAPON
 
@@ -245,7 +247,11 @@ class Player(SpaceImpactObject):
         self.recall()
 
         if self.lives == 0:
-            pass
+            self.game_over()
+    
+    def game_over(self):
+        GameManager.game_over = True
+        GameManager.set_theme(NOKIA_LIGHT, VOID_WALLPAPER)
     
 class Bouncy(SpaceImpactObject):
     """
@@ -935,7 +941,7 @@ class PiranhaBoss(BossEnemy):
         if not self.has_stopped and self.rect.x <= PiranhaBoss.stop_distance:
             self.has_stopped = True
             self.horizontal_speed = 0
-            self.vertical_speed = 4
+            self.vertical_speed = PIRANHA_BOSS_VERTICAL_SPEED_ON_STOP
             self.shoot_chance = PIRANHA_BOSS_ABILITY_SHOOT_CHANCE
 
     def ability(self):
@@ -990,12 +996,11 @@ class PiranhaBoss(BossEnemy):
             self.ability_last_shoot_time = get_ticks()
 
             if self.ability_shots_done == PIRANHA_BOSS_ABILITY_SHOTS_COUNT:
-                self.vertical_speed = 4
+                self.vertical_speed = PIRANHA_BOSS_VERTICAL_SPEED_ON_STOP
                 self.shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE
                 self.ability_shoot_phase = False
                 self.casting = False
                 self.ability_last_cast_time = get_ticks()
-            
     
 class Projectile(Living):
     def __init__(

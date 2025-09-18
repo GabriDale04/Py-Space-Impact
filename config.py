@@ -158,6 +158,8 @@ PIRANHA_BOSS_ABILITY_SHOOT_INTERVAL = 1000
 PIRANHA_BOSS_ABILITY_PROJECTILES_COUNT = 5
 PIRANHA_BOSS_ABILITY_PROJECTILES_COVERED_SURFACE_HEIGHT = 125
 PIRANHA_BOSS_ABILITY_SHOTS_COUNT = 5
+# OTHER
+PIRANHA_BOSS_VERTICAL_SPEED_ON_STOP = 4
 
 # █▀█ █▀█ █▀█ ░░█ █▀▀ █▀▀ ▀█▀ █ █░░ █▀▀ █▀
 # █▀▀ █▀▄ █▄█ █▄█ ██▄ █▄▄ ░█░ █ █▄▄ ██▄ ▄█
@@ -346,6 +348,95 @@ FONT_SPACE_IMPACT_COUNTERS = Font(
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_WIDTH,
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_HEIGHT,
     FONT_SPACE_IMPACT_COUNTERS_TEXTURE_ATLAS_CHAR_GAP
+)
+
+FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_WIDTH = 5
+FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_HEIGHT = 10
+FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_GAP = 1
+FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS = TextureAtlas(
+    "textures/fonts/space_impact_menus.png", 
+    FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_WIDTH, 
+    FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_HEIGHT, 
+    FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_GAP
+)
+
+FONT_SPACE_IMPACT_MENUS_CHAR_MAP = {
+    "A": {"coords": (0, 0), "size": (5, 10)},
+    "B": {"coords": (1, 0), "size": (5, 10)},
+    "C": {"coords": (2, 0), "size": (5, 10)},
+    "D": {"coords": (3, 0), "size": (5, 10)},
+    "E": {"coords": (4, 0), "size": (5, 10)},
+    "F": {"coords": (5, 0), "size": (5, 10)},
+    "G": {"coords": (6, 0), "size": (5, 10)},
+    "H": {"coords": (7, 0), "size": (5, 10)},
+    "I": {"coords": (8, 0), "size": (5, 10)},
+    "J": {"coords": (9, 0), "size": (5, 10)},
+    "K": {"coords": (10, 0), "size": (5, 10)},
+    "L": {"coords": (11, 0), "size": (5, 10)},
+    "M": {"coords": (12, 0), "size": (5, 10)},
+    "N": {"coords": (13, 0), "size": (5, 10)},
+    "O": {"coords": (14, 0), "size": (5, 10)},
+    "P": {"coords": (15, 0), "size": (5, 10)},
+    "Q": {"coords": (16, 0), "size": (5, 10)},
+    "R": {"coords": (17, 0), "size": (5, 10)},
+    "S": {"coords": (18, 0), "size": (5, 10)},
+    "T": {"coords": (19, 0), "size": (5, 10)},
+    "U": {"coords": (20, 0), "size": (5, 10)},
+    "V": {"coords": (21, 0), "size": (5, 10)},
+    "W": {"coords": (22, 0), "size": (5, 10)},
+    "X": {"coords": (23, 0), "size": (5, 10)},
+    "Y": {"coords": (24, 0), "size": (5, 10)},
+    "Z": {"coords": (25, 0), "size": (5, 10)},
+
+    "a": {"coords": (0, 1), "size": (5, 10)},
+    "b": {"coords": (1, 1), "size": (5, 10)},
+    "c": {"coords": (2, 1), "size": (5, 10)},
+    "d": {"coords": (3, 1), "size": (5, 10)},
+    "e": {"coords": (4, 1), "size": (5, 10)},
+    "f": {"coords": (5, 1), "size": (5, 10)},
+    "g": {"coords": (6, 1), "size": (5, 10)},
+    "h": {"coords": (7, 1), "size": (5, 10)},
+    "i": {"coords": (8, 1), "size": (5, 10)},
+    "j": {"coords": (9, 1), "size": (5, 10)},
+    "k": {"coords": (10, 1), "size": (5, 10)},
+    "l": {"coords": (11, 1), "size": (5, 10)},
+    "m": {"coords": (12, 1), "size": (5, 10)},
+    "n": {"coords": (13, 1), "size": (5, 10)},
+    "o": {"coords": (14, 1), "size": (5, 10)},
+    "p": {"coords": (15, 1), "size": (5, 10)},
+    "q": {"coords": (16, 1), "size": (5, 10)},
+    "r": {"coords": (17, 1), "size": (5, 10)},
+    "s": {"coords": (18, 1), "size": (5, 10)},
+    "t": {"coords": (19, 1), "size": (5, 10)},
+    "u": {"coords": (20, 1), "size": (5, 10)},
+    "v": {"coords": (21, 1), "size": (5, 10)},
+    "w": {"coords": (22, 1), "size": (5, 10)},
+    "x": {"coords": (23, 1), "size": (5, 10)},
+    "y": {"coords": (24, 1), "size": (5, 10)},
+    "z": {"coords": (25, 1), "size": (5, 10)},
+
+    "0": {"coords": (0, 2), "size": (5, 10)},
+    "1": {"coords": (1, 2), "size": (5, 10)},
+    "2": {"coords": (2, 2), "size": (5, 10)},
+    "3": {"coords": (3, 2), "size": (5, 10)},
+    "4": {"coords": (4, 2), "size": (5, 10)},
+    "5": {"coords": (5, 2), "size": (5, 10)},
+    "6": {"coords": (6, 2), "size": (5, 10)},
+    "7": {"coords": (7, 2), "size": (5, 10)},
+    "8": {"coords": (8, 2), "size": (5, 10)},
+    "9": {"coords": (9, 2), "size": (5, 10)},
+
+    " ": {"coords": (10, 2), "size": (5, 10)},
+    "-": {"coords": (11, 2), "size": (5, 10)},
+    ":": {"coords": (12, 2), "size": (5, 10)}
+}
+
+FONT_SPACE_IMPACT_MENUS = Font(
+    FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS, 
+    FONT_SPACE_IMPACT_MENUS_CHAR_MAP, 
+    FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_WIDTH,
+    FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_HEIGHT,
+    FONT_SPACE_IMPACT_MENUS_TEXTURE_ATLAS_CHAR_GAP
 )
 
 LIVES_TEXT_TOP_OFFSET = 25
