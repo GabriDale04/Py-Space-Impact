@@ -137,7 +137,11 @@ class LevelManager:
         elif player.flight_mode and player.rect.x >= WINDOW_WIDTH * 3:
             player.flight_mode = False
             self.current_level_index += 1
-            player.recall()
+
+            if self.current_level_index >= len(self.levels):
+                player.game_over()
+            else:
+                player.recall()
 
         current_level.update()
 

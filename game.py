@@ -252,6 +252,7 @@ class Player(SpaceImpactObject):
     def game_over(self):
         GameManager.game_over = True
         GameManager.set_theme(NOKIA_LIGHT, VOID_WALLPAPER)
+        self.__game_over_score_value_text__.set_text(str(self.score))
     
 class Bouncy(SpaceImpactObject):
     """
