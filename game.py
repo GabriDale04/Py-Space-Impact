@@ -478,9 +478,11 @@ class Enemy(Living):
         super().damage(amount)
         
         self.__player__.score += self.hit_reward
-        
-        if self.destroyed:
-            self.__player__.score += self.pop_reward
+    
+    def pop(self):
+        super().pop()
+    
+        self.__player__.score += self.pop_reward
 
 class Comet(Enemy):
     def __init__(
@@ -685,6 +687,27 @@ class Drone(Enemy):
             shoot_chance = DRONE_SHOOT_CHANCE
         )
 
+class DroneMinion(Drone):
+    def __init__(
+            self, 
+            context : Context, 
+            x : int, 
+            y : int
+        ):
+
+        super().__init__(
+            context = context, 
+            x = x, 
+            y = y, 
+            horizontal_speed = 0, 
+            vertical_speed = 0, 
+            vertical_direction = UP
+        )
+
+        self.health = DRONE_MINION_HEALTH
+        self.hit_reward = DRONE_MINION_HIT_REWARD
+        self.pop_reward = DRONE_MINION_POP_REWARD
+
 class Virus(Enemy):
     stop_distance = MAP_LEFT_BOUND + (WINDOW_WIDTH - MAP_LEFT_BOUND - (WINDOW_WIDTH - MAP_RIGHT_BOUND)) * (1.5 / 3)
 
@@ -773,7 +796,9 @@ class BossEnemy(Enemy):
             health : int,
             hit_reward : int,
             pop_reward : int,
-            shoot_chance : int
+            shoot_chance : int,
+            vertical_speed_on_stop : int,
+            stop_distance : int = None
         ):
 
         super().__init__(
@@ -794,15 +819,23 @@ class BossEnemy(Enemy):
             shoot_chance=shoot_chance
         )
 
-        self.blink_start_time = BOSS_ENEMY_DAMAGE_BLINK_DURATION
-        self.blink_duration = 75
-        self.stop_distance = MAP_RIGHT_BOUND - self.rect.width - 50
+        self.blink_start_time = 0
+        self.blink_duration = BOSS_ENEMY_DAMAGE_BLINK_DURATION
+
+        self.has_stopped = False
+        self.stop_distance = MAP_RIGHT_BOUND - self.rect.width - 50 if stop_distance == None else stop_distance
+        self.vertical_speed_on_stop = vertical_speed_on_stop
 
     def update(self):
         super().update()
         
         if get_ticks() - self.blink_start_time >= self.blink_duration:
             self.hidden = False
+
+        if not self.has_stopped and self.rect.x <= self.stop_distance:
+            self.has_stopped = True
+            self.horizontal_speed = 0
+            self.vertical_speed = self.vertical_speed_on_stop
 
     def damage(self, amount):
         super().damage(amount)
@@ -812,8 +845,6 @@ class BossEnemy(Enemy):
             self.blink_start_time = get_ticks()
 
 class AlienJellyfishBoss(BossEnemy):
-    stop_distance = MAP_RIGHT_BOUND - ALIEN_JELLYFISH_BOSS_RECT_WIDTH - 50
-
     def __init__(
             self,
             context : Context,
@@ -839,22 +870,11 @@ class AlienJellyfishBoss(BossEnemy):
             health = ALIEN_JELLYFISH_BOSS_HEALTH,
             hit_reward = ALIEN_JELLYFISH_BOSS_HIT_REWARD,
             pop_reward = ALIEN_JELLYFISH_BOSS_POP_REWARD,
-            shoot_chance = ALIEN_JELLYFISH_BOSS_SHOOT_CHANCE
+            shoot_chance = ALIEN_JELLYFISH_BOSS_SHOOT_CHANCE,
+            vertical_speed_on_stop = ALIEN_JELLYFISH_BOSS_VERTICAL_SPEED_ON_STOP
         )
 
-        self.has_stopped = False
-
-    def update(self):
-        super().update()
-
-        if not self.has_stopped and self.rect.x <= AlienJellyfishBoss.stop_distance:
-            self.has_stopped = True
-            self.horizontal_speed = 0
-            self.vertical_speed = 4
-
 class PythonBoss(BossEnemy):
-    stop_distance = MAP_RIGHT_BOUND - PYTHON_BOSS_RECT_WIDTH - 50
-
     def __init__(
             self,
             context : Context,
@@ -880,18 +900,9 @@ class PythonBoss(BossEnemy):
             health = PYTHON_BOSS_HEALTH,
             hit_reward = PYTHON_BOSS_HIT_REWARD,
             pop_reward = PYTHON_BOSS_POP_REWARD,
-            shoot_chance = PYTHON_BOSS_SHOOT_CHANCE
+            shoot_chance = PYTHON_BOSS_SHOOT_CHANCE,
+            vertical_speed_on_stop = PYTHON_BOSS_VERTICAL_SPEED_ON_STOP
         )
-
-        self.has_stopped = False
-
-    def update(self):
-        super().update()
-
-        if not self.has_stopped and self.rect.x <= PythonBoss.stop_distance:
-            self.has_stopped = True
-            self.horizontal_speed = 0
-            self.vertical_speed = 4
 
 class PiranhaBoss(BossEnemy):
     stop_distance = MAP_RIGHT_BOUND - PIRANHA_BOSS_RECT_WIDTH - 50
@@ -921,7 +932,8 @@ class PiranhaBoss(BossEnemy):
             health = PIRANHA_BOSS_HEALTH,
             hit_reward = PIRANHA_BOSS_HIT_REWARD,
             pop_reward = PIRANHA_BOSS_POP_REWARD,
-            shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE
+            shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE,
+            vertical_speed_on_stop = PIRANHA_BOSS_VERTICAL_SPEED_ON_STOP
         )
 
         self.has_stopped = False
@@ -938,13 +950,8 @@ class PiranhaBoss(BossEnemy):
     def update(self):
         super().update()
 
-        self.ability()
-
-        if not self.has_stopped and self.rect.x <= PiranhaBoss.stop_distance:
-            self.has_stopped = True
-            self.horizontal_speed = 0
-            self.vertical_speed = PIRANHA_BOSS_VERTICAL_SPEED_ON_STOP
-            self.shoot_chance = PIRANHA_BOSS_ABILITY_SHOOT_CHANCE
+        if self.has_stopped:
+            self.ability()
 
     def ability(self):
         if not self.casting and get_ticks() - self.ability_last_cast_time > PIRANHA_BOSS_ABILITY_COOLDOWN:
@@ -1005,8 +1012,6 @@ class PiranhaBoss(BossEnemy):
                 self.ability_last_cast_time = get_ticks()
 
 class YotsuBoss(BossEnemy):
-    stop_distance = MAP_RIGHT_BOUND - YOTSU_BOSS_RECT_WIDTH - 50
-
     def __init__(
             self,
             context : Context,
@@ -1032,18 +1037,57 @@ class YotsuBoss(BossEnemy):
             health = YOTSU_BOSS_HEALTH,
             hit_reward = YOTSU_BOSS_HIT_REWARD,
             pop_reward = YOTSU_BOSS_POP_REWARD,
-            shoot_chance = YOTSU_BOSS_SHOOT_CHANCE
+            shoot_chance = YOTSU_BOSS_SHOOT_CHANCE,
+            vertical_speed_on_stop = YOTSU_BOSS_VERTICAL_SPEED_ON_STOP
         )
 
-        self.has_stopped = False
+        self.ability_last_cast_time = get_ticks()
+        self.drone_minions : list[DroneMinion] = []
 
     def update(self):
         super().update()
+    
+        if self.has_stopped:
+            self.ability()
 
-        if not self.has_stopped and self.rect.x <= YotsuBoss.stop_distance:
-            self.has_stopped = True
-            self.horizontal_speed = 0
-            self.vertical_speed = 4
+    def ability(self):
+        # Don't start the cooldown if minions are alive
+        if not self.is_any_minion_dead():
+            self.ability_last_cast_time = get_ticks()
+            return
+        else:
+            for minion in self.drone_minions:
+                minion.pop()
+            
+            self.drone_minions.clear()
+
+        if get_ticks() - self.ability_last_cast_time < YOTSU_BOSS_ABILITY_COOLDOWN:
+            return
+
+        y = MAP_TOP_BOUND
+
+        for _ in range(0, YOTSU_BOSS_ABILITY_DRONES_COUNT):
+            drone = DroneMinion(
+                context = self.context,
+                x = self.rect.x - YOTSU_BOSS_ABITITY_DRONES_OFFSET,
+                y = y              
+            )
+
+            self.drone_minions.append(drone)
+
+            y += (WINDOW_HEIGHT - MAP_VERTICAL_BOUND_OFFSET * 2 - DRONE_RECT_HEIGHT * YOTSU_BOSS_ABILITY_DRONES_COUNT) / (YOTSU_BOSS_ABILITY_DRONES_COUNT - 1) + DRONE_RECT_HEIGHT
+
+        self.ability_last_cast_time = get_ticks()
+
+    def is_any_minion_dead(self) -> bool:
+        if len(self.drone_minions) == 0:
+            return True
+
+        for drone in self.drone_minions:
+            if drone.destroyed:
+                return True
+        
+        return False
 
 class Projectile(Living):
     def __init__(

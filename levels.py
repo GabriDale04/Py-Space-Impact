@@ -303,7 +303,7 @@ level4 = Level(NOKIA_LIGHT, CITY_WALLPAPER, PiranhaBoss, **makeargs_enemy(3, 3, 
     Wave(1000, 5, Cockroach, **makeargs_enemy(3, 4, 2, 3))
 )
 
-level4 = Level(NOKIA_LIGHT, CITY_WALLPAPER, PiranhaBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level4 = Level(NOKIA_LIGHT, CITY_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     2000,
     Wave(1000, 5, Cockroach, **makeargs_enemy(3, 3, 0, 0))
 ).after(
