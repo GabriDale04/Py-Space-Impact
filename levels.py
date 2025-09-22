@@ -152,14 +152,14 @@ def makeargs_any(y : int = -1, **kwArgs):
 
     return args(context=game_context, x=MAP_RIGHT_BOUND, y=y, **kwArgs)
 
-def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_max : int, y : int = -1, vdir : str = -1):
-    if vdir == -1:
+def makeargs_enemy(hspeed_min : int, hspeed_max : int, vspeed_min : int, vspeed_max : int, y : int = -1, vdir : str = None, **otherArgs):
+    if vdir == None:
         vdir = random_vertical_direction()
     
     hspeed = random.randint(hspeed_min, hspeed_max)
     vspeed = random.randint(vspeed_min, vspeed_max)
 
-    return makeargs_any(y=y, horizontal_speed=hspeed, vertical_speed=vspeed, vertical_direction=vdir)
+    return makeargs_any(y=y, horizontal_speed=hspeed, vertical_speed=vspeed, vertical_direction=vdir, **otherArgs)
 
 level1 = Level(NOKIA_DARK, VOID_WALLPAPER, AlienJellyfishBoss, **makeargs_enemy(3, 3, 5, 5, MAP_TOP_BOUND, DOWN)).after(
     2000,
@@ -341,7 +341,11 @@ level4 = Level(NOKIA_LIGHT, CITY_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3,
     Wave(1000, 5, Cockroach, **makeargs_enemy(3, 4, 2, 3))
 )
 
-level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
+level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+    0,
+    Wave(0, 1, Comet, **makeargs_enemy(2, 2, 0, 0)),
+    requires_clear=False
+)
 
 level_manager = LevelManager([level1, level2, level3, level4])
 level_manager = LevelManager([level_test])

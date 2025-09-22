@@ -129,7 +129,7 @@ class Player(SpaceImpactObject):
 
     @lives.setter
     def lives(self, lives : int):
-        self._lives = lives
+        self._lives = int_b(lives)
         self.__lives_text__.set_amount(lives)
 
     @property
@@ -138,7 +138,7 @@ class Player(SpaceImpactObject):
 
     @rockets.setter
     def rockets(self, rockets : int):
-        self._rockets = rockets
+        self._rockets = int_b(rockets)
         self.__weapon_text__.set_amount(rockets)
     
     @property
@@ -147,7 +147,7 @@ class Player(SpaceImpactObject):
     
     @lasers.setter
     def lasers(self, lasers : int):
-        self._lasers = lasers
+        self._lasers = int_b(lasers)
 
     @property
     def score(self):
@@ -155,7 +155,7 @@ class Player(SpaceImpactObject):
 
     @score.setter
     def score(self, score : int):
-        self._score = score
+        self._score = int_b(score)
         self.__score_text__.set_amount(score)
 
     def update(self):
@@ -263,18 +263,18 @@ class Bouncy(SpaceImpactObject):
     def __init__(
             self,
             context : Context,
-            x : int = 0,
-            y : int = 0,
-            width : int = 0,
-            height : int = 0,
-            tag : str = None,
-            animations : list[Sprite] = [],
-            rect_color : tuple[int, int, int] = (0, 0, 0),
+            x : int,
+            y : int,
+            width : int,
+            height : int,
+            tag : str,
+            animations : list[Sprite],
+            rect_color : tuple[int, int, int],
 
-            horizontal_speed : int = 0,
-            vertical_speed : int = 0,
-            horizontal_direction : str = None,
-            vertical_direction : str = None
+            horizontal_speed : int,
+            vertical_speed : int,
+            horizontal_direction : str,
+            vertical_direction : str
         ):
 
         super().__init__(
@@ -310,12 +310,9 @@ class Bouncy(SpaceImpactObject):
             if self.rect.y + self.rect.height >= MAP_BOTTOM_BOUND:
                 self.vertical_direction = UP
 
-        if self.out_bounds():
+        if (self.rect.x <= MAP_LEFT_BOUND - self.rect.width and self.horizontal_direction == LEFT) or \
+            (self.rect.x >= MAP_RIGHT_BOUND and self.horizontal_direction == RIGHT):
             self.destroy()
-
-    def out_bounds(self) -> bool:
-        return (self.rect.x <= MAP_LEFT_BOUND - self.rect.width and self.horizontal_direction == LEFT) or \
-               (self.rect.x >= MAP_RIGHT_BOUND and self.horizontal_direction == RIGHT)
 
 class Living(Bouncy):
     def __init__(
@@ -695,6 +692,10 @@ class DroneMinion(Drone):
             y : int
         ):
 
+        self.health = DRONE_MINION_HEALTH
+        self.hit_reward = DRONE_MINION_HIT_REWARD
+        self.pop_reward = DRONE_MINION_POP_REWARD
+
         super().__init__(
             context = context, 
             x = x, 
@@ -703,10 +704,6 @@ class DroneMinion(Drone):
             vertical_speed = 0, 
             vertical_direction = UP
         )
-
-        self.health = DRONE_MINION_HEALTH
-        self.hit_reward = DRONE_MINION_HIT_REWARD
-        self.pop_reward = DRONE_MINION_POP_REWARD
 
 class Virus(Enemy):
     stop_distance = MAP_LEFT_BOUND + (WINDOW_WIDTH - MAP_LEFT_BOUND - (WINDOW_WIDTH - MAP_RIGHT_BOUND)) * (1.5 / 3)
@@ -1411,8 +1408,6 @@ class LivesText(ThemeText):
         self.set_amount(PLAYER_BASE_LIVES)
     
     def set_amount(self, value : int):
-        value = int_b(value)
-
         if value >= 0 and value <= 3:
             self.set_text("v" * value)
         else:
@@ -1437,7 +1432,7 @@ class WeaponText(ThemeText):
         self.set_amount(0)
     
     def set_amount(self, value : int):
-        self.set_text(self.weapon + str(int_b(value)).zfill(2))
+        self.set_text(self.weapon + str(value).zfill(2))
 
     def set_weapon(self, weapon : int, amount : int):
         if weapon == WEAPON_ROCKET:
@@ -1463,7 +1458,7 @@ class ScoreText(ThemeText):
         self.set_amount(PLAYER_BASE_SCORE)
 
     def set_amount(self, value : int):
-        text = str(int_b(value)).zfill(5)
+        text = str(value).zfill(5)
 
         self.set_text(text)
         self.auto_pos()
