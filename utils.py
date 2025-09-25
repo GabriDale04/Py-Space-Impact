@@ -40,5 +40,8 @@ def random_y():
 def random_vertical_direction():
     return DOWN if random.randint(0, 1) == 0 else UP
 
+def center_x(left_offset : int) -> int:
+    return MAP_LEFT_BOUND + (WINDOW_WIDTH - MAP_LEFT_BOUND - (WINDOW_WIDTH - MAP_RIGHT_BOUND)) * (1.5 / 3) + left_offset
+
 def center_y(top_offset : int) -> int:
     return MAP_TOP_BOUND + (WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND)) // 2 + top_offset

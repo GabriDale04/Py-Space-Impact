@@ -1,7 +1,7 @@
 import random
 from core import *
 from config import *
-from utils import random_y, random_vertical_direction, args
+from utils import random_y, random_vertical_direction, args, center_x
 from pygame.time import get_ticks
 from game import *
 from scene import *
@@ -262,7 +262,7 @@ level3 = Level(NOKIA_LIGHT, MOUNTAINS_WALLPAPER, PiranhaBoss, **makeargs_enemy(3
     Wave(0, 1, Drone, **makeargs_enemy(2, 2, 0, 0, y=MAP_BOTTOM_BOUND - 25 - DRONE_RECT_HEIGHT))
 ).after(
     2500,
-    Wave(0, 1, Virus, **makeargs_enemy(2, 2, 0, 0, y=(VIRUS_RECT_HEIGHT + WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND)) // 2))
+    Wave(0, 1, Virus, **makeargs_enemy(2, 2, 0, 0, y=center_y(-VIRUS_RECT_HEIGHT // 2), horizontal_stop_distance=center_x(VIRUS_RECT_WIDTH // 2)))
 )
 
 level4 = Level(NOKIA_LIGHT, CITY_WALLPAPER, PiranhaBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
@@ -341,11 +341,7 @@ level4 = Level(NOKIA_LIGHT, CITY_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3,
     Wave(1000, 5, Cockroach, **makeargs_enemy(3, 4, 2, 3))
 )
 
-level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
-    0,
-    Wave(0, 1, Comet, **makeargs_enemy(2, 2, 0, 0)),
-    requires_clear=False
-)
+level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
 
 level_manager = LevelManager([level1, level2, level3, level4])
 level_manager = LevelManager([level_test])

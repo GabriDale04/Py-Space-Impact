@@ -257,8 +257,7 @@ class Player(SpaceImpactObject):
 class Bouncy(SpaceImpactObject):
     """
     Represents a moving object that bounces between `MAP_TOP_BOUND` and `MAP_LEFT_BOUND`.\n
-    Call `self.move()` in update to make the object move every frame.\n
-    Call `self.out_bounds()` to check if the object is out of the map.
+    Call `self.move()` in update to make the object move every frame.
     """
     def __init__(
             self,
@@ -293,11 +292,25 @@ class Bouncy(SpaceImpactObject):
         self.horizontal_direction = horizontal_direction
         self.vertical_direction = vertical_direction
 
+        self.horizontal_stop_distance = BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE if horizontal_direction == RIGHT else MAP_RIGHT_BOUND - BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE
+        self.vertical_stop_speed = BOUNCY_DEFAULT_VERTICAL_STOP_SPEED
+        self.has_stopped = False
+
     def move(self):
         if self.horizontal_direction == LEFT:
             self.rect.x -= self.horizontal_speed
+
+            if not self.has_stopped and self.rect.x <= self.horizontal_stop_distance:
+                self.horizontal_speed = 0
+                self.vertical_speed = self.vertical_stop_speed
+                self.has_stopped = True
         elif self.horizontal_direction == RIGHT:
             self.rect.x += self.horizontal_speed
+
+            if not self.has_stopped and self.rect.x >= self.horizontal_stop_distance:
+                self.horizontal_speed = 0
+                self.vertical_speed = self.vertical_stop_speed
+                self.has_stopped = True
 
         if self.vertical_direction == UP:
             self.rect.y -= self.vertical_speed
@@ -313,25 +326,29 @@ class Bouncy(SpaceImpactObject):
         if (self.rect.x <= MAP_LEFT_BOUND - self.rect.width and self.horizontal_direction == LEFT) or \
             (self.rect.x >= MAP_RIGHT_BOUND and self.horizontal_direction == RIGHT):
             self.destroy()
+    
+    def set_stop_distance(self, horizontal_stop_distance : int, vertical_stop_speed : int):
+        self.horizontal_stop_distance = horizontal_stop_distance if self.horizontal_direction == RIGHT else MAP_RIGHT_BOUND - horizontal_stop_distance
+        self.vertical_stop_speed = vertical_stop_speed
 
 class Living(Bouncy):
     def __init__(
             self,
             context : Context,
-            x : int = 0,
-            y : int = 0,
-            width : int = 0,
-            height : int = 0,
-            tag : str = None,
-            animations : list[Sprite] = [],
-            rect_color : tuple[int, int, int] = (0, 0, 0),
+            x : int,
+            y : int,
+            width : int,
+            height : int,
+            tag : str,
+            animations : list[Sprite],
+            rect_color : tuple[int, int, int],
 
-            horizontal_speed : int = 0,
-            vertical_speed : int = 0,
-            horizontal_direction : str = None,
-            vertical_direction : str = None,
+            horizontal_speed : int,
+            vertical_speed : int,
+            horizontal_direction : str,
+            vertical_direction : str,
 
-            health : int = 0
+            health : int
         ):
 
         super().__init__(
@@ -433,6 +450,7 @@ class Enemy(Living):
         self.horizontal_speed = horizontal_speed
         self.vertical_speed = vertical_speed
         self.vertical_direction = vertical_direction
+
         self.hit_reward = hit_reward
         self.pop_reward = pop_reward
         self.shoot_chance = shoot_chance
@@ -489,26 +507,30 @@ class Comet(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = COMET_RECT_WIDTH,
-            height = COMET_RECT_HEIGHT,
-            animations = COMET_ANIMATIONS,
-            rect_color = COMET_RECT_COLOR,
-            animations_interval = COMET_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", COMET_RECT_WIDTH),
+            height = overrides.get("height", COMET_RECT_HEIGHT),
+            animations = overrides.get("animations", COMET_ANIMATIONS),
+            rect_color = overrides.get("rect_color", COMET_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", COMET_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = COMET_HEALTH,
-            hit_reward = COMET_HIT_REWARD,
-            pop_reward = COMET_POP_REWARD,
-            shoot_chance = COMET_SHOOT_CHANCE
+            health = overrides.get("health", COMET_HEALTH),
+            hit_reward = overrides.get("hit_reward", COMET_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", COMET_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", COMET_SHOOT_CHANCE)
         )
+
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
 
 class Shuttle(Enemy):
     def __init__(
@@ -518,26 +540,30 @@ class Shuttle(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = SHUTTLE_RECT_WIDTH,
-            height = SHUTTLE_RECT_HEIGHT,
-            animations = SHUTTLE_ANIMATIONS,
-            rect_color = SHUTTLE_RECT_COLOR,
-            animations_interval = SHUTTLE_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", SHUTTLE_RECT_WIDTH),
+            height = overrides.get("height", SHUTTLE_RECT_HEIGHT),
+            animations = overrides.get("animations", SHUTTLE_ANIMATIONS),
+            rect_color = overrides.get("rect_color", SHUTTLE_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", SHUTTLE_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = SHUTTLE_HEALTH,
-            hit_reward = SHUTTLE_HIT_REWARD,
-            pop_reward = SHUTTLE_POP_REWARD,
-            shoot_chance = SHUTTLE_SHOOT_CHANCE
+            health = overrides.get("health", SHUTTLE_HEALTH),
+            hit_reward = overrides.get("hit_reward", SHUTTLE_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", SHUTTLE_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", SHUTTLE_SHOOT_CHANCE)
         )
+
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
 
 class VShip(Enemy):
     def __init__(
@@ -547,26 +573,30 @@ class VShip(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = VSHIP_RECT_WIDTH,
-            height = VSHIP_RECT_HEIGHT,
-            animations = VSHIP_ANIMATIONS,
-            rect_color = VSHIP_RECT_COLOR,
-            animations_interval = VSHIP_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", VSHIP_RECT_WIDTH),
+            height = overrides.get("height", VSHIP_RECT_HEIGHT),
+            animations = overrides.get("animations", VSHIP_ANIMATIONS),
+            rect_color = overrides.get("rect_color", VSHIP_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", VSHIP_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = VSHIP_HEALTH,
-            hit_reward = VSHIP_HIT_REWARD,
-            pop_reward = VSHIP_POP_REWARD,
-            shoot_chance = VSHIP_SHOOT_CHANCE
+            health = overrides.get("health", VSHIP_HEALTH),
+            hit_reward = overrides.get("hit_reward", VSHIP_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", VSHIP_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", VSHIP_SHOOT_CHANCE)
         )
+
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
 
 class Rocket(Enemy):
     def __init__(
@@ -576,26 +606,30 @@ class Rocket(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = ROCKET_RECT_WIDTH,
-            height = ROCKET_RECT_HEIGHT,
-            animations = ROCKET_ANIMATIONS,
-            rect_color = ROCKET_RECT_COLOR,
-            animations_interval = ROCKET_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", ROCKET_RECT_WIDTH),
+            height = overrides.get("height", ROCKET_RECT_HEIGHT),
+            animations = overrides.get("animations", ROCKET_ANIMATIONS),
+            rect_color = overrides.get("rect_color", ROCKET_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", ROCKET_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = ROCKET_HEALTH,
-            hit_reward = ROCKET_HIT_REWARD,
-            pop_reward = ROCKET_POP_REWARD,
-            shoot_chance = ROCKET_SHOOT_CHANCE
+            health = overrides.get("health", ROCKET_HEALTH),
+            hit_reward = overrides.get("hit_reward", ROCKET_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", ROCKET_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", ROCKET_SHOOT_CHANCE)
         )
+
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
 
 class Acorn(Enemy):
     def __init__(
@@ -605,26 +639,30 @@ class Acorn(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = ACORN_RECT_WIDTH,
-            height = ACORN_RECT_HEIGHT,
-            animations = ACORN_ANIMATIONS,
-            rect_color = ACORN_RECT_COLOR,
-            animations_interval = ACORN_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", ACORN_RECT_WIDTH),
+            height = overrides.get("height", ACORN_RECT_HEIGHT),
+            animations = overrides.get("animations", ACORN_ANIMATIONS),
+            rect_color = overrides.get("rect_color", ACORN_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", ACORN_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = ACORN_HEALTH,
-            hit_reward = ACORN_HIT_REWARD,
-            pop_reward = ACORN_POP_REWARD,
-            shoot_chance = ACORN_SHOOT_CHANCE
+            health = overrides.get("health", ACORN_HEALTH),
+            hit_reward = overrides.get("hit_reward", ACORN_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", ACORN_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", ACORN_SHOOT_CHANCE)
         )
+
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
 
 class Snake(Enemy):
     def __init__(
@@ -634,26 +672,30 @@ class Snake(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = SNAKE_RECT_WIDTH,
-            height = SNAKE_RECT_HEIGHT,
-            animations = SNAKE_ANIMATIONS,
-            rect_color = SNAKE_RECT_COLOR,
-            animations_interval = SNAKE_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", SNAKE_RECT_WIDTH),
+            height = overrides.get("height", SNAKE_RECT_HEIGHT),
+            animations = overrides.get("animations", SNAKE_ANIMATIONS),
+            rect_color = overrides.get("rect_color", SNAKE_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", SNAKE_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = SNAKE_HEALTH,
-            hit_reward = SNAKE_HIT_REWARD,
-            pop_reward = SNAKE_POP_REWARD,
-            shoot_chance = SNAKE_SHOOT_CHANCE
+            health = overrides.get("health", SNAKE_HEALTH),
+            hit_reward = overrides.get("hit_reward", SNAKE_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", SNAKE_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", SNAKE_SHOOT_CHANCE)
         )
+
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
 
 class Drone(Enemy):
     def __init__(
@@ -663,51 +705,32 @@ class Drone(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = DRONE_RECT_WIDTH,
-            height = DRONE_RECT_HEIGHT,
-            animations = DRONE_ANIMATIONS,
-            rect_color = DRONE_RECT_COLOR,
-            animations_interval = DRONE_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", DRONE_RECT_WIDTH),
+            height = overrides.get("height", DRONE_RECT_HEIGHT),
+            animations = overrides.get("animations", DRONE_ANIMATIONS),
+            rect_color = overrides.get("rect_color", DRONE_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", DRONE_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = DRONE_HEALTH,
-            hit_reward = DRONE_HIT_REWARD,
-            pop_reward = DRONE_POP_REWARD,
-            shoot_chance = DRONE_SHOOT_CHANCE
+            health = overrides.get("health", DRONE_HEALTH),
+            hit_reward = overrides.get("hit_reward", DRONE_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", DRONE_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", DRONE_SHOOT_CHANCE)
         )
 
-class DroneMinion(Drone):
-    def __init__(
-            self, 
-            context : Context, 
-            x : int, 
-            y : int
-        ):
-
-        self.health = DRONE_MINION_HEALTH
-        self.hit_reward = DRONE_MINION_HIT_REWARD
-        self.pop_reward = DRONE_MINION_POP_REWARD
-
-        super().__init__(
-            context = context, 
-            x = x, 
-            y = y, 
-            horizontal_speed = 0, 
-            vertical_speed = 0, 
-            vertical_direction = UP
-        )
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
 
 class Virus(Enemy):
-    stop_distance = MAP_LEFT_BOUND + (WINDOW_WIDTH - MAP_LEFT_BOUND - (WINDOW_WIDTH - MAP_RIGHT_BOUND)) * (1.5 / 3)
-
     def __init__(
             self,
             context : Context,
@@ -715,36 +738,35 @@ class Virus(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = VIRUS_RECT_WIDTH,
-            height = VIRUS_RECT_HEIGHT,
-            animations = VIRUS_ANIMATIONS,
-            rect_color = VIRUS_RECT_COLOR,
-            animations_interval = VIRUS_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", VIRUS_RECT_WIDTH),
+            height = overrides.get("height", VIRUS_RECT_HEIGHT),
+            animations = overrides.get("animations", VIRUS_ANIMATIONS),
+            rect_color = overrides.get("rect_color", VIRUS_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", VIRUS_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = VIRUS_HEALTH,
-            hit_reward = VIRUS_HIT_REWARD,
-            pop_reward = VIRUS_POP_REWARD,
-            shoot_chance = VIRUS_SHOOT_CHANCE
+            health = overrides.get("health", VIRUS_HEALTH),
+            hit_reward = overrides.get("hit_reward", VIRUS_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", VIRUS_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", VIRUS_SHOOT_CHANCE)
         )
 
-        self.has_stopped = False
-
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
+    
     def update(self):
         super().update()
 
-        if not self.has_stopped and self.rect.x <= Virus.stop_distance:
-            self.has_stopped = True
-            self.horizontal_speed = 0
-            self.vertical_speed = 5
+        if self.has_stopped:
             self.shoot_chance = 100
 
 class Cockroach(Enemy):
@@ -755,26 +777,30 @@ class Cockroach(Enemy):
             y : int,
             horizontal_speed : int,
             vertical_speed : int,
-            vertical_direction : str
+            vertical_direction : str,
+            **overrides
         ):
 
         super().__init__(
             context = context,
             x = x,
             y = y,
-            width = COCKROACH_RECT_WIDTH,
-            height = COCKROACH_RECT_HEIGHT,
-            animations = COCKROACH_ANIMATIONS,
-            rect_color = COCKROACH_RECT_COLOR,
-            animations_interval = COCKROACH_ANIMATIONS_INTERVAL,
+            width = overrides.get("width", COCKROACH_RECT_WIDTH),
+            height = overrides.get("height", COCKROACH_RECT_HEIGHT),
+            animations = overrides.get("animations", COCKROACH_ANIMATIONS),
+            rect_color = overrides.get("rect_color", COCKROACH_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", COCKROACH_ANIMATIONS_INTERVAL),
             horizontal_speed = horizontal_speed,
             vertical_speed = vertical_speed,
             vertical_direction = vertical_direction,
-            health = COCKROACH_HEALTH,
-            hit_reward = COCKROACH_HIT_REWARD,
-            pop_reward = COCKROACH_POP_REWARD,
-            shoot_chance = COCKROACH_SHOOT_CHANCE
+            health = overrides.get("health", COCKROACH_HEALTH),
+            hit_reward = overrides.get("hit_reward", COCKROACH_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", COCKROACH_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", COCKROACH_SHOOT_CHANCE)
         )
+
+        self.set_stop_distance(overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE),
+                               overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED))
 
 class BossEnemy(Enemy):    
     def __init__(
@@ -793,9 +819,7 @@ class BossEnemy(Enemy):
             health : int,
             hit_reward : int,
             pop_reward : int,
-            shoot_chance : int,
-            vertical_speed_on_stop : int,
-            stop_distance : int = None
+            shoot_chance : int
         ):
 
         super().__init__(
@@ -813,26 +837,19 @@ class BossEnemy(Enemy):
             health = health,
             hit_reward = hit_reward,
             pop_reward = pop_reward,
-            shoot_chance=shoot_chance
+            shoot_chance = shoot_chance
         )
 
         self.blink_start_time = 0
         self.blink_duration = BOSS_ENEMY_DAMAGE_BLINK_DURATION
 
-        self.has_stopped = False
-        self.stop_distance = MAP_RIGHT_BOUND - self.rect.width - 50 if stop_distance == None else stop_distance
-        self.vertical_speed_on_stop = vertical_speed_on_stop
+        self.set_stop_distance(self.rect.width + 50, BOUNCY_DEFAULT_VERTICAL_STOP_SPEED)
 
     def update(self):
         super().update()
         
         if get_ticks() - self.blink_start_time >= self.blink_duration:
             self.hidden = False
-
-        if not self.has_stopped and self.rect.x <= self.stop_distance:
-            self.has_stopped = True
-            self.horizontal_speed = 0
-            self.vertical_speed = self.vertical_speed_on_stop
 
     def damage(self, amount):
         super().damage(amount)
@@ -867,8 +884,7 @@ class AlienJellyfishBoss(BossEnemy):
             health = ALIEN_JELLYFISH_BOSS_HEALTH,
             hit_reward = ALIEN_JELLYFISH_BOSS_HIT_REWARD,
             pop_reward = ALIEN_JELLYFISH_BOSS_POP_REWARD,
-            shoot_chance = ALIEN_JELLYFISH_BOSS_SHOOT_CHANCE,
-            vertical_speed_on_stop = ALIEN_JELLYFISH_BOSS_VERTICAL_SPEED_ON_STOP
+            shoot_chance = ALIEN_JELLYFISH_BOSS_SHOOT_CHANCE
         )
 
 class PythonBoss(BossEnemy):
@@ -897,8 +913,7 @@ class PythonBoss(BossEnemy):
             health = PYTHON_BOSS_HEALTH,
             hit_reward = PYTHON_BOSS_HIT_REWARD,
             pop_reward = PYTHON_BOSS_POP_REWARD,
-            shoot_chance = PYTHON_BOSS_SHOOT_CHANCE,
-            vertical_speed_on_stop = PYTHON_BOSS_VERTICAL_SPEED_ON_STOP
+            shoot_chance = PYTHON_BOSS_SHOOT_CHANCE
         )
 
 class PiranhaBoss(BossEnemy):
@@ -929,11 +944,8 @@ class PiranhaBoss(BossEnemy):
             health = PIRANHA_BOSS_HEALTH,
             hit_reward = PIRANHA_BOSS_HIT_REWARD,
             pop_reward = PIRANHA_BOSS_POP_REWARD,
-            shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE,
-            vertical_speed_on_stop = PIRANHA_BOSS_VERTICAL_SPEED_ON_STOP
+            shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE
         )
-
-        self.has_stopped = False
 
         self.casting = False
         self.ability_position_phase = False
@@ -1034,12 +1046,11 @@ class YotsuBoss(BossEnemy):
             health = YOTSU_BOSS_HEALTH,
             hit_reward = YOTSU_BOSS_HIT_REWARD,
             pop_reward = YOTSU_BOSS_POP_REWARD,
-            shoot_chance = YOTSU_BOSS_SHOOT_CHANCE,
-            vertical_speed_on_stop = YOTSU_BOSS_VERTICAL_SPEED_ON_STOP
+            shoot_chance = YOTSU_BOSS_SHOOT_CHANCE
         )
 
         self.ability_last_cast_time = get_ticks()
-        self.drone_minions : list[DroneMinion] = []
+        self.drone_minions : list[Drone] = []
 
     def update(self):
         super().update()
@@ -1064,10 +1075,17 @@ class YotsuBoss(BossEnemy):
         y = MAP_TOP_BOUND
 
         for _ in range(0, YOTSU_BOSS_ABILITY_DRONES_COUNT):
-            drone = DroneMinion(
+            drone = Drone(
                 context = self.context,
                 x = self.rect.x - YOTSU_BOSS_ABITITY_DRONES_OFFSET,
-                y = y              
+                y = y,
+                horizontal_speed = 0,
+                vertical_speed = 0,
+                vertical_direction = UP,
+
+                health = DRONE_MINION_HEALTH,
+                hit_reward = DRONE_MINION_HIT_REWARD,
+                pop_reward = DRONE_MINION_POP_REWARD          
             )
 
             self.drone_minions.append(drone)
