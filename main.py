@@ -9,7 +9,7 @@ from core import *
 from scene import *
 from levels import *
 
-map_bounds = pygame.Rect(MAP_LEFT_BOUND, MAP_TOP_BOUND, WINDOW_WIDTH - MAP_LEFT_BOUND - (WINDOW_WIDTH - MAP_RIGHT_BOUND), WINDOW_HEIGHT - MAP_TOP_BOUND - (WINDOW_HEIGHT - MAP_BOTTOM_BOUND))
+map_bounds = pygame.Rect(MAP_LEFT_BOUND, MAP_TOP_BOUND, MAP_GAME_FIELD_WIDTH, MAP_GAME_FIELD_HEIGHT)
 player.shield_powerup = BattleshipShield(game_context, player)
 
 running = True

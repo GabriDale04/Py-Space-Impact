@@ -341,11 +341,13 @@ level4 = Level(NOKIA_LIGHT, CITY_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3,
     Wave(1000, 5, Cockroach, **makeargs_enemy(3, 4, 2, 3))
 )
 
+level5 = Level(NOKIA_DARK, CURSED_WALLPAPER, PufferfishBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
+
 level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
     0,
     Wave(0, 1, EyeOrb, **makeargs_any(reward_kind=LASER_REWARD)),
     requires_clear=False
 )
 
-level_manager = LevelManager([level1, level2, level3, level4])
-#level_manager = LevelManager([level4])
+level_manager = LevelManager([level1, level2, level3, level4, level5])
+level_manager = LevelManager([level5])

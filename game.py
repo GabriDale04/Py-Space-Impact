@@ -115,8 +115,6 @@ class Player(SpaceImpactObject):
 
         self.flight_mode = False
         self.flight_speed = 0
-        self.flight_max_speed = PLAYER_FLIGHT_MAX_SPEED
-        self.flight_acceleration = PLAYER_FLIGHT_ACCELERATION
 
         if self.current_weapon == WEAPON_ROCKET:
             self.__weapon_text__.set_amount(PLAYER_BASE_ROCKETS)
@@ -160,7 +158,7 @@ class Player(SpaceImpactObject):
 
     def update(self):
         if self.flight_mode:
-            self.flight_speed = clamp(self.flight_speed + self.flight_acceleration, 0, self.flight_max_speed)
+            self.flight_speed = clamp(self.flight_speed + PLAYER_FLIGHT_ACCELERATION, 0, PLAYER_FLIGHT_MAX_SPEED)
             self.rect.x += self.flight_speed
             return
 
@@ -462,8 +460,7 @@ class Enemy(Living):
         self.move()
         
         if self.collide(self.__player__):
-            self.__player__.damage()
-            self.pop()
+            self.on_player_collision()
     
     def move(self):
         super().move()
@@ -494,6 +491,10 @@ class Enemy(Living):
         super().pop()
     
         self.__player__.score += self.pop_reward
+    
+    def on_player_collision(self):
+        self.__player__.damage()
+        self.pop()
 
 class Comet(Enemy):
     def __init__(
@@ -1113,6 +1114,97 @@ class YotsuBoss(BossEnemy):
                 return True
         
         return False
+
+class PufferfishBoss(BossEnemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str,
+            **overrides
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = overrides.get("width", PUFFERFISH_BOSS_RECT_WIDTH),
+            height = overrides.get("height", PUFFERFISH_BOSS_RECT_HEIGHT),
+            animations = overrides.get("animations", PUFFERFISH_BOSS_ANIMATIONS),
+            rect_color = overrides.get("rect_color", PUFFERFISH_BOSS_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", PUFFERFISH_BOSS_ANIMATIONS_INTERVAL),
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = overrides.get("health", PUFFERFISH_BOSS_HEALTH),
+            hit_reward = overrides.get("hit_reward", PUFFERFISH_BOSS_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", PUFFERFISH_BOSS_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", PUFFERFISH_BOSS_SHOOT_CHANCE)
+        )
+
+        from scene import player
+        self.__player__ = player
+
+        self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", self.horizontal_stop_distance)
+        self.vertical_stop_speed = overrides.get("vertical_stop_speed", PUFFERFISH_BOSS_VERTICAL_STOP_SPEED)
+
+        self.ability_last_cast_time = get_ticks()
+        self.is_casting = False
+        self.current_charge_velocity = 0.0
+        self.current_charge_direction = ""
+
+    def update(self):
+        super().update()
+
+        if self.has_stopped:
+            self.ability()
+    
+    def on_player_collision(self):
+        self.__player__.damage()
+
+    def ability(self):
+        if get_ticks() - self.ability_last_cast_time < PUFFERFISH_BOSS_ABILITY_COOLDOWN:
+            return
+        
+        if not self.is_casting:
+            self.is_casting = True
+            self.vertical_speed = 0
+            self.current_charge_velocity = 0.0
+            self.current_charge_direction = LEFT
+        else:
+            if self.current_charge_direction == LEFT:
+                distance_left = self.rect.x - PUFFERFISH_BOSS_ABILITY_LEFT_STOP_X
+            elif self.current_charge_direction == RIGHT:
+                distance_left = PUFFERFISH_BOSS_ABILITY_RIGHT_STOP_X - self.rect.x
+
+            stop_distance = (self.current_charge_velocity ** 2) / (2 * PUFFERFISH_BOSS_ABILITY_CHARGE_ACCELERATION)
+
+            if distance_left <= stop_distance:
+                self.current_charge_velocity = clamp(self.current_charge_velocity - PUFFERFISH_BOSS_ABILITY_CHARGE_ACCELERATION, 0, 2147483647)
+            else:
+                self.current_charge_velocity += PUFFERFISH_BOSS_ABILITY_CHARGE_ACCELERATION
+            
+            if self.current_charge_direction == LEFT:
+                self.rect.x = clamp(self.rect.x - self.current_charge_velocity, 
+                                    PUFFERFISH_BOSS_ABILITY_LEFT_STOP_X, 
+                                    2147483647)
+                
+                if self.rect.x == PUFFERFISH_BOSS_ABILITY_LEFT_STOP_X:
+                    self.current_charge_direction = RIGHT
+
+            elif self.current_charge_direction == RIGHT:
+                self.rect.x = clamp(self.rect.x + self.current_charge_velocity, 
+                                    -2147483648, 
+                                    PUFFERFISH_BOSS_ABILITY_RIGHT_STOP_X)
+                
+                if self.rect.x == PUFFERFISH_BOSS_ABILITY_RIGHT_STOP_X:
+                    self.is_casting = False
+                    self.vertical_speed = self.vertical_stop_speed
+                    self.ability_last_cast_time = get_ticks()
+
 
 class Projectile(Living):
     def __init__(
