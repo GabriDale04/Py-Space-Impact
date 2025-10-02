@@ -355,4 +355,4 @@ level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 
 )
 
 level_manager = LevelManager([level1, level2, level3, level4, level5])
-level_manager = LevelManager([level5])
+#level_manager = LevelManager([level5])

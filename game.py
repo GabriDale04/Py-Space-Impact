@@ -232,7 +232,7 @@ class Player(SpaceImpactObject):
         Laser(
             self.context,
             self.rect.x + self.rect.width + self.rect.width // 4,
-            self.rect.y
+            self.rect.y + (self.rect.height - PROJECTILE_LASER_RECT_HEIGHT) // 2
         )
 
     def fly_away(self):
