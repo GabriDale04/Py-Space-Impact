@@ -120,6 +120,8 @@ class Player(SpaceImpactObject):
             self.__weapon_text__.set_amount(PLAYER_BASE_ROCKETS)
         elif self.current_weapon == WEAPON_LASER:
             self.__weapon_text__.set_amount(PLAYER_BASE_LASERS)
+
+        self.last_shoot_time_hold = get_ticks()
     
     @property
     def lives(self):
@@ -162,12 +164,17 @@ class Player(SpaceImpactObject):
             self.rect.x += self.flight_speed
             return
 
+        if Input.getkeydown(pygame.K_e):
+            self.shoot()
+            self.last_shoot_time_hold = get_ticks()
+        elif Input.getkey(pygame.K_e) and get_ticks() - self.last_shoot_time_hold >= PLAYER_HOLD_SHOOT_DELAY:
+            self.shoot()
+            self.last_shoot_time_hold = get_ticks()
+
         if Input.getkey(pygame.K_UP):
             self.move(UP)
         if Input.getkey(pygame.K_DOWN):
             self.move(DOWN)
-        if Input.getkeydown(pygame.K_e):
-            self.shoot()
         if Input.getkeydown(pygame.K_r):
             self.weapon()
 
