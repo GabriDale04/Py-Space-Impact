@@ -799,6 +799,40 @@ class Cockroach(Enemy):
         self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE)
         self.vertical_stop_speed = overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED)
 
+class Bean(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str,
+            **overrides
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = overrides.get("width", BEAN_RECT_WIDTH),
+            height = overrides.get("height", BEAN_RECT_HEIGHT),
+            animations = overrides.get("animations", BEAN_ANIMATIONS),
+            rect_color = overrides.get("rect_color", BEAN_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", BEAN_ANIMATIONS_INTERVAL),
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = overrides.get("health", BEAN_HEALTH),
+            hit_reward = overrides.get("hit_reward", BEAN_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", BEAN_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", BEAN_SHOOT_CHANCE)
+        )
+
+        self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE)
+        self.vertical_stop_speed = overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED)
+
+
 class BossEnemy(Enemy):    
     def __init__(
             self,
@@ -969,6 +1003,10 @@ class PiranhaBoss(BossEnemy):
         if self.has_stopped:
             self.ability()
 
+    def shoot(self):
+        if not self.casting:
+            super().shoot()
+
     def ability(self):
         if not self.casting and get_ticks() - self.ability_last_cast_time > PIRANHA_BOSS_ABILITY_COOLDOWN:
             self.casting = True
@@ -1022,7 +1060,6 @@ class PiranhaBoss(BossEnemy):
 
             if self.ability_shots_done == PIRANHA_BOSS_ABILITY_SHOTS_COUNT:
                 self.vertical_speed = PIRANHA_BOSS_VERTICAL_STOP_SPEED
-                self.shoot_chance = PIRANHA_BOSS_SHOOT_CHANCE
                 self.ability_shoot_phase = False
                 self.casting = False
                 self.ability_last_cast_time = get_ticks()
@@ -1164,6 +1201,10 @@ class PufferfishBoss(BossEnemy):
     
     def on_player_collision(self):
         self.__player__.damage()
+
+    def shoot(self):
+        if not self.is_casting:
+            super().shoot()
 
     def ability(self):
         if get_ticks() - self.ability_last_cast_time < PUFFERFISH_BOSS_ABILITY_COOLDOWN:
@@ -1446,6 +1487,8 @@ class EyeOrb(Bouncy):
             elif self.reward_kind == LASER_REWARD:
                 self.__player__.lasers += EYE_ORB_LASERS_REWARD
                 self.__player__.set_weapon(WEAPON_LASER)
+            elif self.reward_kind == HEALTH_REWARD:
+                self.__player__.lives += 2
 
             self.destroy()
 
