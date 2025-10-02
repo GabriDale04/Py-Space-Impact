@@ -132,7 +132,7 @@ class LevelManager:
             player.fly_away()
             
             for projectile in game_context.find_with_tags([TAG_PROJECTILE_ENEMY, TAG_PROJECTILE_PLAYER]):
-                projectile.vertical_speed = 0    
+                projectile.vertical_speed = 0
         # When the player has flew at least three 'windows', go to next level
         elif player.flight_mode and player.rect.x >= WINDOW_WIDTH * 3:
             player.flight_mode = False
@@ -142,6 +142,9 @@ class LevelManager:
                 player.game_over()
             else:
                 player.recall()
+
+                for projectile in game_context.find_with_tags([TAG_PROJECTILE_ENEMY, TAG_PROJECTILE_PLAYER]):
+                    projectile.destroy()
 
         current_level.update()
 
