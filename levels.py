@@ -351,11 +351,17 @@ level5 = Level(NOKIA_DARK, CURSED_WALLPAPER, PufferfishBoss, **makeargs_enemy(3,
     Wave(0, 1, Shuttle, **makeargs_enemy(2, 2, 2, 2, health=30, horizontal_stop_distance=center_x(-VSHIP_RECT_WIDTH // 2))) 
 )
 
-level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, YotsuBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+level6 = Level(NOKIA_DARK, CURSED_WALLPAPER, ShellBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
+
+level7 = Level(NOKIA_LIGHT, ROAD_WALLPAPER, SquidBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
+
+level8 = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2, 2, 0, 0, y=center_y(-KRAKEN_BOSS_RECT_WIDTH // 2), horizontal_stop_distance=KRAKEN_BOSS_RECT_WIDTH))
+
+level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2, 2, 0, 0, y=center_y(-KRAKEN_BOSS_RECT_WIDTH // 2), horizontal_stop_distance=KRAKEN_BOSS_RECT_WIDTH)).after(
     0,
-    Wave(0, 1, EyeOrb, **makeargs_any(reward_kind=LASER_REWARD)),
+    Wave(0, 1, EyeOrb, **makeargs_any(y=MAP_BOTTOM_BOUND, reward_kind=LASER_REWARD)),
     requires_clear=False
 )
 
 level_manager = LevelManager([level1, level2, level3, level4, level5])
-#level_manager = LevelManager([level5])
+level_manager = LevelManager([level7])

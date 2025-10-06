@@ -301,6 +301,8 @@ class Bouncy(SpaceImpactObject):
         self.vertical_stop_speed = BOUNCY_DEFAULT_VERTICAL_STOP_SPEED
         self.has_stopped = False
 
+        self.rect.y = clamp(self.rect.y, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
+
     def move(self):
         if self.horizontal_direction == LEFT:
             self.rect.x -= self.horizontal_speed
@@ -457,8 +459,6 @@ class Enemy(Living):
         self.shoot_chance = shoot_chance
 
         self.last_shoot_time = get_ticks()
-
-        self.rect.y = clamp(self.rect.y, MAP_TOP_BOUND, MAP_BOTTOM_BOUND - self.rect.height)
     
     def update(self):
         super().update()
@@ -1189,11 +1189,11 @@ class PufferfishBoss(BossEnemy):
             shoot_chance = overrides.get("shoot_chance", PUFFERFISH_BOSS_SHOOT_CHANCE)
         )
 
-        from scene import player
-        self.__player__ = player
-
         self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", self.horizontal_stop_distance)
         self.vertical_stop_speed = overrides.get("vertical_stop_speed", PUFFERFISH_BOSS_VERTICAL_STOP_SPEED)
+
+        from scene import player
+        self.__player__ = player
 
         self.ability_last_cast_time = get_ticks()
         self.is_casting = False
@@ -1253,6 +1253,141 @@ class PufferfishBoss(BossEnemy):
                     self.vertical_speed = self.vertical_stop_speed
                     self.ability_last_cast_time = get_ticks()
 
+class ShellBoss(BossEnemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str,
+            **overrides
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = overrides.get("width", SHELL_BOSS_RECT_WIDTH),
+            height = overrides.get("height", SHELL_BOSS_RECT_HEIGHT),
+            animations = overrides.get("animations", SHELL_BOSS_ANIMATIONS),
+            rect_color = overrides.get("rect_color", SHELL_BOSS_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", SHELL_BOSS_ANIMATIONS_INTERVAL),
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = overrides.get("health", SHELL_BOSS_HEALTH),
+            hit_reward = overrides.get("hit_reward", SHELL_BOSS_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", SHELL_BOSS_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", SHELL_BOSS_SHOOT_CHANCE)
+        )
+
+        self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", self.horizontal_stop_distance)
+        self.vertical_stop_speed = overrides.get("vertical_stop_speed", SHELL_BOSS_VERTICAL_STOP_SPEED)
+
+        self.ability_last_cast_time = get_ticks()
+        self.is_casting = False
+        self.ability_last_summon_time = 0
+        self.summoned_minions_count = 0
+
+    def update(self):
+        super().update()
+
+        if self.has_stopped:
+            self.ability()
+    
+    def ability(self):
+        if get_ticks() - self.ability_last_cast_time < SHELL_BOSS_ABILITY_COOLDOWN:
+            return
+        
+        if not self.is_casting:
+            self.is_casting = True
+            self.summoned_minions_count = 0
+        else:
+            if self.summoned_minions_count < SHELL_BOSS_ABILITY_COCKROACH_MINIONS_COUNT:
+                if get_ticks() - self.ability_last_summon_time >= SHELL_BOSS_ABILITY_COCKROACH_MINIONS_SUMMON_DELAY:
+                    Cockroach(
+                        context = self.context,
+                        x = self.rect.x - COCKROACH_RECT_WIDTH // 2,
+                        y = self.rect.y + (self.rect.height - COCKROACH_RECT_HEIGHT) // 2,
+                        horizontal_speed = SHELL_BOSS_ABILITY_COCKROACH_MINION_HORIZONTAL_SPEED,
+                        vertical_speed = SHELL_BOSS_ABILITY_COCKROACH_MINION_VERTICAL_SPEED,
+                        vertical_direction = UP,
+                        health = SHELL_BOSS_ABILITY_COCKROACH_MINION_HEALTH
+                    )
+
+                    self.summoned_minions_count += 1
+                    self.ability_last_summon_time = get_ticks()
+            else:
+                self.is_casting = False
+                self.ability_last_cast_time = get_ticks()
+
+class SquidBoss(BossEnemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str,
+            **overrides
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = overrides.get("width", SQUID_BOSS_RECT_WIDTH),
+            height = overrides.get("height", SQUID_BOSS_RECT_HEIGHT),
+            animations = overrides.get("animations", SQUID_BOSS_ANIMATIONS),
+            rect_color = overrides.get("rect_color", SQUID_BOSS_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", SQUID_BOSS_ANIMATIONS_INTERVAL),
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = overrides.get("health", SQUID_BOSS_HEALTH),
+            hit_reward = overrides.get("hit_reward", SQUID_BOSS_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", SQUID_BOSS_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", SQUID_BOSS_SHOOT_CHANCE)
+        )
+
+        self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", self.horizontal_stop_distance)
+        self.vertical_stop_speed = overrides.get("vertical_stop_speed", SQUID_BOSS_VERTICAL_STOP_SPEED)
+
+class KrakenBoss(BossEnemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str,
+            **overrides
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = overrides.get("width", KRAKEN_BOSS_RECT_WIDTH),
+            height = overrides.get("height", KRAKEN_BOSS_RECT_HEIGHT),
+            animations = overrides.get("animations", KRAKEN_BOSS_ANIMATIONS),
+            rect_color = overrides.get("rect_color", KRAKEN_BOSS_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", KRAKEN_BOSS_ANIMATIONS_INTERVAL),
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = overrides.get("health", KRAKEN_BOSS_HEALTH),
+            hit_reward = overrides.get("hit_reward", KRAKEN_BOSS_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", KRAKEN_BOSS_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", KRAKEN_BOSS_SHOOT_CHANCE)
+        )
+
+        self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", self.horizontal_stop_distance)
+        self.vertical_stop_speed = overrides.get("vertical_stop_speed", KRAKEN_BOSS_VERTICAL_STOP_SPEED)
 
 class Projectile(Living):
     def __init__(
