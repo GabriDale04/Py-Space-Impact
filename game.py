@@ -244,7 +244,7 @@ class Player(SpaceImpactObject):
         self.rect.y = PLAYER_SPAWN_Y
 
     def damage(self):
-        if self.shield_powerup != None and not self.shield_powerup.destroyed and not self.flight_mode:
+        if (self.shield_powerup != None and not self.shield_powerup.destroyed) or self.flight_mode:
             return
 
         self.lives -= 1
@@ -839,7 +839,6 @@ class Bean(Enemy):
         self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE)
         self.vertical_stop_speed = overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED)
 
-
 class BossEnemy(Enemy):    
     def __init__(
             self,
@@ -1323,6 +1322,7 @@ class ShellBoss(BossEnemy):
                 self.is_casting = False
                 self.ability_last_cast_time = get_ticks()
 
+# Forgive me, code is basically the same of Pufferfish boss 🙏.
 class SquidBoss(BossEnemy):
     def __init__(
             self,
@@ -1355,6 +1355,80 @@ class SquidBoss(BossEnemy):
 
         self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", self.horizontal_stop_distance)
         self.vertical_stop_speed = overrides.get("vertical_stop_speed", SQUID_BOSS_VERTICAL_STOP_SPEED)
+
+        from scene import player
+        self.__player__ = player
+
+        self.ability_last_cast_time = get_ticks()
+        self.is_casting = False
+        self.is_retreating = False
+        self.current_charge_velocity = 0.0
+        self.current_charge_direction = ""
+
+    def update(self):
+        super().update()
+
+        if self.has_stopped:
+            self.ability()
+    
+    def on_player_collision(self):
+        self.__player__.damage()
+
+    def shoot(self):
+        if not self.is_casting:
+            super().shoot()
+
+    def ability(self):
+        if get_ticks() - self.ability_last_cast_time < SQUID_BOSS_ABILITY_COOLDOWN:
+            return
+        
+        if not self.is_casting:
+            self.is_casting = True
+            self.is_retreating = True
+            self.vertical_speed = 0
+            self.current_charge_velocity = 0.0
+            self.current_charge_direction = RIGHT
+        elif self.is_retreating:
+            self.charge(-2147483648, SQUID_BOSS_ABILITY_RETREAT_RIGHT_STOP_X)
+
+            if self.rect.x == SQUID_BOSS_ABILITY_RETREAT_RIGHT_STOP_X:
+                self.current_charge_direction = LEFT
+                self.is_retreating = False
+                self.current_charge_velocity = 40
+        else:     
+            self.charge(SQUID_BOSS_ABILITY_LEFT_STOP_X, SQUID_BOSS_ABILITY_RIGHT_STOP_X)
+
+            if self.current_charge_direction == LEFT and self.rect.x == SQUID_BOSS_ABILITY_LEFT_STOP_X:
+                self.current_charge_velocity = 0
+                self.current_charge_direction = RIGHT
+
+            elif self.current_charge_direction == RIGHT and self.rect.x == SQUID_BOSS_ABILITY_RIGHT_STOP_X:
+                self.is_casting = False
+                self.vertical_speed = self.vertical_stop_speed
+                self.ability_last_cast_time = get_ticks()
+    
+    def charge(self, left_stop_x : int, right_stop_x : int):
+            if self.current_charge_direction == LEFT:
+                distance_left = self.rect.x - left_stop_x
+            elif self.current_charge_direction == RIGHT:
+                distance_left = right_stop_x - self.rect.x
+
+            stop_distance = (self.current_charge_velocity ** 2) / (2 * SQUID_BOSS_ABILITY_CHARGE_ACCELERATION)
+
+            if distance_left <= stop_distance:
+                self.current_charge_velocity = clamp(self.current_charge_velocity - SQUID_BOSS_ABILITY_CHARGE_ACCELERATION, 0, 2147483647)
+            else:
+                self.current_charge_velocity += SQUID_BOSS_ABILITY_CHARGE_ACCELERATION
+
+            if self.current_charge_direction == LEFT:
+                self.rect.x = clamp(self.rect.x - self.current_charge_velocity, 
+                                    left_stop_x, 
+                                    2147483647)
+
+            elif self.current_charge_direction == RIGHT:
+                self.rect.x = clamp(self.rect.x + self.current_charge_velocity, 
+                                    -2147483648, 
+                                    right_stop_x)
 
 class KrakenBoss(BossEnemy):
     def __init__(
