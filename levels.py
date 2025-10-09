@@ -361,7 +361,10 @@ level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2,
     0,
     Wave(0, 1, EyeOrb, **makeargs_any(y=MAP_BOTTOM_BOUND, reward_kind=LASER_REWARD)),
     requires_clear=False
+).after(
+    0,
+    Wave(1000, 5, Star, **makeargs_enemy(2, 2, 2, 2)) 
 )
 
 level_manager = LevelManager([level1, level2, level3, level4, level5, level6, level7, level8])
-level_manager = LevelManager([level7])
+level_manager = LevelManager([level8])

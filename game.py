@@ -839,6 +839,72 @@ class Bean(Enemy):
         self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE)
         self.vertical_stop_speed = overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED)
 
+class Star(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str,
+            **overrides
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = overrides.get("width", STAR_RECT_WIDTH),
+            height = overrides.get("height", STAR_RECT_HEIGHT),
+            animations = overrides.get("animations", STAR_ANIMATIONS),
+            rect_color = overrides.get("rect_color", STAR_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", STAR_ANIMATIONS_INTERVAL),
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = overrides.get("health", STAR_HEALTH),
+            hit_reward = overrides.get("hit_reward", STAR_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", STAR_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", STAR_SHOOT_CHANCE)
+        )
+
+        self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE)
+        self.vertical_stop_speed = overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED)
+
+class Centipede(Enemy):
+    def __init__(
+            self,
+            context : Context,
+            x : int,
+            y : int,
+            horizontal_speed : int,
+            vertical_speed : int,
+            vertical_direction : str,
+            **overrides
+        ):
+
+        super().__init__(
+            context = context,
+            x = x,
+            y = y,
+            width = overrides.get("width", CENTIPEDE_RECT_WIDTH),
+            height = overrides.get("height", CENTIPEDE_RECT_HEIGHT),
+            animations = overrides.get("animations", CENTIPEDE_ANIMATIONS),
+            rect_color = overrides.get("rect_color", CENTIPEDE_RECT_COLOR),
+            animations_interval = overrides.get("animations_interval", CENTIPEDE_ANIMATIONS_INTERVAL),
+            horizontal_speed = horizontal_speed,
+            vertical_speed = vertical_speed,
+            vertical_direction = vertical_direction,
+            health = overrides.get("health", CENTIPEDE_HEALTH),
+            hit_reward = overrides.get("hit_reward", CENTIPEDE_HIT_REWARD),
+            pop_reward = overrides.get("pop_reward", CENTIPEDE_POP_REWARD),
+            shoot_chance = overrides.get("shoot_chance", CENTIPEDE_SHOOT_CHANCE)
+        )
+
+        self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", BOUNCY_DEFAULT_HORIZONTAL_STOP_DISTANCE)
+        self.vertical_stop_speed = overrides.get("vertical_stop_speed", BOUNCY_DEFAULT_VERTICAL_STOP_SPEED)
+
 class BossEnemy(Enemy):    
     def __init__(
             self,
@@ -1462,6 +1528,47 @@ class KrakenBoss(BossEnemy):
 
         self.horizontal_stop_distance = overrides.get("horizontal_stop_distance", self.horizontal_stop_distance)
         self.vertical_stop_speed = overrides.get("vertical_stop_speed", KRAKEN_BOSS_VERTICAL_STOP_SPEED)
+
+        self.is_casting = False
+        self.is_retreating = False
+        self.ability_last_cast_time = get_ticks()
+    
+    def update(self):
+        super().update()
+    
+        if self.has_stopped:
+            self.ability()
+        else:
+            self.ability_last_cast_time = get_ticks()
+
+    def ability(self):
+        if get_ticks() - self.ability_last_cast_time < KRAKEN_BOSS_ABILITY_COOLDOWN:
+            return
+        
+        if not self.is_casting:
+            self.is_casting = True
+            self.is_retreating = True
+        elif self.is_retreating:
+            self.rect.x = clamp(self.rect.x + KRAKEN_BOSS_ABILITY_RETREAT_HORIZONTAL_SPEED, -2147483648, MAP_RIGHT_BOUND + self.rect.width)
+
+            if self.rect.x == MAP_RIGHT_BOUND + self.rect.width:
+                self.is_retreating = False
+                self.horizontal_speed = KRAKEN_BOSS_ABILITY_RETURN_HORIZONTAL_SPEED
+        else:
+            for x in range(0, 3):
+                for y in range(0, 3):
+                    Centipede(
+                        context = self.context,
+                        x = MAP_RIGHT_BOUND + x + x * COCKROACH_RECT_WIDTH,
+                        y = MAP_TOP_BOUND + y + y * COCKROACH_RECT_HEIGHT,
+                        horizontal_speed = 5,
+                        vertical_speed = 0,
+                        vertical_direction = UP
+                    )
+
+            self.is_casting = False
+            self.has_stopped = False
+            self.ability_last_cast_time = get_ticks()
 
 class Projectile(Living):
     def __init__(
