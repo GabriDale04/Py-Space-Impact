@@ -351,7 +351,91 @@ level5 = Level(NOKIA_DARK, CURSED_WALLPAPER, PufferfishBoss, **makeargs_enemy(3,
     Wave(0, 1, Shuttle, **makeargs_enemy(2, 2, 2, 2, health=30, horizontal_stop_distance=center_x(-VSHIP_RECT_WIDTH // 2))) 
 )
 
-level6 = Level(NOKIA_DARK, CURSED2_WALLPAPER, ShellBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
+level6 = Level(NOKIA_DARK, CURSED2_WALLPAPER, ShellBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+    1000,
+    Wave(0, 1, VShip, **makeargs_enemy(4, 4, 0, 0, y=MAP_BOTTOM_BOUND - VSHIP_RECT_HEIGHT))
+).after(
+    1000,
+    Wave(0, 1, VShip, **makeargs_enemy(4, 4, 0, 0, y=MAP_BOTTOM_BOUND - VSHIP_RECT_HEIGHT * 2))
+).after(
+    1000,
+    Wave(0, 1, VShip, **makeargs_enemy(4, 4, 0, 0, y=MAP_BOTTOM_BOUND - VSHIP_RECT_HEIGHT * 3))
+).after(
+    1000,
+    Wave(0, 1, VShip, **makeargs_enemy(4, 4, 0, 0, y=MAP_BOTTOM_BOUND - VSHIP_RECT_HEIGHT * 4))
+).after(
+    1500,
+    Wave(1000, 3, Shuttle, **makeargs_enemy(5, 5, 4, 4))
+).after(
+    4000,
+    Wave(0, 1, VShip, **makeargs_enemy(4, 4, 0, 0, y=MAP_BOTTOM_BOUND - VSHIP_RECT_HEIGHT))
+).after(
+    1000,
+    Wave(0, 1, VShip, **makeargs_enemy(4, 4, 0, 0, y=MAP_BOTTOM_BOUND - VSHIP_RECT_HEIGHT * 2))
+).after(
+    1000,
+    Wave(0, 1, VShip, **makeargs_enemy(4, 4, 0, 0, y=MAP_BOTTOM_BOUND - VSHIP_RECT_HEIGHT * 3))
+).after(
+    1000,
+    Wave(0, 1, VShip, **makeargs_enemy(4, 4, 0, 0, y=MAP_BOTTOM_BOUND - VSHIP_RECT_HEIGHT * 4))
+).after(
+    500,
+    Wave(0, 1, EyeOrb, **makeargs_any(reward_kind=ROCKETS_REWARD)),
+    requires_clear=False
+).after(
+    5000,
+    Wave(1000, 3, Cockroach, **makeargs_enemy(3, 5, 2, 3))
+).after(
+    4000,
+    Wave(1000, 4, Acorn, **makeargs_enemy(5, 5, 0, 0))
+).after(
+    0,
+    Wave(0, 1, Acorn, **makeargs_enemy(5, 5, 1, 1))
+).after(
+    5000,
+    Wave(1000, 3, VShip, **makeargs_enemy(4, 4, 1, 1, y=MAP_TOP_BOUND + MAP_GAME_FIELD_HEIGHT // 4, vdir=DOWN))
+).after(
+    0,
+    Wave(1000, 3, VShip, **makeargs_enemy(4, 4, 1, 1, y=MAP_TOP_BOUND + MAP_GAME_FIELD_HEIGHT // 2, vdir=DOWN))
+).after(
+    4000,
+    Wave(0, 1, Cockroach, **makeargs_enemy(4, 4, 0, 0))
+).after(
+    500,
+    Wave(0, 1, EyeOrb, **makeargs_any(reward_kind=LASER_REWARD)),
+    requires_clear=False
+).after(
+    4000,
+    Wave(700, 7, Bean, **makeargs_enemy(5, 6, 3, 4))
+).after(
+    5250,
+    Wave(700, 4, Star, **makeargs_enemy(4, 4, 3, 3))
+).after(
+    3500,
+    Wave(1000, 3, Cockroach, **makeargs_enemy(4, 4, 0, 0, y=MAP_TOP_BOUND + MAP_GAME_FIELD_HEIGHT // 4 - COCKROACH_RECT_HEIGHT // 2))
+).after(
+    0,
+    Wave(1000, 3, Cockroach, **makeargs_enemy(4, 4, 0, 0, y=MAP_TOP_BOUND + MAP_GAME_FIELD_HEIGHT // 2 + COCKROACH_RECT_HEIGHT))
+).after(
+    4000,
+    Wave(0, 1, Cockroach, **makeargs_enemy(3, 4, 2, 3))
+).after(
+    1500,
+    Wave(700, 4, Star, **makeargs_enemy(4, 4, 3, 3))
+).after(
+    3250,
+    Wave(1000, 3, Cockroach, **makeargs_enemy(4, 4, 0, 0, y=MAP_TOP_BOUND + MAP_GAME_FIELD_HEIGHT // 4 - COCKROACH_RECT_HEIGHT // 2))
+).after(
+    0,
+    Wave(1000, 3, Cockroach, **makeargs_enemy(4, 4, 0, 0, y=MAP_TOP_BOUND + MAP_GAME_FIELD_HEIGHT // 2 + COCKROACH_RECT_HEIGHT))
+).after(
+    500,
+    Wave(0, 1, EyeOrb, **makeargs_any(reward_kind=ROCKETS_REWARD)),
+    requires_clear=False
+).after(
+    4500,
+    Wave(1000, 9, Shuttle, **makeargs_enemy(5, 7, 3, 5))
+)
 
 level7 = Level(NOKIA_LIGHT, ROAD_WALLPAPER, SquidBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
 
@@ -367,4 +451,4 @@ level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2,
 )
 
 level_manager = LevelManager([level1, level2, level3, level4, level5, level6, level7, level8])
-level_manager = LevelManager([level8])
+level_manager = LevelManager([level6])
