@@ -437,7 +437,52 @@ level6 = Level(NOKIA_DARK, CURSED2_WALLPAPER, ShellBoss, **makeargs_enemy(3, 3, 
     Wave(1000, 9, Shuttle, **makeargs_enemy(5, 7, 3, 5))
 )
 
-level7 = Level(NOKIA_LIGHT, ROAD_WALLPAPER, SquidBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN))
+level7 = Level(NOKIA_LIGHT, ROAD_WALLPAPER, SquidBoss, **makeargs_enemy(3, 3, 3, 3, MAP_TOP_BOUND, DOWN)).after(
+    1000,
+    Wave(1000, 3, Virus, **makeargs_enemy(4, 4, 4, 4, y=MAP_TOP_BOUND, health=1))
+).after(
+    0,
+    Wave(1000, 3, Virus, **makeargs_enemy(4, 4, 4, 4, y=MAP_BOTTOM_BOUND, health=1))
+).after(
+    3500,
+    Wave(1000, 2, Virus, **makeargs_enemy(3, 4, 1, 1, health=2))
+).after(
+    3000,
+    Wave(1000, 3, Cockroach, **makeargs_enemy(3, 4, 1, 1, y=MAP_TOP_BOUND))
+).after(
+    2000,
+    Wave(1000, 3, Cockroach, **makeargs_enemy(3, 4, 1, 1, y=MAP_BOTTOM_BOUND))
+).after(
+    2000,
+    Wave(1000, 5, Cockroach, **makeargs_enemy(3, 4, 1, 1, y=MAP_TOP_BOUND))
+).after(
+    3000,
+    Wave(1000, 2, Cockroach, **makeargs_enemy(3, 4, 1, 1, y=MAP_BOTTOM_BOUND))
+).after(
+    3000,
+    Wave(1000, 6, VShip, **makeargs_enemy(3, 3, 3, 3, y=MAP_BOTTOM_BOUND)) 
+).after(
+    1000,
+    Wave(1000, 3, VShip, **makeargs_enemy(3, 3, 0, 0, y=center_y(-VSHIP_RECT_HEIGHT // 2))) 
+).after(
+    8000,
+    Wave(0, 1, Rocket, **makeargs_enemy(7, 7, 0, 0, y=MAP_TOP_BOUND)) 
+).after(
+    0,
+    Wave(0, 1, Rocket, **makeargs_enemy(7, 7, 0, 0, y=MAP_BOTTOM_BOUND)) 
+).after(
+    1000,
+    Wave(0, 1, Rocket, **makeargs_enemy(7, 7, 0, 0, y=center_y(-ROCKET_RECT_HEIGHT // 2))) 
+).after(
+    3000,
+    Wave(1000, 6, Cockroach, **makeargs_enemy(3, 3, 3, 3, y=MAP_TOP_BOUND))
+).after(
+    7000,
+    Wave(1000, 5, Cockroach, **makeargs_enemy(3, 3, 0, 0, y=center_y(-COCKROACH_RECT_HEIGHT)))
+).after(
+    0,
+    Wave(1000, 5, Cockroach, **makeargs_enemy(3, 3, 0, 0, y=center_y(COCKROACH_RECT_HEIGHT)))
+)
 
 level8 = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2, 2, 0, 0, y=center_y(-KRAKEN_BOSS_RECT_WIDTH // 2), horizontal_stop_distance=KRAKEN_BOSS_RECT_WIDTH))
 
@@ -451,4 +496,3 @@ level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2,
 )
 
 level_manager = LevelManager([level1, level2, level3, level4, level5, level6, level7, level8])
-level_manager = LevelManager([level6])

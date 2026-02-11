@@ -562,4 +562,4 @@ HEALTH_BAR_OFFSET_Y = HEALTH_BAR_HEIGHT + 20
 HEALTH_BAR_UNDER_COLOR = (128, 128, 128)
 HEALTH_BAR_OVER_COLOR = (255, 0, 0)
 # Shows a rect representing the game field. [⚠] Use only for debugging
-DEBUG_SHOW_MAP_BOUNDS = True
+DEBUG_SHOW_MAP_BOUNDS = False
