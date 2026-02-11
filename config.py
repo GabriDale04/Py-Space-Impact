@@ -6,7 +6,7 @@ from core import Sprite, TextureAtlas, Font, Text
 
 WINDOW_WIDTH = 1140
 WINDOW_HEIGHT = 720
-WINDOW_TITLE = "スーペース・イムパクト"
+WINDOW_TITLE = "スーペース・インパクト"
 
 MAP_VERTICAL_BOUND_OFFSET = 100
 MAP_HORIZONTAL_BOUND_OFFSET = 0
