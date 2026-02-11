@@ -484,15 +484,10 @@ level7 = Level(NOKIA_LIGHT, ROAD_WALLPAPER, SquidBoss, **makeargs_enemy(3, 3, 3,
     Wave(1000, 5, Cockroach, **makeargs_enemy(3, 3, 0, 0, y=center_y(COCKROACH_RECT_HEIGHT)))
 )
 
-level8 = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2, 2, 0, 0, y=center_y(-KRAKEN_BOSS_RECT_WIDTH // 2), horizontal_stop_distance=KRAKEN_BOSS_RECT_WIDTH))
-
-level_test = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2, 2, 0, 0, y=center_y(-KRAKEN_BOSS_RECT_WIDTH // 2), horizontal_stop_distance=KRAKEN_BOSS_RECT_WIDTH)).after(
+level8 = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2, 2, 0, 0, y=center_y(-KRAKEN_BOSS_RECT_WIDTH // 2), horizontal_stop_distance=KRAKEN_BOSS_RECT_WIDTH)).after(
     0,
-    Wave(0, 1, EyeOrb, **makeargs_any(y=MAP_BOTTOM_BOUND, reward_kind=LASER_REWARD)),
-    requires_clear=False
-).after(
-    0,
-    Wave(1000, 5, Star, **makeargs_enemy(2, 2, 2, 2)) 
+    Wave(1000, 8, Cockroach, **makeargs_enemy(4, 4, 4, 4))
 )
 
 level_manager = LevelManager([level1, level2, level3, level4, level5, level6, level7, level8])
+level_manager = LevelManager([level8])
