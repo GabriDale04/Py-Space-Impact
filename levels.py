@@ -490,4 +490,3 @@ level8 = Level(NOKIA_LIGHT, ROAD2_WALLPAPER, KrakenBoss, **makeargs_enemy(2, 2, 
 )
 
 level_manager = LevelManager([level1, level2, level3, level4, level5, level6, level7, level8])
-level_manager = LevelManager([level8])
