@@ -64,37 +64,42 @@ class TextureAtlas:
 
 class Context:
     def __init__(self):
-        self.game_objects : list[GameObject] = []
+        self.game_objects : dict[str, list[GameObject]] = {}
 
     def update(self):
-        new_list = []
+        tags = list(self.game_objects.keys())
 
-        for obj in self.game_objects:
-            if not obj.destroyed:
+        for tag in tags:
+            index = 0
+            bucket = self.game_objects[tag]
+
+            while index < len(bucket):
+                obj = bucket[index]
+
+                if obj.destroyed:
+                    bucket.pop(index)
+                    continue
+
                 obj.on_render()
                 obj.update()
-                new_list.append(obj)
-
-        self.game_objects = new_list
+                index += 1
 
     def append(self, game_object : 'GameObject'):
-        self.game_objects.append(game_object)
+        bucket = self.game_objects.get(game_object.tag, None)
+
+        if bucket == None:
+            self.game_objects[game_object.tag] = [game_object]
+        else:
+            bucket.append(game_object)
 
     def find_with_tag(self, tag : str) -> list['GameObject']:
-        found : list['GameObject'] = []
-
-        for obj in self.game_objects:
-            if obj.tag == tag:
-                found.append(obj)
-        
-        return found
+        return self.game_objects.get(tag, [])
     
     def find_with_tags(self, tags : list[str]) -> list['GameObject']:
         found : list[GameObject] = []
 
-        for obj in self.game_objects:
-            if obj.tag in tags:
-                found.append(obj)
+        for tag in tags:
+            found.extend(self.find_with_tag(tag))
         
         return found
 
@@ -115,17 +120,15 @@ class GameObject:
         self.__show_rects__ = DEBUG_SHOW_RECTS
 
         self.context = context
-        context.append(self)
-
         self.rect = pygame.Rect(x, y, width, height)
         self.rect_color = rect_color
-        
+        self.sprite = sprite
         self.tag = tag
 
         self.hidden = False
         self.destroyed = False
 
-        self.sprite = sprite
+        context.append(self)
 
     def on_render(self):
         if self.__show_rects__:
