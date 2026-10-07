@@ -1630,10 +1630,10 @@ class Projectile(Living):
         if self.tag == TAG_PROJECTILE_PLAYER:
             for enemy in self.context.find_with_tags([TAG_ENEMY, TAG_PROJECTILE_ENEMY]):
                 if self.collide(enemy):
-                    enemy = cast(Enemy, enemy)
-                    enemy.damage(self.hit_damage)
+                    target = cast(Living, enemy)
+                    target.damage(self.hit_damage)
 
-                    self.destroy()
+                    self.crash(target)
         elif self.tag == TAG_PROJECTILE_ENEMY:
             if self.collide(self.__player__):
                 self.__player__.damage()
@@ -1647,6 +1647,18 @@ class Projectile(Living):
 
             if self.destroyed:
                 self.__player__.score += self.pop_reward
+
+    # This method is invoked when the projectile crashes on an Entity.
+    # Projectiles can survive hits from other projectiles depending on their health.
+    # Crash on player or an enemy always destroys it.
+    def crash(self, living : Living):
+        if isinstance(living, Projectile):
+            self.health -= living.hit_damage
+        else:
+            self.destroy()
+        
+        if self.health <= 0:
+            self.destroy()
 
 class Pew(Projectile):
     def __init__(
